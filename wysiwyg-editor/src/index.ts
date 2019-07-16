@@ -2,12 +2,12 @@ import {
   JupyterFrontEnd, JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 
-import ActiveMarkdownTools from './MarkdownEditor';
+import MarkdownEditorTool from './MarkdownEditor';
 
 import '../style/index.css';
 import { INotebookTools } from '@jupyterlab/notebook';
 function activateMarkdownTest(app: JupyterFrontEnd, nbTools: INotebookTools) {
-  nbTools.addItem({tool: new ActiveMarkdownTools(app)});
+  nbTools.addItem({tool: new MarkdownEditorTool(app)});
   
   console.log("ayy");
 }
