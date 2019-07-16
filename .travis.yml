@@ -2,3 +2,9 @@ language: node_js
 node_js:
 - "node"
 
+install:
+- bash ./scripts/travis_install.sh
+script:
+- bash ./scripts/travis_script.sh
+after_success:
+- bash ./scripts/travis_after_success.sh
