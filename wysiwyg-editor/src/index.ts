@@ -3,7 +3,10 @@ import {
 } from '@jupyterlab/application';
 
 import '../style/index.css';
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker,
+  //  NotebookActions, 
+  //  NotebookPanel 
+  } from '@jupyterlab/notebook';
 import ProseMirrorEditor from './ProsemirrorWidget';
 import { MarkdownCell } from '@jupyterlab/cells';
 import {
@@ -13,16 +16,31 @@ import {
 
 function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker) {
 
+  // nbTracker.activeCellChanged.connect(() => {
+  //   const activeCell = nbTracker.activeCell;
+  //   if (activeCell instanceof MarkdownCell) {
+  //     console.log("The active cell is now markdown.");
+  //     const markdownCell = activeCell;
+  //     const widget = new ProseMirrorEditor(markdownCell);
+  //     markdownCell.inputArea.renderInput(widget);
+  // }
+  // });
+
   nbTracker.activeCellChanged.connect(() => {
-    const activeCell = nbTracker.activeCell;
-    if (activeCell instanceof MarkdownCell) {
-      console.log("The active cell is now markdown.");
-      const markdownCell = activeCell;
-      const widget = new ProseMirrorEditor(markdownCell);
-      markdownCell.inputArea.renderInput(widget);
-  }
-  });
-  
+    console.log(nbTracker.activeCell);
+    if (nbTracker.activeCell) {
+      nbTracker.activeCell.node.addEventListener('dblclick', (event: Event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (nbTracker.activeCell instanceof MarkdownCell) {
+              const markdownCell = nbTracker.activeCell;
+              const widget = new ProseMirrorEditor(markdownCell);
+              markdownCell.inputArea.renderInput(widget);     
+      }});
+    }
+
+  })
+
   createRunCommand(app, nbTracker);
 }
 
@@ -35,7 +53,9 @@ function createRunCommand(app: JupyterFrontEnd, nbTracker: INotebookTracker) {
       const activeCellInputArea = (activeCellPanel.layout as PanelLayout).widgets[1];
       const activeCellProsemirrorEditor = (activeCellInputArea.layout as PanelLayout).widgets[2];
       (activeCellProsemirrorEditor as ProseMirrorEditor).runCommand();
-      console.log(nbTracker.activeCell);
+      // NotebookActions.run((nbTracker.currentWidget as NotebookPanel).content);
+      // console.log(app.commands);
+      // console.log(nbTracker.activeCell);
     }
   });
 
