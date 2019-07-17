@@ -974,7 +974,7 @@
         "signature": "84a560d6656a6dab76637cc9fe5cceb86ea8461878804eeb974929431838b2b7"
       },
       "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/src/prosemirrorwidget.ts": {
-        "version": "34534dadb53312d74c06ad8ad920cd356b10272a2b77a0b546969ee69f5173e2",
+        "version": "04422bb37e175e06189579589e700453a4b3ef15eb935f8edc40309b1597dd2c",
         "signature": "eedab228bca7c3bb7ccae3c44c0b1439679bd5652b843dd3921c519a3bccb6e4"
       },
       "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/node_modules/@jupyterlab/services/lib/index.d.ts": {
@@ -4633,8 +4633,8 @@
       "/users/dlam12/node_modules/@jupyterlab/notebook/lib/modestatus.d.ts",
       "/users/dlam12/node_modules/@jupyterlab/notebook/lib/truststatus.d.ts",
       "/users/dlam12/node_modules/@jupyterlab/notebook/lib/index.d.ts",
-      "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/src/prosemirrorwidget.ts",
-      "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/src/index.ts"
+      "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/src/index.ts",
+      "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/src/prosemirrorwidget.ts"
     ]
   },
   "version": "3.5.3"

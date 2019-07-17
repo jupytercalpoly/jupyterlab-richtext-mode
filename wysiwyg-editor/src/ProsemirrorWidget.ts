@@ -78,20 +78,18 @@ export default class ProseMirrorEditor extends Widget {
      * an update request to the cell and thus rendering the Markdown.
      *
      */
-    public runCommand() {
+    public runCommand(): void {
 
         const source = (Markdown as any).defaultMarkdownSerializer.serialize(
             this._view.state.doc
           );
 
         if (source.trim() === this._model.value.text.trim()) {
-            this._cell.rendered = true;
-            console.log("This is the same!");
+            this._cell.update();
             return ;
         }
 
           this._model.value.text = source;
-          
           
     }
 
