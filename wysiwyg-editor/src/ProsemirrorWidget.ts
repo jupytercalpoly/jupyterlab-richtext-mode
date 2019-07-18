@@ -90,7 +90,7 @@ export default class ProseMirrorEditor extends Widget {
         }
 
           this._model.value.text = source;
-          
+
     }
 
   /**

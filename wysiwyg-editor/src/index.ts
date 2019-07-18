@@ -27,7 +27,7 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
   // });
 
   nbTracker.activeCellChanged.connect(() => {
-    console.log(nbTracker.activeCell);
+    // console.log(nbTracker.activeCell);
     if (nbTracker.activeCell) {
       nbTracker.activeCell.node.addEventListener('dblclick', (event: Event) => {
             event.preventDefault();
@@ -46,24 +46,40 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
 
 function createRunCommand(app: JupyterFrontEnd, nbTracker: INotebookTracker) {
 
-  const runCommand = "rich-text:run-markdown-cell";
-  app.commands.addCommand(runCommand, {
+  const ctrlRunCommand = "rich-text:run-markdown-cell";
+  app.commands.addCommand(ctrlRunCommand, {
     execute: () => {
       const activeCellPanel = (nbTracker.activeCell.layout as PanelLayout).widgets[1];
       const activeCellInputArea = (activeCellPanel.layout as PanelLayout).widgets[1];
       const activeCellProsemirrorEditor = (activeCellInputArea.layout as PanelLayout).widgets[2];
       (activeCellProsemirrorEditor as ProseMirrorEditor).runCommand();
+    }
+  })
+
+  const shiftRunCommand = "rich-text:run-markdown-cell-and-advance";
+  app.commands.addCommand(shiftRunCommand, {
+    execute: () => {
+      app.commands.execute("rich-text:run-markdown-cell")
+      app.commands.execute("notebook:run-cell-and-select-next");
       // NotebookActions.run((nbTracker.currentWidget as NotebookPanel).content);
-      // console.log(app.commands);
+      console.log(app.commands);
       // console.log(nbTracker.activeCell);
     }
   });
 
   app.commands.addKeyBinding({
-    command: runCommand,
+    command: shiftRunCommand,
     keys: ["Shift Enter"],
     selector: '.header'
   });
+
+  app.commands.addKeyBinding({
+    command: ctrlRunCommand,
+    keys: ["Ctrl Enter"],
+    selector: '.header'
+  });
+
+
 }
 
 /**

@@ -974,7 +974,7 @@
         "signature": "84a560d6656a6dab76637cc9fe5cceb86ea8461878804eeb974929431838b2b7"
       },
       "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/src/prosemirrorwidget.ts": {
-        "version": "04422bb37e175e06189579589e700453a4b3ef15eb935f8edc40309b1597dd2c",
+        "version": "596bac7c0dabb7028d4350d6f3890c62bcccb70bdf161d2ac288fb135a2b8354",
         "signature": "eedab228bca7c3bb7ccae3c44c0b1439679bd5652b843dd3921c519a3bccb6e4"
       },
       "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/node_modules/@jupyterlab/services/lib/index.d.ts": {
@@ -1146,7 +1146,7 @@
         "signature": "ff141b87b0eed0d137aae5046faa83b485a7e46e09fc78aa4ac5bda1e96bb6df"
       },
       "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/src/index.ts": {
-        "version": "aed3ad76b8c9955ac5e26ad3d4c131d36454d2a1efc6ef5b39e5d68f9d2298fb",
+        "version": "10a3a2a41bed41569be47e8a84755501f8d7400a73418a721bade2a580b9b00a",
         "signature": "51468e28247cc5b21ba92c9ed8e19d2ea3dc469460250a974d46846c21afc48b"
       }
     },
@@ -4591,6 +4591,7 @@
       "/users/dlam12/node_modules/@jupyterlab/cells/lib/collapser.d.ts",
       "/users/dlam12/node_modules/@jupyterlab/cells/lib/placeholder.d.ts",
       "/users/dlam12/node_modules/@jupyterlab/cells/lib/index.d.ts",
+      "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/src/prosemirrorwidget.ts",
       "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/node_modules/@jupyterlab/services/lib/index.d.ts",
       "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/node_modules/@jupyterlab/application/lib/tokens.d.ts",
       "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/node_modules/@jupyterlab/application/lib/connectionlost.d.ts",
@@ -4633,8 +4634,7 @@
       "/users/dlam12/node_modules/@jupyterlab/notebook/lib/modestatus.d.ts",
       "/users/dlam12/node_modules/@jupyterlab/notebook/lib/truststatus.d.ts",
       "/users/dlam12/node_modules/@jupyterlab/notebook/lib/index.d.ts",
-      "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/src/index.ts",
-      "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/src/prosemirrorwidget.ts"
+      "/users/dlam12/documents/jupyter-projects/richtext-mode/jupyterlab-richtext-mode/wysiwyg-editor/src/index.ts"
     ]
   },
   "version": "3.5.3"
