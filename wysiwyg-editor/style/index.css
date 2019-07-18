@@ -1,5 +1,11 @@
 .header {
     width: 100%;
     padding: 5px;
-    border: 1px solid grey;
+    border: var(--jp-border-width) solid var(--jp-cell-editor-border-color);
+    cursor: text;
+    /* border-radius: 0px;
+    
+    background: var(--jp-cell-editor-background);
+    cursor: text;
+    padding: var(--jp-code-padding); */
 }
