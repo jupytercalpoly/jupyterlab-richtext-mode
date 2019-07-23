@@ -1,7 +1,8 @@
-import {EditorState} from "prosemirror-state"
+import {EditorState, Transaction} from "prosemirror-state"
 import {EditorView} from "prosemirror-view"
 import {
-    Widget
+    Widget,
+    PanelLayout
 } from "@phosphor/widgets";
 import {keymap} from "prosemirror-keymap"
 import {baseKeymap} from "prosemirror-commands"
@@ -10,6 +11,19 @@ import { MarkdownCell, MarkdownCellModel } from '@jupyterlab/cells';
 import {
     Message
 } from '@phosphor/messaging';
+import {
+    ReactWidget
+} from '@jupyterlab/apputils';
+import RichTextMenu from './RichTextMenu';
+import React from 'react';
+//@ts-ignore
+import {exampleSetup} from "prosemirror-example-setup"
+// import { INotebookTracker } from "@jupyterlab/notebook";
+// import { schema } from './prosemirror-schema';
+// import { schema } from 'prosemirror-schema-basic';
+
+
+
 
 export default class ProseMirrorEditor extends Widget {
 
@@ -33,6 +47,17 @@ export default class ProseMirrorEditor extends Widget {
      */
     private _cell: MarkdownCell;
 
+    // /**
+    //  * The schema of the ProseMirror editor.
+    //  */
+    // private _schema: Schema;
+
+    /**
+     * The menu widget.
+     * 
+     */
+    private _menu: Widget;
+
     /**
      *  Creates a Prosemirror text editor and attaches it to the widget's node. 
      * @param model Should replace with an IOption object at some point, but takes in Markdown cell model for updating.
@@ -40,7 +65,19 @@ export default class ProseMirrorEditor extends Widget {
      */
     constructor(cell: MarkdownCell) {
         super();
-        this.addClass("header");
+        // nbTracker.activeCellChanged.connect(() => {
+        //     if (nbTracker.activeCell !== this._cell) {
+        //         this._menu.dispose();
+        //     }
+        //     else {
+        //         const cellHeader = (this._cell.layout as PanelLayout).widgets[0].node;
+        //         this._menu = ReactWidget.create(<RichTextMenu view={this._view} />);
+        //         cellHeader.classList.add("header");
+        
+        //         Widget.attach(this._menu, cellHeader);
+        //     }
+        // })
+        this.addClass("editor");
 
         this._cell = cell;
         this._model = (cell.model as MarkdownCellModel);
@@ -48,6 +85,9 @@ export default class ProseMirrorEditor extends Widget {
         let source = this._model.toJSON().source;
         // console.log(source);
         this._wrapper = document.createElement("div");
+        console.log(source);
+
+
         this._view = new EditorView(this._wrapper, {
         state: EditorState.create({
             doc: (Markdown as any).defaultMarkdownParser.parse(
@@ -58,17 +98,23 @@ export default class ProseMirrorEditor extends Widget {
             ]
         })
         });
-       
+
         this.node.appendChild(this._wrapper);
+        
+        // Get cell header
+        const cellHeader = (this._cell.layout as PanelLayout).widgets[0].node;
+        this._menu = ReactWidget.create(<RichTextMenu view={this._view} />);
+        cellHeader.classList.add("header");
+
+        Widget.attach(this._menu, cellHeader);
 
         this._model.contentChanged.connect(() => {
-            console.log('changed!');
             this._cell.update();
         }) 
-        // console.log(this._view);
         
 
     }  
+
 
     /**
      * The execute function for the 'Shift Enter' command for the ProseMirror editor. 
@@ -79,7 +125,7 @@ export default class ProseMirrorEditor extends Widget {
      *
      */
     public runCommand(): void {
-
+        console.log(this._view.state.doc);
         const source = (Markdown as any).defaultMarkdownSerializer.serialize(
             this._view.state.doc
           );
@@ -90,6 +136,7 @@ export default class ProseMirrorEditor extends Widget {
         }
 
           this._model.value.text = source;
+
 
     }
 
@@ -131,6 +178,7 @@ export default class ProseMirrorEditor extends Widget {
   protected onAfterAttach(msg: Message): void {
       super.onAfterAttach(msg);
       let node = this.node;
+
       node.addEventListener('dblclick', this);
   }
 }

@@ -15,7 +15,8 @@
   "author": "Derek Lam",
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
-    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
+    "static/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -33,13 +34,14 @@
   "dependencies": {
     "@jupyterlab/application": "^1.0.1",
     "@jupyterlab/mainmenu": "^1.0.1",
-    "@types/node": "^12.6.8",
+    "@types/immutable": "^3.8.7",
     "@types/prosemirror-commands": "^1.0.1",
     "@types/prosemirror-keymap": "^1.0.1",
     "@types/prosemirror-markdown": "^1.0.2",
     "@types/prosemirror-schema-basic": "^1.0.1",
     "@types/prosemirror-schema-list": "^1.0.1",
     "@types/prosemirror-state": "^1.2.3",
+    "jupyterlab": "^0.17.5",
     "perf_hooks": "0.0.1",
     "prosemirror-commands": "^1.0.8",
     "prosemirror-example-setup": "^1.0.1",
@@ -50,6 +52,7 @@
     "prosemirror-view": "^1.9.11"
   },
   "devDependencies": {
+    "@types/node": "^12.6.8",
     "rimraf": "^2.6.1",
     "typescript": "~3.5.2"
   },
