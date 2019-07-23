@@ -3,15 +3,29 @@ import MenuItem from './MenuItem';
 import { toggleMark } from "prosemirror-commands";
 
 import { EditorView } from 'prosemirror-view';
-export default class RichTextMenu extends React.Component<{view: EditorView}, {activeMarks: string[]}> {
+import { Mark } from 'prosemirror-model';
+import * as scripts from './prosemirror-scripts';
+import { Transaction } from "prosemirror-state";
+export default class RichTextMenu extends React.Component<{view: EditorView}, {activeMarks: string[], selectionMarks: Mark[]}> {
 
     constructor(props: any) {
         super(props);
         this.state = {
-            activeMarks: []
+            activeMarks: [],
+            selectionMarks: []
         }
         this.toggleCommands = this.toggleCommands.bind(this);
         this.toggleState = this.toggleState.bind(this);
+        let that = this;
+        this.props.view.setProps({
+            state: this.props.view.state,
+            dispatchTransaction(transaction: Transaction) {
+                // console.log(scripts.getMarksForSelection(transaction));
+                that.setState({activeMarks: scripts.getMarksForSelection(transaction).map(mark => mark.type.name)});
+                const newState = that.props.view.state.apply(transaction);
+                that.props.view.updateState(newState);
+            }
+        })
     }
 
     toggleCommands(e: React.SyntheticEvent) {
@@ -24,11 +38,11 @@ export default class RichTextMenu extends React.Component<{view: EditorView}, {a
         console.log(command);
         console.log(e.target);
         switch (command) {
-            case "bold":
+            case "strong":
                 console.log(schema.marks.strong);
                 toggleMark(schema.marks.strong)(view.state, view.dispatch);
                 break;
-            case "italic":
+            case "em":
                 console.log(schema.marks.em);
                 toggleMark(schema.marks.em)(view.state, view.dispatch);
                 break;
@@ -52,7 +66,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView}, {a
 
     render() {
         
-        const formats = ["bold", "italic"];
+        const formats = ["strong", "em"];
 
         return (
             <div className="menu">

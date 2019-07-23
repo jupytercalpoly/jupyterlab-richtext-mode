@@ -1,4 +1,4 @@
-import {EditorState, Transaction} from "prosemirror-state"
+import {EditorState} from "prosemirror-state"
 import {EditorView} from "prosemirror-view"
 import {
     Widget,
@@ -18,6 +18,8 @@ import RichTextMenu from './RichTextMenu';
 import React from 'react';
 //@ts-ignore
 import {exampleSetup} from "prosemirror-example-setup"
+// import * as scripts from "./prosemirror-scripts"
+
 // import { INotebookTracker } from "@jupyterlab/notebook";
 // import { schema } from './prosemirror-schema';
 // import { schema } from 'prosemirror-schema-basic';
@@ -83,7 +85,6 @@ export default class ProseMirrorEditor extends Widget {
         this._model = (cell.model as MarkdownCellModel);
 
         let source = this._model.toJSON().source;
-        // console.log(source);
         this._wrapper = document.createElement("div");
         console.log(source);
 
@@ -98,7 +99,7 @@ export default class ProseMirrorEditor extends Widget {
             ]
         })
         });
-
+        console.log(this._view.state.schema);
         this.node.appendChild(this._wrapper);
         
         // Get cell header

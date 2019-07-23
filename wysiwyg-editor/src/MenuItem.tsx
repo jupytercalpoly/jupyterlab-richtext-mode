@@ -11,10 +11,10 @@ export default class MenuItem extends React.Component<{format: string, active: b
     getImgSrc() {
         let format = this.props.format;
         switch (format) {
-            case "bold":
-                return require("../static/scribe-format-bold.svg");
-            case "italic":
-                return require("../static/scribe-format-italic.svg");
+            case "strong":
+                return require("../static/scribe-format-strong.svg");
+            case "em":
+                return require("../static/scribe-format-em.svg");
             default:
                 break;
         }
