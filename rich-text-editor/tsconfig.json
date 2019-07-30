@@ -20,5 +20,5 @@
     "target": "es2017",
     "types": ["node"]
   },
-  "include": ["src/*", "src/prosemirror/ProseMirrorEditor.ts", "src/prosemirror/prosemirror-scripts.ts", "src/prosemirror/prosemirror-schema.ts"]
+  "include": ["src/*", "src/prosemirror/*"]
 }
