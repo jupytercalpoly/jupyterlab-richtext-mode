@@ -86,7 +86,8 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
           // }
 
           prosemirrorWidget.show();
-          prosemirrorWidget.renderMenu((activeCell.editor as ProseMirrorEditor).view);
+          prosemirrorWidget.renderMenu((activeCell.editor as ProseMirrorEditor).view,
+                                        activeCell.model);
         }
         else {
           prosemirrorWidget.hide();

@@ -10,6 +10,8 @@ import * as scripts from './prosemirror/prosemirror-scripts';
 import { Transaction, 
     // EditorState 
 } from "prosemirror-state";
+import { CodeEditor } from '@jupyterlab/codeeditor';
+import * as Markdown from "./prosemirror/markdown";
 // import { Schema } from 'prosemirror-model';
 // import { keymap } from 'prosemirror-keymap';
 // import { runInThisContext } from 'vm';
@@ -20,7 +22,8 @@ import { Transaction,
  * @props view - The EditorView for the editor, used for catching transactions.
  * @state activeMarks - 
  */
-export default class RichTextMenu extends React.Component<{view: EditorView}, {activeMarks: string[]}> {
+export default class RichTextMenu extends React.Component<{view: EditorView, 
+    model: CodeEditor.IModel}, {activeMarks: string[]}> {
 
     constructor(props: any) {
         super(props);
@@ -44,6 +47,12 @@ export default class RichTextMenu extends React.Component<{view: EditorView}, {a
              * @param transaction - The state transaction generated upon interaction w/ editor.
              */
             dispatchTransaction(transaction: Transaction) {
+                console.log(transaction);
+                let serializer = Markdown.serializer;
+
+                const source = serializer.serialize(transaction.doc);
+
+                that.props.model.value.text = source;
                 if (!transaction.storedMarksSet) {
                     let marks = scripts.getMarksForSelection(transaction);
                     that.setState({activeMarks: marks.map(mark => mark.type.name)});

@@ -8,7 +8,7 @@ import { EditorView } from "prosemirror-view";
 import * as Markdown from '../prosemirror/markdown';
 import {keymap} from "prosemirror-keymap";
 import {baseKeymap} from "prosemirror-commands";
-import { Transaction } from "prosemirror-state";
+// import { Transaction } from "prosemirror-state";
 /**
  * The height of a line in the editor.
  */
@@ -353,21 +353,21 @@ namespace Private {
                     keymap(baseKeymap)
                 ]
             }),
-            dispatchTransaction(transaction: Transaction) {
-                console.log(transaction);
-                // model.value.insert(0, "ayy lmao");
-                // console.log(model.value.text);
-                let serializer = Markdown.serializer;
+            // dispatchTransaction(transaction: Transaction) {
+            //     console.log(transaction);
+            //     // model.value.insert(0, "ayy lmao");
+            //     // console.log(model.value.text);
+            //     let serializer = Markdown.serializer;
 
-                const source = serializer.serialize(
-                    transaction.doc
-                );
-                console.log(source);
+            //     const source = serializer.serialize(
+            //         transaction.doc
+            //     );
+            //     console.log(source);
 
-                model.value.text = source;
-                view.updateState(view.state.apply(transaction));
+            //     model.value.text = source;
+            //     view.updateState(view.state.apply(transaction));
                 
-            }
+            // }
         });
         return view;
     }

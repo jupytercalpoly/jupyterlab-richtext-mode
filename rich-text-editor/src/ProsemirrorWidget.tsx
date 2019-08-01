@@ -97,7 +97,7 @@ export default class ProseMirrorWidget extends Widget {
 
         // Get cell header
         const cellHeader = (this._cell.layout as PanelLayout).widgets[0].node;
-        this._menu = ReactWidget.create(<RichTextMenu view={this._view} />);
+        this._menu = ReactWidget.create(<RichTextMenu view={this._view} model={this._model} />);
         cellHeader.classList.add("header");
 
         Widget.attach(this._menu, cellHeader);

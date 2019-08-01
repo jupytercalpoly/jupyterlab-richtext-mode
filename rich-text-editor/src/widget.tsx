@@ -3,6 +3,7 @@ import { EditorView } from "prosemirror-view";
 import React from 'react';
 import ReactDOM from 'react-dom';
 import RichTextMenu from "./RichTextMenu";
+import { CodeEditor } from "@jupyterlab/codeeditor";
 
 export class ProsemirrorWidget extends Widget {
 
@@ -12,7 +13,7 @@ export class ProsemirrorWidget extends Widget {
         super();
     }
 
-    renderMenu(view: EditorView<any>) {
-        ReactDOM.render(<RichTextMenu view={view} />, this.node);
+    renderMenu(view: EditorView<any>, model: CodeEditor.IModel) {
+        ReactDOM.render(<RichTextMenu view={view} model={model}/>, this.node);
     }
 }
