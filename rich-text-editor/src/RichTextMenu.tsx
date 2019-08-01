@@ -36,6 +36,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         this.toggleState = this.toggleState.bind(this);
         let that = this;
         let state = this.props.view.state;
+        console.log(state.selection);
         this.props.view.setProps({
             state,
             /**
@@ -48,21 +49,33 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
              * @param transaction - The state transaction generated upon interaction w/ editor.
              */
             dispatchTransaction(transaction: Transaction) {
-                console.log(transaction);
+                // console.log(this.state.storedMarks);
+                // console.log(transaction.selection.$from.parent);
+                // console.log(transaction.selection.$from.parentOffset);
+                // console.log(transaction.selection.$from.marks());
+                let newState = that.props.view.state.apply(transaction);
+                // that.props.view.updateState(newState);
+                // console.log(transaction.storedMarks);
                 let serializer = Markdown.serializer;
 
                 const source = serializer.serialize(transaction.doc);
 
                 that.props.model.value.text = source;
                 if (!transaction.storedMarksSet) {
-                    let marks = scripts.getMarksForSelection(transaction);
+                    let parent = transaction.selection.$from.parent;
+                    let parentOffset = transaction.selection.$from.parentOffset;
+                    let marks = scripts.getMarksForSelection(transaction, newState);
                     that.setState({activeMarks: marks.map(mark => mark.type.name)});
-                    transaction = transaction.setStoredMarks(marks); /** Important that setStoredMarks is used as opposed 
-                                                                        to manually toggling marks as that will infinitely
-                                                                        create transactions and inevitably error.
-                                                                        */ 
+                    
+                    if (parent.type.name === "paragraph" && parentOffset === 0) {
+                        transaction = transaction.setStoredMarks(marks); /** Important that setStoredMarks is used as opposed 
+                        to manually toggling marks as that will infinitely
+                        create transactions and inevitably error.
+                        */ 
+                    }
+
                 }
-                const newState = that.props.view.state.apply(transaction);
+                newState = that.props.view.state.apply(transaction);
                 that.props.view.updateState(newState);
             }
         })

@@ -958,8 +958,8 @@
         "signature": "ea826b2688767a711e9df7cd7544d7cd30c7078df8ab088ef15cbb0494f2c61d"
       },
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/src/prosemirror/prosemirror-scripts.ts": {
-        "version": "52e5f38dce8586b3de800716aa2ef9eb20ef96f8348a0053bc7ba2103376f74b",
-        "signature": "ae83708d80fee34e1f6e44e3df560a5f87e2f6fb7f11db0f9a22e4b8e33353e2"
+        "version": "05a87fd195109bd1b3bebcb59093b71394be2402df8ed9707cef309fa9c56e04",
+        "signature": "9b9d793bffe43f476f01ac63a75d9b192f23265f3f46387e785d24ed75c36bda"
       },
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/node_modules/@jupyterlab/codeeditor/lib/index.d.ts": {
         "version": "f2535a01907d8162ab7a6f7f6135c540a7effcbc48ab6f12859cccdbfe26748b",
@@ -1026,7 +1026,7 @@
         "signature": "e3069296c1ebe7e23dfa44a9ec0d3e65fa7433071c709adc87b6b29803d46805"
       },
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/src/richtextmenu.tsx": {
-        "version": "4bf2e395d9c55c93a71438aeb595c084413dad65361dc7425044ff2e3ab6c8dd",
+        "version": "18b8bcbe9d9f3cd99205b176f9156f02b6cd1ad6bb9c2ecb7e412c8d1afbfd0b",
         "signature": "c3a6bf1bd2a53cb08802874e14153fc9f1bc7f473930616d9a906e1d3b3cf4d4"
       },
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/src/prosemirrorwidget.tsx": {
@@ -1226,11 +1226,11 @@
         "signature": "5fe76ea99187e695f2e7ee00ddb0c9db41b217397ade188b8a137504728f687f"
       },
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/src/widget.tsx": {
-        "version": "01d0cc575dabf9fee1f0e0add19532bb5790b43cac0f80f6b283a8b900c1eab0",
+        "version": "ce931084104087f21ae4312febee919285e93a875210a675d7d9ec572f398a11",
         "signature": "51a5e8f4b51f1cd1e0ab06d726d8c28cd4468488006748febfb293797986c9f6"
       },
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/src/index.tsx": {
-        "version": "c43e5c080cdf8c188f63c0e6620524cc3d0e47407006d4d2f100de2ef4ef440a",
+        "version": "9315206959d4e616b3ebc099d61058536b47113c2b27100935d5f85fe37bd261",
         "signature": "c4fddde8ca2be896263c08764a87de496a45a52fb600e96b9f744ebcc7a2514e"
       },
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/node_modules/@types/node/globals.d.ts": {
@@ -7124,7 +7124,6 @@
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/node_modules/@types/prosemirror-markdown/index.d.ts",
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/src/prosemirror/prosemirror-schema.ts",
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/src/prosemirror/markdown.ts",
-      "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/src/richtextmenu.tsx",
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/src/prosemirrorwidget.tsx",
       "/users/dlam12/node_modules/@jupyterlab/notebook/node_modules/@phosphor/signaling/lib/index.d.ts",
       "/users/dlam12/node_modules/@jupyterlab/notebook/node_modules/@phosphor/coreutils/lib/index.d.ts",
@@ -7174,6 +7173,7 @@
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/node_modules/@jupyterlab/application/lib/router.d.ts",
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/node_modules/@jupyterlab/application/lib/index.d.ts",
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/node_modules/@types/react-dom/index.d.ts",
+      "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/src/widget.tsx",
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/src/index.tsx",
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/node_modules/@types/node/globals.d.ts",
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/node_modules/@types/node/assert.d.ts",
@@ -7219,7 +7219,7 @@
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/node_modules/@types/node/ts3.2/util.d.ts",
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/node_modules/@types/node/ts3.2/globals.d.ts",
       "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/node_modules/@types/node/ts3.2/index.d.ts",
-      "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/src/widget.tsx"
+      "/users/dlam12/documents/jupyter-projects/rich-text-mode/jupyterlab-richtext-mode/rich-text-editor/src/richtextmenu.tsx"
     ]
   },
   "version": "3.5.3"

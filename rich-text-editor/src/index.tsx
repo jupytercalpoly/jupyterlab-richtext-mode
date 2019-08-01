@@ -86,6 +86,7 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
 
           prosemirrorWidget.show();
           prosemirrorWidget.renderMenu(activeCell);
+
         }
         else {
           prosemirrorWidget.hide();
