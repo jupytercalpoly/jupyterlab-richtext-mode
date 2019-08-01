@@ -30,12 +30,12 @@ import * as Markdown from './prosemirror/markdown';
 
 
 
-export default class ProseMirrorEditor extends Widget {
+export default class ProseMirrorWidget extends Widget {
 
     /**
      * The editor itself.
      */
-    private _view: EditorView<any>;
+    public _view: EditorView<any>;
 
     /**
      * The 'div' element that wraps around the editor.

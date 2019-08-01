@@ -4,6 +4,8 @@ import { NotebookPanel,
 import { Cell, 
     MarkdownCell
  } from "@jupyterlab/cells";
+ import { CodeEditor } from "@jupyterlab/codeeditor";
+ import { ProseMirrorEditor } from "./prosemirror/ProseMirrorEditor";
 
 export default class ContentFactoryEditor extends NotebookPanel.ContentFactory {
     constructor(options?: Cell.ContentFactory.IOptions | undefined) {
@@ -21,10 +23,14 @@ export default class ContentFactoryEditor extends NotebookPanel.ContentFactory {
         options: MarkdownCell.IOptions,
         parent: StaticNotebook
       ): MarkdownCell {
-          console.log(options.contentFactory);
-        if (!options.contentFactory) {
-            options.contentFactory = this;
-        }
+        let proseMirrorEditor = (options: CodeEditor.IOptions) => {
+            return new ProseMirrorEditor(options);
+          }
+        let newContentFactory = new ContentFactoryEditor({editorFactory: proseMirrorEditor})
+          
+
+        options.contentFactory = newContentFactory;
+        console.log(options.contentFactory);
         
         return new MarkdownCell(options).initializeState();
       }

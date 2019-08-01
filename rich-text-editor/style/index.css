@@ -1,4 +1,4 @@
-.editor {
+/* .editor {
     width: 100%;
     padding: 5px;
     border: var(--jp-border-width) solid var(--jp-cell-editor-border-color);
@@ -8,11 +8,10 @@
     background: var(--jp-cell-editor-background);
     cursor: text;
     padding: var(--jp-code-padding); */
-}
+
 
 .menu {
     width: 100%;
-    border: 1px solid black;
     display: flex;
     justify-content: flex-start;
 
@@ -43,4 +42,13 @@ strong {
 code {
     background-color: #eee;
     padding: 0 3px;
+}
+
+.jp-ScribeMenuIcon {
+    background-image: url("../static/scribe-menu-icon.svg");
+}
+
+.jp-ProseMirror {
+    padding: var(--jp-code-padding) var(--jp-code-padding);
+    cursor: text;
 }

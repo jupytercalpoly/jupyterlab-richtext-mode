@@ -1,8 +1,8 @@
 import React from 'react';
 import MenuItem from './MenuItem';
-import { toggleMark, 
-    // baseKeymap 
-} from "prosemirror-commands";
+// import { toggleMark, 
+//     // baseKeymap 
+// } from "prosemirror-commands";
 
 import { EditorView } from 'prosemirror-view';
 // import { Mark } from 'prosemirror-model';
@@ -32,19 +32,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView}, {a
         this.toggleState = this.toggleState.bind(this);
         let that = this;
         let state = this.props.view.state;
-        this.props.view.setProps({ // This might be the entry point to adding more marks. Use the doc's schema to create a new one?
+        this.props.view.setProps({
             state,
-            // state: EditorState.create({
-            //     schema: new Schema({
-            //         nodes: state.schema.spec.nodes,
-            //         marks: state.schema.spec.marks.addBefore("strong", "underline", {
-            //             parseDOM: [{tag: "u"}],
-            //             toDOM() { return ["u", 0]}
-            //           })
-            //     }),
-            //     doc: state.doc,
-            //     plugins: [keymap(baseKeymap)]
-            // }),
             /**
              * Handles a transaction before it is applied to the editor state.
              * 
@@ -67,8 +56,6 @@ export default class RichTextMenu extends React.Component<{view: EditorView}, {a
                 that.props.view.updateState(newState);
             }
         })
-        // console.log(this.props.view.state.schema.spec.marks);
-        // console.log(this.props.view.state.schema);
     }
 
     /**
@@ -83,9 +70,9 @@ export default class RichTextMenu extends React.Component<{view: EditorView}, {a
         e.preventDefault();
         this.props.view.focus();
         const command = (e.target as HTMLImageElement).id;
-        console.log("in it");
-        console.log(command);
-        console.log(e.target);
+        // console.log("in it");
+        // console.log(command);
+        // console.log(e.target);
         this.toggleCommand(command);
         this.toggleState(command);
         
@@ -102,22 +89,22 @@ export default class RichTextMenu extends React.Component<{view: EditorView}, {a
         switch (command) {
             case "strong":
                 console.log(schema.marks.strong);
-                toggleMark(schema.marks.strong)(view.state, view.dispatch);
+                scripts.toggleMark(schema.marks.strong)(view.state, view.dispatch);
                 break;
             case "em":
                 console.log(schema.marks.em);
-                toggleMark(schema.marks.em)(view.state, view.dispatch);
+                scripts.toggleMark(schema.marks.em)(view.state, view.dispatch);
                 break;
             case "underline":
                 console.log(schema.marks.underline);
-                toggleMark(schema.marks.underline)(view.state, view.dispatch);
+                scripts.toggleMark(schema.marks.underline)(view.state, view.dispatch);
                 break;
             case "code":
                 console.log(schema.marks.code);
-                toggleMark(schema.marks.code)(view.state, view.dispatch);
+                scripts.toggleMark(schema.marks.code)(view.state, view.dispatch);
                 break;
             case "strikethrough":
-                toggleMark(schema.marks.strikethrough)(view.state, view.dispatch);
+                scripts.toggleMark(schema.marks.strikethrough)(view.state, view.dispatch);
                 break;
             default: 
                 break;

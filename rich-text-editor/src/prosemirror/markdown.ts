@@ -31,6 +31,7 @@ export const parser = new Markdown.MarkdownParser(schema, markdownit("commonmark
     strikethrough: {mark: "strikethrough"}
 });
 
+
 export const serializer = new Markdown.MarkdownSerializer({
     blockquote(state, node) {
       state.wrapBlock("> ", null, node, () => state.renderContent(node))
@@ -103,7 +104,8 @@ export const serializer = new Markdown.MarkdownSerializer({
     code: {open(_state: Markdown.MarkdownSerializerState, mark: Mark, parent: Fragment, index: number) { return backticksFor(parent.child(index), -1) },
            close(_state: Markdown.MarkdownSerializerState, mark: Mark, parent: Fragment, index: number) { return backticksFor(parent.child(index - 1), 1) },
            escape: false},
-    strikethrough: {open: "~~", close: "~~", mixable: false, expelEnclosingWhitepsace: true}
+    underline: {open: "<u>", close: "</u>", mixable: true, expelEnclosingWhitepsace: true},
+    strikethrough: {open: "~~", close: "~~", mixable: true, expelEnclosingWhitepsace: true}
   })
 
   //@ts-ignore

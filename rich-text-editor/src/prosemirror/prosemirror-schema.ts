@@ -155,8 +155,8 @@ export const schema = new Schema({
     },
 
     underline: {
-      parseDOM: [{tag: "span", style:"text-decoration: underline"}],
-      toDOM() { return ["span", {style: "text-decoration: underline"}]}
+      parseDOM: [{tag: "u"}],
+      toDOM() { return ["u"]}
     },
 
     strikethrough: {
