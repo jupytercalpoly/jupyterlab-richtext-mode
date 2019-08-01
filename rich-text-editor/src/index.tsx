@@ -18,7 +18,7 @@ import { MarkdownCell } from '@jupyterlab/cells';
 import ContentFactoryEditor from './factory';
 // import { CodeEditor } from '@jupyterlab/codeeditor';
 // import ProseMirrorWidget from './ProsemirrorWidget';
-import { ProseMirrorEditor } from './prosemirror/ProseMirrorEditor';
+// import { ProseMirrorEditor } from './prosemirror/ProseMirrorEditor';
 
 // import { ReactWidget } from "@jupyterlab/apputils";
 // import {EditorState} from "prosemirror-state"
@@ -58,7 +58,6 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
   // });
 
 
-
   nbTracker.currentChanged.connect(() => {
     let prosemirrorWidget = new ProsemirrorWidget();
     nbTracker.currentWidget.toolbar.insertAfter("cellType", "rich-text-menu", prosemirrorWidget);
@@ -86,8 +85,7 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
           // }
 
           prosemirrorWidget.show();
-          prosemirrorWidget.renderMenu((activeCell.editor as ProseMirrorEditor).view,
-                                        activeCell.model);
+          prosemirrorWidget.renderMenu(activeCell);
         }
         else {
           prosemirrorWidget.hide();

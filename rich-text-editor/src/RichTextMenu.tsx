@@ -26,6 +26,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
     model: CodeEditor.IModel}, {activeMarks: string[]}> {
 
     constructor(props: any) {
+        console.log("Rich text menu created!");
         super(props);
         this.state = {
             activeMarks: []

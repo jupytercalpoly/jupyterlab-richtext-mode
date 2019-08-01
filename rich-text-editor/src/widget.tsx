@@ -1,9 +1,10 @@
 import { Widget } from "@phosphor/widgets";
-import { EditorView } from "prosemirror-view";
+import { Cell } from "@jupyterlab/cells";
 import React from 'react';
 import ReactDOM from 'react-dom';
 import RichTextMenu from "./RichTextMenu";
-import { CodeEditor } from "@jupyterlab/codeeditor";
+import { ProseMirrorEditor } from "./prosemirror/ProseMirrorEditor";
+
 
 export class ProsemirrorWidget extends Widget {
 
@@ -13,7 +14,9 @@ export class ProsemirrorWidget extends Widget {
         super();
     }
 
-    renderMenu(view: EditorView<any>, model: CodeEditor.IModel) {
-        ReactDOM.render(<RichTextMenu view={view} model={model}/>, this.node);
+    renderMenu(activeCell: Cell) {
+        let view = (activeCell.editor as ProseMirrorEditor).view;
+        let model = activeCell.model;
+        ReactDOM.render(<RichTextMenu view={view} model={model} key={activeCell.model.id}/>, this.node);
     }
 }
