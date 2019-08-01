@@ -99,13 +99,13 @@ export function toggleMark(markType: MarkType) {
         if (from.marksAcross(to).includes(mark)) {
             for (let i = from.pos + 1; i < to.pos + 1; i++) {
                 if (doc.resolve(i).parent.type.isTextblock && 
-                !doc.resolve(i).marks().includes(mark)) {
+                !doc.resolve(i).marks().includes(mark) &&
+                doc.resolve(i).parent.textContent) {
 
                     return true;
                 }
             }
             return false;
-    
         } else {
             return true;
         }

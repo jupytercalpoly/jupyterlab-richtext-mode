@@ -49,15 +49,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
              * @param transaction - The state transaction generated upon interaction w/ editor.
              */
             dispatchTransaction(transaction: Transaction) {
-                // console.log(this.state.storedMarks);
-                // console.log(transaction.selection.$from.parent);
-                // console.log(transaction.selection.$from.parentOffset);
-                // console.log(transaction.selection.$from.marks());
                 let newState = that.props.view.state.apply(transaction);
-                // that.props.view.updateState(newState);
-                // console.log(transaction.storedMarks);
                 let serializer = Markdown.serializer;
-
                 const source = serializer.serialize(transaction.doc);
 
                 that.props.model.value.text = source;
@@ -67,7 +60,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                     let marks = scripts.getMarksForSelection(transaction, newState);
                     that.setState({activeMarks: marks.map(mark => mark.type.name)});
                     
-                    if (parent.type.name === "paragraph" && parentOffset === 0) {
+                    if (parent.type.name === "paragraph" && parentOffset === 0) {// This is to handle formatting continuity.
                         transaction = transaction.setStoredMarks(marks); /** Important that setStoredMarks is used as opposed 
                         to manually toggling marks as that will infinitely
                         create transactions and inevitably error.
@@ -111,19 +104,15 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         const schema = view.state.schema;
         switch (command) {
             case "strong":
-                console.log(schema.marks.strong);
                 scripts.toggleMark(schema.marks.strong)(view.state, view.dispatch);
                 break;
             case "em":
-                console.log(schema.marks.em);
                 scripts.toggleMark(schema.marks.em)(view.state, view.dispatch);
                 break;
             case "underline":
-                console.log(schema.marks.underline);
                 scripts.toggleMark(schema.marks.underline)(view.state, view.dispatch);
                 break;
             case "code":
-                console.log(schema.marks.code);
                 scripts.toggleMark(schema.marks.code)(view.state, view.dispatch);
                 break;
             case "strikethrough":
