@@ -21,15 +21,17 @@ export const parser = new Markdown.MarkdownParser(schema, markdownit("commonmark
     hardbreak: {node: "hard_break"},
   
     em: {mark: "em"},
-    strong: {mark: "strong"},
+    strong: {mark: "strong", escaped: false},
     link: {mark: "link", getAttrs: (tok: any) => ({
       href: tok.attrGet("href"),
       title: tok.attrGet("title") || null
     })},        
     code_inline: {mark: "code"},
-    underline: {mark: "underline"},
-    strikethrough: {mark: "strikethrough"}
+    ins: {mark: "underline"},
+    s: {mark: "strikethrough"}
+
 });
+
 
 
 export const serializer = new Markdown.MarkdownSerializer({
@@ -101,11 +103,10 @@ export const serializer = new Markdown.MarkdownSerializer({
           : "](" + _state.esc(mark.attrs.href) + (mark.attrs.title ? " " + _state.quote(mark.attrs.title) : "") + ")"
       }
     },
-    code: {open(_state: Markdown.MarkdownSerializerState, mark: Mark, parent: Fragment, index: number) { return backticksFor(parent.child(index), -1) },
-           close(_state: Markdown.MarkdownSerializerState, mark: Mark, parent: Fragment, index: number) { return backticksFor(parent.child(index - 1), 1) },
-           escape: false},
-    underline: {open: "<u>", close: "</u>", mixable: true, expelEnclosingWhitepsace: true},
-    strikethrough: {open: "~~", close: "~~", mixable: true, expelEnclosingWhitepsace: true}
+    underline: {open: "<ins>", close: "<ins>", mixable: true, expelEnclosingWhitespace: true},
+    strikethrough: {open: "~~", close: "~~", mixable: true, expelEnclosingWhitespace: true},
+    code: {open: "`", close: "`", mixable: true, expelEnclosingWhitespace: true}
+
   })
 
   //@ts-ignore

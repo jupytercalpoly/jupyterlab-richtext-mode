@@ -29,7 +29,6 @@ import ContentFactoryEditor from './factory';
 // import RichTextMenu from "./RichTextMenu";
 // import React from 'react';
 import { ProsemirrorWidget } from './widget';
-const MD = require('markdown-it')();
 
 //@ts-ignore
 function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker) {
@@ -37,11 +36,10 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
   nbTracker.currentChanged.connect(() => {
     let prosemirrorWidget = new ProsemirrorWidget();
     nbTracker.currentWidget.toolbar.insertAfter("cellType", "rich-text-menu", prosemirrorWidget);
-    console.log(MD.render('# markdown-it rulezz!'));
     nbTracker.activeCellChanged.connect(() => {
       let activeCell = nbTracker.activeCell;
   
-        if (activeCell instanceof MarkdownCell) { // Adds menu as a left panel.
+        if (activeCell instanceof MarkdownCell) { 
           prosemirrorWidget.show();
           prosemirrorWidget.renderMenu(activeCell);
         }

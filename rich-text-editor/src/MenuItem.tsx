@@ -28,6 +28,8 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 return require("../static/scribe-format-code.svg");
             case "strikethrough":
                 return require("../static/scribe-format-strikethrough.svg");
+            case "blockquote":
+                return require("../static/scribe-format-blockquote.svg");
             default:
                 break;
         }

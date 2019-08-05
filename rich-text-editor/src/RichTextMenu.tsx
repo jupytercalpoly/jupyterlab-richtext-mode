@@ -12,6 +12,7 @@ import { Transaction,
 } from "prosemirror-state";
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import * as Markdown from "./prosemirror/markdown";
+import {  wrapIn } from 'prosemirror-commands';
 // import { Schema } from 'prosemirror-model';
 // import { keymap } from 'prosemirror-keymap';
 // import { runInThisContext } from 'vm';
@@ -36,7 +37,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         this.toggleState = this.toggleState.bind(this);
         let that = this;
         let state = this.props.view.state;
-        console.log(state.selection);
+        console.log(state.doc);
+        // console.log(state.selection);
         this.props.view.setProps({
             state,
             /**
@@ -49,9 +51,13 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
              * @param transaction - The state transaction generated upon interaction w/ editor.
              */
             dispatchTransaction(transaction: Transaction) {
+                
                 let newState = that.props.view.state.apply(transaction);
                 let serializer = Markdown.serializer;
-                const source = serializer.serialize(transaction.doc);
+                let source = serializer.serialize(transaction.doc);
+                
+                
+                // console.log(source);
 
                 that.props.model.value.text = source;
                 if (!transaction.storedMarksSet) {
@@ -69,6 +75,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
 
                 }
                 newState = that.props.view.state.apply(transaction);
+                console.log(newState.doc);
                 that.props.view.updateState(newState);
             }
         })
@@ -118,6 +125,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             case "strikethrough":
                 scripts.toggleMark(schema.marks.strikethrough)(view.state, view.dispatch);
                 break;
+            case "blockquote":
+                wrapIn(schema.nodes.blockquote)(view.state, view.dispatch);
             default: 
                 break;
         };
@@ -145,7 +154,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
      */
     render() {
         
-        const formats = ["strong", "em", "underline", "strikethrough", "code"];
+        const formats = ["strong", "em", "underline", "strikethrough", "code", "blockquote"];
 
         return (
             <div className="menu">

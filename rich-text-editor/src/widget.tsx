@@ -17,6 +17,7 @@ export class ProsemirrorWidget extends Widget {
     renderMenu(activeCell: Cell) {
         let view = (activeCell.editor as ProseMirrorEditor).view;
         let model = activeCell.model;
+        // console.log(activeCell.model.id);
         ReactDOM.render(<RichTextMenu view={view} model={model} key={activeCell.model.id}/>, this.node);
     }
 }

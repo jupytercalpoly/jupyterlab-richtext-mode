@@ -1,7 +1,7 @@
 import { Transaction, EditorState,
 
 } from "prosemirror-state";
-import { Mark, MarkType, ResolvedPos, Node } from "prosemirror-model";
+import { Mark, MarkType, ResolvedPos, Node, Schema } from "prosemirror-model";
 
 /**
  * Obtains the marks for the currently active selection.
@@ -14,11 +14,7 @@ import { Mark, MarkType, ResolvedPos, Node } from "prosemirror-model";
  */
 export function getMarksForSelection(transaction: Transaction, state: EditorState): Mark[] {
     let selection = transaction.selection;
-    console.log(selection.from);
-    // console.log(selection);
-    // console.log(selection.content().content);
-    // console.log(transaction.doc.resolve(selection.from - 1));
-    // console.log(transaction.selection.$from.nodeBefore);
+    // console.log(selection.from);
 
     if (!selection.empty) { // Non-empty selection
 
@@ -62,11 +58,12 @@ function getMarksBefore(state: EditorState) {
     let prev = 1;
     // console.log(from.marksAcross(selection.$to));
     while (!from.marksAcross(selection.$to)) {
+        if (from.pos === 0) {
+            return [];
+        }
         prev++;
         from = doc.resolve(selection.from - prev);
-        // console.log(from.marksAcross(selection.$to));
     }
-
 
     return from.marksAcross(selection.$to);
 //     let prev = 0;
@@ -85,8 +82,8 @@ function getMarksBefore(state: EditorState) {
 //         return node.marks;
 //     }    
 // }
-
 };
+
 /**
  * Toggles the given mark.
  */
@@ -114,15 +111,18 @@ export function toggleMark(markType: MarkType) {
         
     return (state: EditorState, dispatch: (tr: Transaction) => void) => {
         // If the selection is empty, toggle in storedMarks.
-
+        // TODO: Check to see if marks are even allowed to be added!
         if (dispatch) {
             if (state.selection.empty) {
                 let marks = getMarksBefore(state);
-                if (marks && marks.includes(mark)) {
+                console.log(marks);
+                console.log(state.storedMarks);
+                if (marks && (marks.includes(mark) || (state.storedMarks ? state.storedMarks.includes(mark) : false))) {
+                    console.log(`removing stored mark ${mark}`);
                     dispatch(state.tr.removeStoredMark(mark));
                 }
                 else {
-                    console.log("adding stored mark");
+                    console.log(`adding stored mark ${mark}`);
                     dispatch(state.tr.addStoredMark(mark));
                 }
             }
@@ -131,11 +131,11 @@ export function toggleMark(markType: MarkType) {
                 let selection = state.selection;
                 // console.log(selection);
                 if (canAddMark(selection.$from, selection.$to, state.doc)) {
-                    console.log("adding mark");
+                    console.log(`adding mark ${mark}`);
                     dispatch(state.tr.addMark(selection.from, selection.to, mark).scrollIntoView());
                 }
                 else {
-                    console.log("removing mark");
+                    console.log(`removing mark ${mark}`);
                     dispatch(state.tr.removeMark(selection.from, selection.to, mark).scrollIntoView());
                 }
             }
@@ -145,4 +145,24 @@ export function toggleMark(markType: MarkType) {
 
         return true;
     }
+}
+
+export function toggleBlockQuote() {
+    
+}
+
+export function buildKeymap(schema: Schema) {
+
+
+    let keys: KeyObject = {};
+    
+    keys["Mod-b"] = toggleMark(schema.marks.strong);
+    keys["Mod-B"] = toggleMark(schema.marks.strong);
+    keys["Mod-i"] = toggleMark(schema.marks.em);
+    keys["Mod-I"] = toggleMark(schema.marks.em);
+    return keys;
+}
+
+interface KeyObject {
+    [key: string]: (state: EditorState, dispatch: (tr: Transaction) => void) => boolean;
 }

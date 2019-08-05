@@ -168,6 +168,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
     // }
   }
 
+
   revealPosition(position: CodeEditor.IPosition): void {
 
   }
@@ -350,7 +351,8 @@ namespace Private {
                     initValue
                 ),
                 plugins: [
-                    keymap(baseKeymap)
+                    keymap(baseKeymap),
+                    keymap()
                 ]
             }),
             // dispatchTransaction(transaction: Transaction) {
@@ -369,6 +371,7 @@ namespace Private {
                 
             // }
         });
+        console.log(view.state.schema);
         return view;
     }
 }

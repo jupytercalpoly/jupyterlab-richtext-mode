@@ -10,7 +10,6 @@ import { Cell,
 export default class ContentFactoryEditor extends NotebookPanel.ContentFactory {
     constructor(options?: Cell.ContentFactory.IOptions | undefined) {
         super(options);
-        console.log(this.editorFactory);
         
     }
 
@@ -27,8 +26,6 @@ export default class ContentFactoryEditor extends NotebookPanel.ContentFactory {
             return new ProseMirrorEditor(options);
           }
         let newContentFactory = new ContentFactoryEditor({editorFactory: proseMirrorEditor})
-          
-
         options.contentFactory = newContentFactory;
         console.log(options.contentFactory);
         

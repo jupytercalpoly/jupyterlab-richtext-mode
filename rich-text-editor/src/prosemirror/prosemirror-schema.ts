@@ -148,20 +148,18 @@ export const schema = new Schema({
       }}],
       toDOM(node) { return ["a", node.attrs] }
     },
-
+    
+    strikethrough: {
+      parseDOM: [{tag: "del"}],
+      toDOM() { return ["del"]}
+    },
+    underline: {
+      parseDOM: [{tag: "ins"}],
+      toDOM() { return ["ins"]}
+    },
     code: {
       parseDOM: [{tag: "code"}],
       toDOM() { return ["code"] }
-    },
-
-    underline: {
-      parseDOM: [{tag: "u"}],
-      toDOM() { return ["u"]}
-    },
-
-    strikethrough: {
-      parseDOM: [{tag: "del"}],
-      toDOM() { return ["del", 0]}
     }
   }
 })
