@@ -32,6 +32,7 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
       nbTracker.activeCell.node.addEventListener('dblclick', (event: Event) => {
             event.preventDefault();
             event.stopPropagation();
+            console.log("event handled!!");
             if (nbTracker.activeCell instanceof MarkdownCell) {
               const markdownCell = nbTracker.activeCell;
               const widget = new ProseMirrorEditor(markdownCell);
@@ -42,6 +43,7 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
   })
 
   createRunCommand(app, nbTracker);
+
 }
 
 function createRunCommand(app: JupyterFrontEnd, nbTracker: INotebookTracker) {
@@ -70,13 +72,13 @@ function createRunCommand(app: JupyterFrontEnd, nbTracker: INotebookTracker) {
   app.commands.addKeyBinding({
     command: shiftRunCommand,
     keys: ["Shift Enter"],
-    selector: '.header'
+    selector: '.editor'
   });
 
   app.commands.addKeyBinding({
     command: ctrlRunCommand,
     keys: ["Ctrl Enter"],
-    selector: '.header'
+    selector: '.editor'
   });
 
 
