@@ -352,7 +352,6 @@ namespace Private {
                 ),
                 plugins: [
                     keymap(baseKeymap),
-                    keymap()
                 ]
             }),
             // dispatchTransaction(transaction: Transaction) {

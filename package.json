@@ -26,6 +26,7 @@
     "url": "https://github.com/djupytercalpoly/jupyterlab-richtext-mode.git"
   },
   "scripts": {
+    "test": "jest",
     "build": "tsc",
     "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
     "prepare": "npm run clean && npm run build",
@@ -34,17 +35,14 @@
   "dependencies": {
     "@jupyterlab/application": "^1.0.1",
     "@jupyterlab/mainmenu": "^1.0.1",
-    "@types/immutable": "^3.8.7",
+    "@jupyterlab/notebook": "^1.0.2",
+    "@jupyterlab/cells": "^1.0.2",
     "@types/prosemirror-commands": "^1.0.1",
     "@types/prosemirror-keymap": "^1.0.1",
     "@types/prosemirror-markdown": "^1.0.2",
     "@types/prosemirror-schema-basic": "^1.0.1",
     "@types/prosemirror-schema-list": "^1.0.1",
     "@types/prosemirror-state": "^1.2.3",
-    "@types/react-dom": "^16.8.5",
-    "jupyterlab": "^0.17.5",
-    "markdown-it": "^9.0.1",
-    "perf_hooks": "0.0.1",
     "prosemirror-commands": "^1.0.8",
     "prosemirror-example-setup": "^1.0.1",
     "prosemirror-keymap": "^1.0.1",
@@ -52,12 +50,20 @@
     "prosemirror-schema-basic": "^1.0.1",
     "prosemirror-state": "^1.2.3",
     "prosemirror-view": "^1.9.11",
-    "react-dom": "^16.8.6"
+    "markdown-it": "^9.0.1",
+    "react": "~16.8.4",
+    "react-dom": "~16.8.5",
+    "@types/react-dom": "^16.8.5"
   },
   "devDependencies": {
-    "@types/node": "^12.6.8",
     "rimraf": "^2.6.1",
-    "typescript": "~3.5.2"
+    "typescript": "~3.5.2",
+    "@types/node": "^12.6.8"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.ts"
+    }
   },
   "sideEffects": [
     "style/*.css"

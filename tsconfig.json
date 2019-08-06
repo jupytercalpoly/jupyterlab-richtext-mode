@@ -20,5 +20,8 @@
     "target": "es2017",
     "types": ["node"]
   },
-  "include": ["src/*", "src/prosemirror/*"]
+  "include": [
+    "src/*",
+    "src/prosemirror/*"
+  ]
 }
