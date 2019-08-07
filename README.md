@@ -1,18 +1,12 @@
-# wyswiwyg-editor
-
+# jupyter-scribe
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jupytercalpoly/jupyterlab-richtext-mode/master?urlpath=lab/tree/notebooks/Demo.ipynb)
 
-A WYSIWYG editor for Markdown cells in JupyterLab.
+An extension that transforms Markdown cells into rich text-editing cells, powered by ProseMirror.
 
 ## Requirements
 
-* JupyterLab >= 0.30.0 
+* JupyterLab >= 1.0.0
 
-## Install
-
-```bash
-jupyter labextension install wyswiwyg-editor
-```
 
 ## Contributing
 
@@ -46,9 +40,4 @@ jlpm watch
 jupyter lab --watch
 ```
 
-### Uninstall
-
-```bash
-jupyter labextension uninstall wyswiwyg-editor
-```
 
