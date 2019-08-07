@@ -1,7 +1,7 @@
 {
-  "name": "wyswiwyg-editor",
+  "name": "jupyter-scribe",
   "version": "0.1.0",
-  "description": "A WYSIWYG editor for Markdown cells in JupyterLab.",
+  "description": "An extension that transforms Markdown cells into rich text-editing cells, powered by ProseMirror.",
   "keywords": [
     "jupyter",
     "jupyterlab",
@@ -23,10 +23,9 @@
   "style": "style/index.css",
   "repository": {
     "type": "git",
-    "url": "https://github.com/djupytercalpoly/jupyterlab-richtext-mode.git"
+    "url": "https://github.com/jupytercalpoly/jupyterlab-richtext-mode.git"
   },
   "scripts": {
-    "test": "jest",
     "build": "tsc",
     "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
     "prepare": "npm run clean && npm run build",
@@ -59,11 +58,6 @@
     "rimraf": "^2.6.1",
     "typescript": "~3.5.2",
     "@types/node": "^12.6.8"
-  },
-  "jest": {
-    "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.ts"
-    }
   },
   "sideEffects": [
     "style/*.css"
