@@ -1,1 +1,1 @@
-pip install jupyterlab -U
+jupyterlab>=1.0.4
