@@ -9,6 +9,14 @@
     cursor: text;
     padding: var(--jp-code-padding); */
 
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Material Icons'),
+        local('MaterialIcons-Regular'),
+        url(./MaterialIcons-Regular.ttf) format('truetype');
+}
 
 .menu {
     width: 100%;
@@ -34,6 +42,32 @@
     background-color: grey;
 }
 
+.material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 21px;  /* Preferred icon size */
+    display: inline-block;
+    line-height: 1.0;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+  
+    /* Support for all WebKit browsers. */
+    -webkit-font-smoothing: antialiased;
+    /* Support for Safari and Chrome. */
+    text-rendering: optimizeLegibility;
+  
+    /* Support for Firefox. */
+    -moz-osx-font-smoothing: grayscale;
+  
+    /* Support for IE. */
+    font-feature-settings: 'liga';
+  }
+
+
 /* This is here b/c for some reason prosemirror editor doesn't show <strong> correctly.  */
 strong { 
     font-weight: 700;
@@ -49,11 +83,27 @@ code {
 }
 
 .jp-ProseMirror {
-    padding: var(--jp-code-padding) var(--jp-code-padding);
+    padding-left: var(--jp-code-padding);
+    padding-right: 20px;
+    border: none;
+    background-color: rgb(255, 255, 255);
     cursor: text;
+    line-height: var(--jp-content-line-height);
 }
 
 .jp-ProseMirror blockquote {
     border-left: 5px solid var(--jp-border-color2);
     padding: 0 1em;
 }
+
+.jp-Notebook.jp-mod-editMode .jp-Cell.jp-mod-active .p-Widget.jp-ProseMirror.jp-InputArea-editor {
+    border: none;
+    box-shadow: none;
+}
+.ProseMirror > *:last-child {
+    margin-bottom: 0.5em;
+}
+.jp-ProseMirror p {
+    margin-bottom: 1em;
+}
+

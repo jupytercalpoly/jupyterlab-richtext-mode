@@ -22,8 +22,9 @@ const DEFAULT_NUMBER: number = 0;
 export class ProseMirrorEditor implements CodeEditor.IEditor {
     
     constructor(options: ProseMirrorEditor.IOptions) {
+      console.log("editor created!");
         let host = (this.host = options.host);
-        host.classList.add('jp-Editor');
+
         host.classList.add('jp-ProseMirror');
         host.addEventListener('focus', this, true);
         host.addEventListener('blur', this, true);

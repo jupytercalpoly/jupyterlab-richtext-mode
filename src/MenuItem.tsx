@@ -8,28 +8,50 @@ export default class MenuItem extends React.Component<{format: string, active: b
 
     constructor(props: any) {
         super(props);
-        this.getImgSrc = this.getImgSrc.bind(this);
+        this.getFormatMark = this.getFormatMark.bind(this);
     }
 
+    // /**
+    //  * Gets the icon to be loaded based on the 'format' prop.
+    //  * @returns - Hardcoded 'require' statements because 'require'
+    //  * doesn't allow variables.
+    //  */
+    // getImgSrc() {
+    //     switch (this.props.format) {
+    //         case "strong":
+    //             return require("../static/scribe-format-strong.svg");
+    //         case "em":
+    //             return require("../static/scribe-format-em.svg");
+    //         case "underline":
+    //             return require("../static/scribe-format-underline.svg");
+    //         case "code":
+    //             return require("../static/scribe-format-code.svg");
+    //         case "strikethrough":
+    //             return require("../static/scribe-format-strikethrough.svg");
+    //         case "blockquote":
+    //             return require("../static/scribe-format-blockquote.svg");
+    //         default:
+    //             break;
+    //     }
+    // }
+
     /**
-     * Gets the icon to be loaded based on the 'format' prop.
-     * @returns - Hardcoded 'require' statements because 'require'
-     * doesn't allow variables.
+     * Gets the name of the format in ProseMirror language.
      */
-    getImgSrc() {
+    getFormatMark() {
         switch (this.props.format) {
-            case "strong":
-                return require("../static/scribe-format-strong.svg");
-            case "em":
-                return require("../static/scribe-format-em.svg");
-            case "underline":
-                return require("../static/scribe-format-underline.svg");
+            case "format_bold":
+                return "strong";
+            case "format_italic":
+                return "em";
+            case "format_underline":
+                return "underline";
             case "code":
-                return require("../static/scribe-format-code.svg");
-            case "strikethrough":
-                return require("../static/scribe-format-strikethrough.svg");
-            case "blockquote":
-                return require("../static/scribe-format-blockquote.svg");
+                return "code";
+            case "format_strikethrough":
+                return "strikethrough";
+            case "format_quote":
+                return "blockquote";
             default:
                 break;
         }
@@ -40,12 +62,12 @@ export default class MenuItem extends React.Component<{format: string, active: b
      */
     render() {
         return (
-                <img 
-                src={this.getImgSrc()} 
-                alt="formatting" 
-                id={this.props.format} 
-                className={this.props.active ? "activeMenuItem" : "menuItem"}
-                onClick={this.props.handleClick} />
+                <i 
+                // src={this.getImgSrc()} 
+                // alt="formatting" 
+                id={this.getFormatMark()} 
+                className={this.props.active ? "activeMenuItem material-icons" : "menuItem material-icons"}
+                onClick={this.props.handleClick}>{this.props.format}</i>
         )
     }
 

@@ -154,15 +154,15 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
      */
     render() {
         
-        const formats = ["strong", "em", "underline", "strikethrough", "code", "blockquote"];
-
+        const formats = ["format_bold", "format_italic", "format_underline", "format_strikethrough", "code", "format_quote"];
+        const marks = ["strong", "em", "underline", "strikethrough", "code", "blockquote"];
         return (
             <div className="menu">
-                    {formats.map(item => {
+                    {formats.map((item, idx) => {
                         return <MenuItem 
                                 format={item} 
                                 handleClick={this.handleClick} 
-                                active={this.state.activeMarks.includes(item)} 
+                                active={this.state.activeMarks.includes(marks[idx])} 
                                 key={item} />
                     })}
             </div>
