@@ -1,5 +1,7 @@
 # wyswiwyg-editor
 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jupytercalpoly/jupyterlab-richtext-mode/master)
+
 A WYSIWYG editor for Markdown cells in JupyterLab.
 
 
