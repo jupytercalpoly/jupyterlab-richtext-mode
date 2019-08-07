@@ -1,6 +1,3 @@
-pip install jupyterlab -U
-
-jlpm
 jlpm build
 jupyter labextension link .
 jlpm build

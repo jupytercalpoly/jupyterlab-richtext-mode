@@ -4,7 +4,6 @@
 
 A WYSIWYG editor for Markdown cells in JupyterLab.
 
-
 ## Requirements
 
 * JupyterLab >= 0.30.0 
