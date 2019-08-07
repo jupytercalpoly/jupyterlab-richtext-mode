@@ -24,7 +24,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
     constructor(options: ProseMirrorEditor.IOptions) {
       console.log("editor created!");
         let host = (this.host = options.host);
-
+        host.classList.add("jp-RenderedHTMLCommon");
         host.classList.add('jp-ProseMirror');
         host.addEventListener('focus', this, true);
         host.addEventListener('blur', this, true);

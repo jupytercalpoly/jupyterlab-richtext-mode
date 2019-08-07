@@ -13,6 +13,8 @@ import { Transaction,
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import * as Markdown from "./prosemirror/markdown";
 import {  wrapIn } from 'prosemirror-commands';
+
+// import { Menu } from '@phosphor/widgets';
 // import { Schema } from 'prosemirror-model';
 // import { keymap } from 'prosemirror-keymap';
 // import { runInThisContext } from 'vm';
@@ -149,6 +151,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         this.setState({activeMarks: newState});
     }
 
+    
     /**
      * Renders the rich text menu component.
      */
@@ -159,11 +162,12 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         return (
             <div className="menu">
                     {formats.map((item, idx) => {
-                        return <MenuItem 
-                                format={item} 
-                                handleClick={this.handleClick} 
-                                active={this.state.activeMarks.includes(marks[idx])} 
-                                key={item} />
+
+                            return <MenuItem 
+                            format={item} 
+                            handleClick={this.handleClick} 
+                            active={this.state.activeMarks.includes(marks[idx])} 
+                            key={item} />
                     })}
             </div>
         );

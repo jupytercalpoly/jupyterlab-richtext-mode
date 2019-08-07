@@ -29,19 +29,29 @@ import ContentFactoryEditor from './factory';
 // import RichTextMenu from "./RichTextMenu";
 // import React from 'react';
 import { ProsemirrorWidget } from './widget';
+import * as menu_scripts from "./headingmenu";
+import { Widget } from '@phosphor/widgets';
+
 
 //@ts-ignore
 function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker) {
 
+  let headingMenu = menu_scripts.createHeadingMenu(app.commands);
   nbTracker.currentChanged.connect(() => {
-    let prosemirrorWidget = new ProsemirrorWidget();
+    let prosemirrorWidget = new ProsemirrorWidget(app.commands);
+    // nbTracker.currentWidget.toolbar.insertAfter("cellType", "heading-menu", menu_scripts.createHeadingMenu(app.commands));
     nbTracker.currentWidget.toolbar.insertAfter("cellType", "rich-text-menu", prosemirrorWidget);
     nbTracker.activeCellChanged.connect(() => {
       let activeCell = nbTracker.activeCell;
   
         if (activeCell instanceof MarkdownCell) { 
+          activeCell.editor.focus();
+          console.log(activeCell.editor.hasFocus);
           prosemirrorWidget.show();
-          prosemirrorWidget.renderMenu(activeCell);
+          if (headingMenu.isAttached) {
+            Widget.detach(headingMenu);
+          }
+          prosemirrorWidget.renderMenu(activeCell, headingMenu);
         }
         else {
           prosemirrorWidget.hide();
