@@ -117,7 +117,7 @@ export function toggleMark(markType: MarkType) {
                 let marks = getMarksBefore(state);
                 console.log(marks);
                 console.log(state.storedMarks);
-                if (marks && (marks.includes(mark) || (state.storedMarks ? state.storedMarks.includes(mark) : false))) {
+                if ((state.storedMarks || marks) && (marks.includes(mark) || (state.storedMarks ? state.storedMarks.includes(mark) : false))) {
                     console.log(`removing stored mark ${mark}`);
                     dispatch(state.tr.removeStoredMark(mark));
                 }

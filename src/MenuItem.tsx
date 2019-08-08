@@ -52,6 +52,8 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 return "strikethrough";
             case "format_quote":
                 return "blockquote";
+            case "insert_link":
+                return "link";
             default:
                 break;
         }

@@ -13,6 +13,9 @@ import { Transaction,
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import * as Markdown from "./prosemirror/markdown";
 import {  wrapIn } from 'prosemirror-commands';
+import { HoverBox, ReactWidget } from "@jupyterlab/apputils";
+import { LinkMenu } from "./linkmenu";
+import { Widget } from '@phosphor/widgets';
 
 // import { Menu } from '@phosphor/widgets';
 // import { Schema } from 'prosemirror-model';
@@ -26,17 +29,20 @@ import {  wrapIn } from 'prosemirror-commands';
  * @state activeMarks - 
  */
 export default class RichTextMenu extends React.Component<{view: EditorView, 
-    model: CodeEditor.IModel}, {activeMarks: string[]}> {
+    model: CodeEditor.IModel}, {activeMarks: string[], linkWidget: Widget}> {
 
     constructor(props: any) {
         console.log("Rich text menu created!");
         super(props);
         this.state = {
-            activeMarks: []
+            activeMarks: [],
+            linkWidget: ReactWidget.create(<LinkMenu />)
+
         }
         this.handleClick = this.handleClick.bind(this);
         this.toggleCommand = this.toggleCommand.bind(this);
         this.toggleState = this.toggleState.bind(this);
+        this.setGeometry = this.setGeometry.bind(this);
         let that = this;
         let state = this.props.view.state;
         console.log(state.doc);
@@ -98,7 +104,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         // console.log("in it");
         // console.log(command);
         // console.log(e.target);
-        this.toggleCommand(command);
+        this.toggleCommand(command, e);
         this.toggleState(command);
         
     }
@@ -107,8 +113,9 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
      * Toggles the mark that is selected via button click or keybinding.
      * 
      * @param command - The name of the mark to be toggled.
+     * @param e - The click event that was handled. This is necessary for anchor for link.
      */
-    toggleCommand(command: string) {
+    toggleCommand(command: string, e: React.SyntheticEvent) {
         const view = this.props.view;
         const schema = view.state.schema;
         switch (command) {
@@ -129,11 +136,49 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 break;
             case "blockquote":
                 wrapIn(schema.nodes.blockquote)(view.state, view.dispatch);
+                break;
+            case "link":
+                this.setGeometry(e);
+                break;
             default: 
                 break;
         };
     }
 
+
+    /**
+     * Set geometry of the link widget.
+     */
+    setGeometry(e: React.SyntheticEvent) {
+        let linkWidget = this.state.linkWidget;
+        console.log("setting geometry");
+        const style = window.getComputedStyle(linkWidget.node);
+        let target = (e.target as HTMLImageElement);
+        let rect = target.getBoundingClientRect();
+        console.log(rect);
+        console.log(target);
+        HoverBox.setGeometry({
+            anchor: rect,
+            host: target,
+            minHeight: 50,
+            maxHeight: 200,
+            node:  linkWidget.node,
+            privilege: "below",
+            style
+        });
+
+        if (linkWidget.isAttached) {
+            Widget.detach(linkWidget);
+        }
+        else {
+            Widget.attach(linkWidget, document.body);
+        }
+
+    }
+
+    
+    
+    
     /**
      * Toggles the state's 'activeMarks' based on the mark that is selected 
      * via button click or keybinding.
@@ -157,8 +202,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
      */
     render() {
         
-        const formats = ["format_bold", "format_italic", "format_underline", "format_strikethrough", "code", "format_quote"];
-        const marks = ["strong", "em", "underline", "strikethrough", "code", "blockquote"];
+        const formats = ["format_bold", "format_italic", "format_underline", "format_strikethrough", "code", "format_quote", "insert_link"];
+        const marks = ["strong", "em", "underline", "strikethrough", "code", "blockquote", "link"];
         return (
             <div className="menu">
                     {formats.map((item, idx) => {
