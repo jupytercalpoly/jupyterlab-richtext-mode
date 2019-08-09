@@ -87,10 +87,11 @@ function getMarksBefore(state: EditorState) {
 /**
  * Toggles the given mark.
  */
-export function toggleMark(markType: MarkType) {
+export function toggleMark(markType: MarkType, attrs?: Object) {
 
-    let mark = markType.create();
-    
+
+    let mark = attrs ? markType.create() : markType.create(attrs);
+    console.log(mark);
     function canAddMark(from: ResolvedPos, to: ResolvedPos, doc: Node) {
 
         if (from.marksAcross(to).includes(mark)) {

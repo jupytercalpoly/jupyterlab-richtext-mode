@@ -33,7 +33,9 @@ export class ProsemirrorWidget extends Widget {
         this._view = (activeCell.editor as ProseMirrorEditor).view;
         let model = activeCell.model;
         // console.log(activeCell.model.id);
-        ReactDOM.render(<RichTextMenu view={this._view} model={model} key={activeCell.model.id}/>, this.node)
+        let linkMenuWidget = new Widget();
+        let imageMenuWidget = new Widget();
+        ReactDOM.render(<RichTextMenu view={this._view} model={model} linkMenuWidget={linkMenuWidget} imageMenuWidget={imageMenuWidget} key={activeCell.model.id}/>, this.node)
         Widget.attach(headingMenu, this.node);
 
     }
@@ -83,4 +85,8 @@ export class ProsemirrorWidget extends Widget {
             }
         })         
     }
+}
+
+export interface MenuWidgetObject {
+    [key: string]: Widget
 }

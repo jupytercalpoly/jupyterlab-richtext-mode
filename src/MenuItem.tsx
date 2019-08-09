@@ -1,6 +1,7 @@
 import React from 'react';
-
-
+// import ReactDOM from 'react-dom';
+// import { Widget } from '@phosphor/widgets';
+// import { HoverBox } from "@jupyterlab/apputils";
 /**
  * A React component for the rich text menu's individual items/marks.
  */
@@ -11,6 +12,42 @@ export default class MenuItem extends React.Component<{format: string, active: b
         this.getFormatMark = this.getFormatMark.bind(this);
     }
 
+    // componentDidMount() {
+    //     if (this.props.menuWidget) { // If it needs to render a menu widget, set geometry for hoverbox. 
+    //         let thisNode = (ReactDOM.findDOMNode(this.refs[this.props.format]) as HTMLElement);
+    //         this.setGeometry = this.setGeometry.bind(this);
+    //         this.setGeometry(thisNode);
+    //     }
+    // }
+
+    /**
+     * 
+    //  */
+    // setGeometry(componentNode: HTMLElement) {
+    //     let widget = this.props.menuWidget;
+    //     console.log("setting geometry");
+    //     const style = window.getComputedStyle(widget.node);
+    //     let rect = componentNode.getBoundingClientRect();
+    //     console.log(rect);
+    //     console.log(componentNode);
+    //     HoverBox.setGeometry({
+    //         anchor: rect,
+    //         host: componentNode,
+    //         minHeight: 50,
+    //         maxHeight: 200,
+    //         node:  widget.node,
+    //         privilege: "below",
+    //         style
+    //     });
+
+    //     // if (widget.isAttached) {
+    //     //     Widget.detach(widget);
+    //     // }
+    //     // else {
+    //     //     Widget.attach(widget, document.body);
+    //     // }
+
+    // }
     // /**
     //  * Gets the icon to be loaded based on the 'format' prop.
     //  * @returns - Hardcoded 'require' statements because 'require'
@@ -54,6 +91,8 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 return "blockquote";
             case "insert_link":
                 return "link";
+            case "photo":
+                return "image";
             default:
                 break;
         }
