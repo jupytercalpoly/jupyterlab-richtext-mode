@@ -45,22 +45,30 @@ export class LinkMenu extends React.Component<{initialText: string,
                     canClick={false}
                     />
                     <form onSubmit={this.handleSubmit}>
-                        <label className="editor-menuLabel">
+                        <label className="editor-menuLabel" style={{display: "block", marginBottom: "5px"}}>
                             Text
+                            <input 
+                            type="text" 
+                            name="text" 
+                            id="text" 
+                            value={this.state.textValue} 
+                            onChange={this.handleChange}
+                            style={{marginLeft: "3px"}}
+                            />
                         </label>
-                        <input 
-                        type="text" 
-                        name="text" 
-                        id="text" 
-                        value={this.state.textValue} 
-                        onChange={this.handleChange}
-                        style={{display: "block"}}
-                         />
 
-                        <label className="editor-menuLabel" style={{marginRight: "4px"}}>
+
+                        <label className="editor-menuLabel">
                             Link
+                            <input 
+                            type="text" 
+                            name="link" 
+                            id="link" 
+                            value={this.state.linkValue} 
+                            onChange={this.handleChange}
+                            style={{marginLeft: "7px"}} />
                         </label>   
-                        <input type="text" name="link" id="link" value={this.state.linkValue} onChange={this.handleChange} />
+
   
                         <div className="linkButtons">
                             <button style={{width: "25%"}} type="button" onClick={this.props.cancel}>CANCEL</button>

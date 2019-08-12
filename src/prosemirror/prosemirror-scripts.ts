@@ -19,13 +19,14 @@ import { EditorView } from "prosemirror-view";
  */
 export function getMarksForSelection(transaction: Transaction, state: EditorState): Mark[] {
     let selection = transaction.selection;
+    let doc = transaction.doc;
     // console.log(selection.from);
-
     if (!selection.empty) { // Non-empty selection
+        console.log(selection);
+        let leftNode = doc.cut(selection.from, selection.to);
+        console.log(leftNode);
 
-        let leftNode = selection.content().content.firstChild;
-        // console.log(leftNode);
-
+        
         if (leftNode.isTextblock) {
             if (leftNode.textContent === "") {
                 // return getNodeBefore(transaction);
@@ -154,7 +155,7 @@ export function toggleMark(markType: MarkType, attrs?: Object) {
 }
 
 function getSelectionText(selection: Selection, doc: Node) {
-    let { $from } = selection;
+    let { $from, from, to } = selection;
     console.log($from.index($from.depth));
     console.log($from.node());
     if ($from.node().childCount - 1 < $from.index(1)) { // Interesting case where, at the end of a paragraph, the child is at an index that hasn't been created.
@@ -168,20 +169,20 @@ function getSelectionText(selection: Selection, doc: Node) {
         }).attrs.href};
     }
     else {
-        return {text: "", link: ""};
+        return {text: doc.cut(from, to).textContent, link: ""};
     }
 
 }
 
 export function getTextForSelection(selection: Selection, view: EditorView) {
-    let { empty, from, to, $from } = selection;
+    let { $from } = selection;
     let doc = view.state.doc;
-    if (empty) {
+ 
 
         let linkMenuFields = getSelectionText(selection, doc);
-        if (linkMenuFields.text !== "") {           
+        if (linkMenuFields.text && linkMenuFields.link) {           
             let offset = $from.textOffset;
-            let length = $from.node().child($from.index(1)).nodeSize;
+            let length = $from.node().child($from.index($from.depth)).nodeSize;
             console.log(offset);
             let newSelection = new TextSelection(doc.resolve($from.pos - offset), doc.resolve($from.pos + (length - offset)));
 
@@ -190,21 +191,21 @@ export function getTextForSelection(selection: Selection, view: EditorView) {
             
         }
         return linkMenuFields;
-    }
-    else {
-        let node = doc.cut(from, to);
-        let linkField: string;
-        let markTypes = node.marks.map( (mark) => { return mark.type })
-        if (markTypes.includes(schema.marks.link)) {
-            linkField = node.marks.find((mark) => {
-                return mark.type.name === "link";
-            }).attrs.href;
-        }
-        else {
-            linkField = "";
-        }
-        return {text: node.textContent, link: linkField};
-    }
+    
+ 
+        // let node = doc.cut(from, to);
+        // let linkField: string;
+        // let markTypes = node.marks.map( (mark) => { return mark.type })
+        // if (markTypes.includes(schema.marks.link)) {
+        //     linkField = node.marks.find((mark) => {
+        //         return mark.type.name === "link";
+        //     }).attrs.href;
+        // }
+        // else {
+        //     linkField = "";
+        // }
+        // return {text: node.textContent, link: linkField};
+
 
 }
 

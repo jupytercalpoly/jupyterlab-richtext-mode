@@ -21,6 +21,7 @@ import { ImageMenu } from "./imagemenu";
 import { Widget } from '@phosphor/widgets';
 import ReactDOM from "react-dom";
 import { schema } from "./prosemirror/prosemirror-schema";
+import { wrapInList } from "prosemirror-schema-list";
 // import { MenuWidgetObject } from './widget';
 // import { Menu } from '@phosphor/widgets';
 // import { Schema } from 'prosemirror-model';
@@ -143,11 +144,14 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         console.log(view.state.selection);
         if (initialText !== text) {
             
-            let $to = view.state.doc.resolve($from.pos + text.length);
-            let newSelection = new TextSelection($from, $to);
-            let { from, to } = newSelection;
-            view.dispatch(view.state.tr.insertText(text).setSelection(newSelection));
-            view.dispatch(view.state.tr.addMark(from, to, schema.marks.link.create({href: link, title: link})));
+            // let { from, to } = newSelection;
+            let tr = view.state.tr;
+            tr = tr.insertText(text);
+            tr.setSelection(new TextSelection($from, tr.doc.resolve($from.pos + text.length)));
+            tr.addMark(tr.selection.from, tr.selection.to, schema.marks.link.create({href: link, title: link}));
+            view.dispatch(tr);
+                    // view.dispatch(view.state.tr.setSelection(newSelection));
+            // view.dispatch(view.state.tr.addMark(from, to, schema.marks.link.create({href: link, title: link})));
             console.log(view.state.selection);
         }
         else {
@@ -226,6 +230,12 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             case "image":
                 this.setGeometry(e);
                 break;
+            case "bullet_list":
+                wrapInList(schema.nodes.bullet_list)(view.state, view.dispatch);
+                break;
+            case "ordered_list":
+                wrapInList(schema.nodes.ordered_list)(view.state, view.dispatch);
+                break;
             default: 
                 break;
         };
@@ -255,7 +265,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 console.log("link widget");
                 let { text, link } = scripts.getTextForSelection(this.props.view.state.selection, 
                     this.props.view);
-                ReactDOM.render(<LinkMenu initialText={text} initialLink={link} submitLink={this.handleSubmitLink} key={text} cancel={this.handleCancel} />, this.props.linkMenuWidget.node);
+                ReactDOM.render(<LinkMenu initialText={text} initialLink={link} submitLink={this.handleSubmitLink} key={this.props.view.state.selection.from} cancel={this.handleCancel} />, this.props.linkMenuWidget.node);
                 widget = this.props.linkMenuWidget;
                 break;
             default:
@@ -323,8 +333,9 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
      */
     render() {
         
-        const formats = ["format_bold", "format_italic", "format_underline", "format_strikethrough", "code", "format_quote", "insert_link", "photo"];
-        const marks = ["strong", "em", "underline", "strikethrough", "code", "blockquote", "link", "image"];
+        const formats = ["format_bold", "format_italic", "format_underline", "format_strikethrough", 
+        "code", "format_quote", "insert_link", "photo", "format_list_bulleted", "format_list_numbered"];
+        const marks = ["strong", "em", "underline", "strikethrough", "code", "blockquote", "link", "image", "bullet_list", "ordered_list"];
         return (
             <div className="menu">
                     {formats.map((item, idx) => {

@@ -14,6 +14,7 @@ export class ImageMenu extends React.Component<{handleImgUpload: (fileUrl: unkno
         this.handleChange = this.handleChange.bind(this);
         this.handleLinkClick = this.handleLinkClick.bind(this);
         this.handleLinkChange = this.handleLinkChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     handleChange(e: React.SyntheticEvent) {
@@ -36,6 +37,12 @@ export class ImageMenu extends React.Component<{handleImgUpload: (fileUrl: unkno
         this.setState({imageUrl: target.value});
     }
 
+    handleSubmit(e: React.SyntheticEvent) {
+        e.preventDefault(); 
+        if (this.state.imageUrl) {
+            this.props.handleSubmitImgLink(this.state.imageUrl);
+        }
+    }
 
 
     uploadFile(file: File) {
@@ -68,7 +75,7 @@ export class ImageMenu extends React.Component<{handleImgUpload: (fileUrl: unkno
                     canClick={true}
                     handleClick={() => this.setState({isLinkOption: false})}
                     />
-                    <form onSubmit={(e) => {e.preventDefault(); this.props.handleSubmitImgLink(this.state.imageUrl)}}>
+                    <form onSubmit={this.handleSubmit}>
                         <input type="text" value={this.state.imageUrl} onChange={this.handleLinkChange} style={{display: "block"}}/>
                         <button type="submit" style={{backgroundColor: "#2196F3", color: "white", width: "25%"}}>APPLY</button> 
                     </form>

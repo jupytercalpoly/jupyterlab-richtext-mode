@@ -93,6 +93,10 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 return "link";
             case "photo":
                 return "image";
+            case "format_list_bulleted":
+                return "bullet_list";
+            case "format_list_numbered":
+                return "ordered_list";
             default:
                 break;
         }
@@ -107,7 +111,7 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 // src={this.getImgSrc()} 
                 // alt="formatting" 
                 id={this.getFormatMark()} 
-                className={this.props.active ? "activeMenuItem material-icons" : "menuItem material-icons"}
+                className={this.props.format === "insert_link" || this.props.format === "photo" ? "menuItem material-icons" : this.props.active ? "activeMenuItem material-icons" : "menuItem material-icons"}
                 onClick={this.props.handleClick}>{this.props.format}</i>
         )
     }
