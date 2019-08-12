@@ -1,5 +1,5 @@
-jlpm
-jlpm build
+npm install
+npm run build
 jupyter labextension link .
 jlpm build
 jupyter lab build
