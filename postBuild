@@ -1,3 +1,4 @@
+jlpm
 jlpm build
 jupyter labextension link .
 jlpm build
