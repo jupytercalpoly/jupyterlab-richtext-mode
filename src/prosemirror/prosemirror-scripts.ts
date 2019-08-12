@@ -1,7 +1,12 @@
 import { Transaction, EditorState,
+Selection,
+TextSelection,
+// NodeSelection,
 
 } from "prosemirror-state";
 import { Mark, MarkType, ResolvedPos, Node, Schema } from "prosemirror-model";
+import { schema } from "./prosemirror-schema";
+import { EditorView } from "prosemirror-view";
 
 /**
  * Obtains the marks for the currently active selection.
@@ -90,7 +95,7 @@ function getMarksBefore(state: EditorState) {
 export function toggleMark(markType: MarkType, attrs?: Object) {
 
 
-    let mark = attrs ? markType.create() : markType.create(attrs);
+    let mark = markType.create(attrs);
     console.log(mark);
     function canAddMark(from: ResolvedPos, to: ResolvedPos, doc: Node) {
 
@@ -118,7 +123,7 @@ export function toggleMark(markType: MarkType, attrs?: Object) {
                 let marks = getMarksBefore(state);
                 console.log(marks);
                 console.log(state.storedMarks);
-                if ((state.storedMarks || marks) && (marks.includes(mark) || (state.storedMarks ? state.storedMarks.includes(mark) : false))) {
+                if ((state.storedMarks || marks) && (marks ? marks.includes(mark) : false || (state.storedMarks ? state.storedMarks.includes(mark) : false))) {
                     console.log(`removing stored mark ${mark}`);
                     dispatch(state.tr.removeStoredMark(mark));
                 }
@@ -148,8 +153,59 @@ export function toggleMark(markType: MarkType, attrs?: Object) {
     }
 }
 
-export function toggleBlockQuote() {
-    
+function getSelectionText(selection: Selection, doc: Node) {
+    let { $from } = selection;
+    console.log($from.index($from.depth));
+    console.log($from.node());
+    if ($from.node().childCount - 1 < $from.index(1)) { // Interesting case where, at the end of a paragraph, the child is at an index that hasn't been created.
+        return {text: "", link: ""}
+    };
+    let node = $from.node().child($from.index($from.depth));
+    let markTypes = node.marks.map( (mark) => { return mark.type })
+    if (markTypes.includes(schema.marks.link)) {
+        return {text: node.textContent, link: node.marks.find((mark) => {
+            return mark.type.name === "link";
+        }).attrs.href};
+    }
+    else {
+        return {text: "", link: ""};
+    }
+
+}
+
+export function getTextForSelection(selection: Selection, view: EditorView) {
+    let { empty, from, to, $from } = selection;
+    let doc = view.state.doc;
+    if (empty) {
+
+        let linkMenuFields = getSelectionText(selection, doc);
+        if (linkMenuFields.text !== "") {           
+            let offset = $from.textOffset;
+            let length = $from.node().child($from.index(1)).nodeSize;
+            console.log(offset);
+            let newSelection = new TextSelection(doc.resolve($from.pos - offset), doc.resolve($from.pos + (length - offset)));
+
+            view.dispatch(view.state.tr.setSelection(newSelection));
+            console.log(view.state.selection);
+            
+        }
+        return linkMenuFields;
+    }
+    else {
+        let node = doc.cut(from, to);
+        let linkField: string;
+        let markTypes = node.marks.map( (mark) => { return mark.type })
+        if (markTypes.includes(schema.marks.link)) {
+            linkField = node.marks.find((mark) => {
+                return mark.type.name === "link";
+            }).attrs.href;
+        }
+        else {
+            linkField = "";
+        }
+        return {text: node.textContent, link: linkField};
+    }
+
 }
 
 export function buildKeymap(schema: Schema) {

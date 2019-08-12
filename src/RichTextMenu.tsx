@@ -7,7 +7,7 @@ import MenuItem from './MenuItem';
 import { EditorView } from 'prosemirror-view';
 // import { Mark } from 'prosemirror-model';
 import * as scripts from './prosemirror/prosemirror-scripts';
-import { Transaction, 
+import { Transaction, TextSelection
     // EditorState 
 } from "prosemirror-state";
 import { CodeEditor } from '@jupyterlab/codeeditor';
@@ -17,8 +17,10 @@ import { HoverBox,
     // ReactWidget 
 } from "@jupyterlab/apputils";
 import { LinkMenu } from "./linkmenu";
+import { ImageMenu } from "./imagemenu";
 import { Widget } from '@phosphor/widgets';
 import ReactDOM from "react-dom";
+import { schema } from "./prosemirror/prosemirror-schema";
 // import { MenuWidgetObject } from './widget';
 // import { Menu } from '@phosphor/widgets';
 // import { Schema } from 'prosemirror-model';
@@ -32,7 +34,7 @@ import ReactDOM from "react-dom";
  * @state activeMarks - 
  */
 export default class RichTextMenu extends React.Component<{view: EditorView, 
-    model: CodeEditor.IModel, linkMenuWidget: Widget, imageMenuWidget: Widget}, {activeMarks: string[], linkText: string, linkLink: string, widgetsSet: Widget[]}> {
+    model: CodeEditor.IModel, linkMenuWidget: Widget, imageMenuWidget: Widget}, {activeMarks: string[], widgetsSet: Widget[], widgetAttached: Widget}> {
 
         // Render menus into their specific widget nodes in menuWidgets
     constructor(props: any) {
@@ -40,8 +42,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         super(props);
         this.state = {
             activeMarks: [],
-            linkText: "",
-            linkLink: "",
+            widgetAttached: null,
             widgetsSet: [] // After the MenuItem component mounts and I try to get the bounding DOMRect, it gives the wrong information, so these are flags to see
                             // if the menu widgets were set. 
         }
@@ -51,11 +52,12 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         this.toggleState = this.toggleState.bind(this);
         this.setGeometry = this.setGeometry.bind(this);
         this.handleSubmitLink = this.handleSubmitLink.bind(this);
-        ReactDOM.render(<LinkMenu submitLink={this.handleSubmitLink} />, this.props.linkMenuWidget.node);
-
+        this.handleImgUpload = this.handleImgUpload.bind(this);
+        this.handleCancel = this.handleCancel.bind(this);
+        this.handleSubmitImgLink = this.handleSubmitImgLink.bind(this);
         let that = this;
         let state = this.props.view.state;
-        console.log(state.doc);
+        // console.log(state.doc);
         // console.log(state.selection);
         this.props.view.setProps({
             state,
@@ -73,16 +75,36 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 let newState = that.props.view.state.apply(transaction);
                 let serializer = Markdown.serializer;
                 let source = serializer.serialize(transaction.doc);
-                
+                // let doc = this.state.doc;
+                if (transaction.selectionSet) {
+                    if (that.state.widgetAttached) {
+                        Widget.detach(that.state.widgetAttached);
+                        that.setState({widgetAttached: null});
+                    }
+                }
                 
                 // console.log(source);
+                // let { $from } = transaction.selection;
+                // console.log($from.node());
+                // if ($from.node().child($from.index(1)).type.name === "image") {
+                //     console.log("issa image");
+                //     transaction = transaction.setSelection(new TextSelection(doc.resolve($from.pos + 1)));
+                // }
 
                 that.props.model.value.text = source;
+
                 if (!transaction.storedMarksSet) {
                     let parent = transaction.selection.$from.parent;
                     let parentOffset = transaction.selection.$from.parentOffset;
                     let marks = scripts.getMarksForSelection(transaction, newState);
-                    that.setState({activeMarks: marks.map(mark => mark.type.name)});
+                    that.setState({activeMarks: marks.map(mark => {
+                            if (mark.type.name === "link") {
+                                return "";
+                            }
+                            else {
+                                return mark.type.name;
+                            }
+                    })});
                     
                     if (parent.type.name === "paragraph" && parentOffset === 0) {// This is to handle formatting continuity.
                         transaction = transaction.setStoredMarks(marks); /** Important that setStoredMarks is used as opposed 
@@ -92,6 +114,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                     }
 
                 }
+                
                 newState = that.props.view.state.apply(transaction);
                 console.log(newState.doc);
                 that.props.view.updateState(newState);
@@ -99,17 +122,55 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         })
     }
 
-    handleSubmitLink(text: string, link: string) {
-        this.props.view.focus();
-        let view = this.props.view;
-        let schema = view.state.schema;
-        console.log(`Text: ${text}, Link: ${link}`);
-        this.setState({linkText: text, linkLink: link});
-        scripts.toggleMark(schema.marks.link, {"href": link})(view.state, view.dispatch);
-
-        Widget.detach(this.props.linkMenuWidget);
+    componentWillUnmount() {
+        this.props.linkMenuWidget.dispose();
+        this.props.imageMenuWidget.dispose();
     }
 
+    handleImgUpload(fileUrl: unknown, e: React.SyntheticEvent) {
+        e.preventDefault();
+        let view = this.props.view;
+        console.log(fileUrl);
+        view.focus();
+        view.dispatch(view.state.tr.replaceWith(view.state.selection.from, view.state.selection.to, schema.nodes.image.create({src: fileUrl})));
+    }
+
+    handleSubmitLink(initialText: string, initialLink: string, text: string, link: string) {
+        let view = this.props.view;
+        let schema = view.state.schema;
+        let { $from, from, to } = view.state.selection;
+        view.focus();
+        console.log(view.state.selection);
+        if (initialText !== text) {
+            
+            let $to = view.state.doc.resolve($from.pos + text.length);
+            let newSelection = new TextSelection($from, $to);
+            let { from, to } = newSelection;
+            view.dispatch(view.state.tr.insertText(text).setSelection(newSelection));
+            view.dispatch(view.state.tr.addMark(from, to, schema.marks.link.create({href: link, title: link})));
+            console.log(view.state.selection);
+        }
+        else {
+            view.dispatch(view.state.tr.addMark(from, to, schema.marks.link.create({href: link, title: link})));
+            
+        }
+        // scripts.toggleMark(schema.marks.link, {href: link})(view.state, view.dispatch);
+
+        Widget.detach(this.props.linkMenuWidget);
+        this.setState({widgetAttached: null});
+    }
+
+    handleSubmitImgLink(url: string) {
+
+        let view = this.props.view;
+
+        view.focus();
+        let schema = view.state.schema;
+        let { from, to } = view.state.selection;
+        view.dispatch(view.state.tr.replaceWith(from, to, schema.nodes.image.create({src: url})));
+        Widget.detach(this.props.imageMenuWidget);
+        this.setState({widgetAttached: null});
+    }
     /**
      * Handles the on-click events for the rich text menu.
      * 
@@ -172,19 +233,34 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
 
 
     /**
+     * Event handler for clicking on the 'Cancel' button on the link menu.
+     * @param e 
+     */
+    handleCancel(e: React.SyntheticEvent) {
+        Widget.detach(this.props.linkMenuWidget);
+        if (this.state.widgetAttached === this.props.linkMenuWidget) {
+            this.setState({widgetAttached: null});
+        }
+        this.props.view.focus();
+    }
+
+    /**
      * Set geometry of the link widget.
      */
     setGeometry(e: React.SyntheticEvent) {
         let widget: Widget;
         let target = (e.target as HTMLElement);
-        console.log("setting geometry");
         switch (target.id) {
             case "link":
                 console.log("link widget");
+                let { text, link } = scripts.getTextForSelection(this.props.view.state.selection, 
+                    this.props.view);
+                ReactDOM.render(<LinkMenu initialText={text} initialLink={link} submitLink={this.handleSubmitLink} key={text} cancel={this.handleCancel} />, this.props.linkMenuWidget.node);
                 widget = this.props.linkMenuWidget;
                 break;
             default:
                 console.log("image widget");
+                ReactDOM.render(<ImageMenu handleImgUpload={this.handleImgUpload} handleSubmitImgLink={this.handleSubmitImgLink} key={this.props.view.state.selection.from}/>, this.props.imageMenuWidget.node);
                 widget = this.props.imageMenuWidget;
                 break;
         }
@@ -203,17 +279,19 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 anchor: rect,
                 host: target,
                 minHeight: 50,
-                maxHeight: 300,
+                maxHeight: 500,
                 node:  widget.node,
                 privilege: "below",
                 style
             });
         }
 
-        if (widget.isAttached) {
-            Widget.detach(widget);
-        }
-        else {
+        if (!widget.isAttached) {
+            if (this.state.widgetAttached) {
+                Widget.detach(this.state.widgetAttached);
+            }
+            this.setState({ widgetAttached: widget });
+
             Widget.attach(widget, document.body);
         }
 
