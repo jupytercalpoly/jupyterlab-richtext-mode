@@ -3,9 +3,7 @@
 
 An extension that transforms Markdown cells into rich text-editing cells, powered by ProseMirror.
 
-<a target="_blank" rel="noopener noreferrer" href="/jupytercalpoly/jupyterlab-richtext-mode/blob/master/gifs/example.gif">
-    <img src="/jupytercalpoly/jupyterlab-richtext-mode/raw/master/gifs/example.gif" style="max-width:100%;">
-    </a>
+!(gif showing what happens)[./gif/example.gif]
 
 ## Requirements
 
