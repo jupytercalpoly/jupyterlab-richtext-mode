@@ -3,7 +3,7 @@
 
 An extension that transforms Markdown cells into rich text-editing cells, powered by ProseMirror.
 
-!(gif showing what happens)[./gif/example.gif]
+![gif showing what happens](./gif/example.gif)
 
 ## Requirements
 
