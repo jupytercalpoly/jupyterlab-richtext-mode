@@ -20,9 +20,9 @@ The `jlpm` command is JupyterLab's pinned version of
 # Clone the repo to your local environment
 # Move to wyswiwyg-editor directory
 # Install dependencies
-jlpm
+npm install
 # Build Typescript source
-jlpm build
+npm run build
 # Link your development version of the extension with JupyterLab
 jupyter labextension link .
 # Rebuild Typescript source after making changes
