@@ -5,7 +5,7 @@ An extension that transforms Markdown cells into rich text-editing cells, powere
 
 ## Requirements
 
-* JupyterLab >= 1.0.0
+* JupyterLab >= 1.0.2
 
 
 ## Contributing
