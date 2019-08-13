@@ -40,6 +40,15 @@ export class ProsemirrorWidget extends Widget {
 
     }
 
+    renderInactiveMenu() {
+        ReactDOM.render(<RichTextMenu view={null}
+                                      model={null}
+                                      linkMenuWidget={null}
+                                      imageMenuWidget={null}
+                                      headingMenuWidget={null}
+                                        />, this.node);
+    }
+
     // createHeadingCommands(commands: CommandRegistry) {
     //     let that = this;
     //     commands.addCommand('heading-normal', {

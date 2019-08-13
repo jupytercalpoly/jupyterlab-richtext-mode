@@ -37,7 +37,7 @@ import { wrapInList } from "prosemirror-schema-list";
  */
 export default class RichTextMenu extends React.Component<{view: EditorView, 
     model: CodeEditor.IModel, linkMenuWidget: Widget, imageMenuWidget: Widget, headingMenuWidget: Widget}, 
-    {activeMarks: string[], widgetsSet: Widget[], widgetAttached: Widget}> {
+    {activeMarks: string[], inactiveMarks: string[], widgetsSet: Widget[], widgetAttached: Widget}> {
 
         // Render menus into their specific widget nodes in menuWidgets
     constructor(props: any) {
@@ -45,92 +45,105 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         super(props);
         this.state = {
             activeMarks: [],
+            inactiveMarks: [],
             widgetAttached: null,
             widgetsSet: [] // After the MenuItem component mounts and I try to get the bounding DOMRect, it gives the wrong information, so these are flags to see
                             // if the menu widgets were set. 
         }
-        
-        this.handleClick = this.handleClick.bind(this);
-        this.toggleCommand = this.toggleCommand.bind(this);
-        this.toggleState = this.toggleState.bind(this);
-        this.formatMenu = this.formatMenu.bind(this);
-        this.handleSubmitLink = this.handleSubmitLink.bind(this);
-        this.handleImgUpload = this.handleImgUpload.bind(this);
-        this.handleCancel = this.handleCancel.bind(this);
-        this.handleSubmitImgLink = this.handleSubmitImgLink.bind(this);
-        this.handleDeleteLink = this.handleDeleteLink.bind(this);
-        this.handleHeadingClick = this.handleHeadingClick.bind(this);
-
-        let that = this;
-        let state = this.props.view.state;
-        // console.log(state.doc);
-        // console.log(state.selection);
-        this.props.view.setProps({
-            state,
-            /**
-             * Handles a transaction before it is applied to the editor state.
-             * 
-             * Obtains the marks for the current selection and makes those
-             * the current 'storedMarks' (i.e. active marks for the next input.)
-             * Finally, updates the editor state and view to reflect the transaction.
-             * 
-             * @param transaction - The state transaction generated upon interaction w/ editor.
-             */
-            dispatchTransaction(transaction: Transaction) {
-                
-                let newState = that.props.view.state.apply(transaction);
-                let serializer = Markdown.serializer;
-                let source = serializer.serialize(transaction.doc);
-                // let doc = this.state.doc;
-                if (transaction.selectionSet) {
-                    if (that.state.widgetAttached && that.state.widgetAttached.isAttached) {
-                        Widget.detach(that.state.widgetAttached);
-                        that.setState({widgetAttached: null});
-                    }
-                }
-                
-                // console.log(source);
-                // let { $from } = transaction.selection;
-                // console.log($from.node());
-                // if ($from.node().child($from.index(1)).type.name === "image") {
-                //     console.log("issa image");
-                //     transaction = transaction.setSelection(new TextSelection(doc.resolve($from.pos + 1)));
-                // }
-
-                that.props.model.value.text = source;
-
-                if (!transaction.storedMarksSet) {
-                    let parent = transaction.selection.$from.parent;
-                    let parentOffset = transaction.selection.$from.parentOffset;
-                    let marks = scripts.getMarksForSelection(transaction, newState);
-                    that.setState({activeMarks: marks.map(mark => {
-                            if (mark.type.name === "link") {
-                                return "";
-                            }
-                            else {
-                                return mark.type.name;
-                            }
-                    })});
+        if (this.props.view) {
+            this.handleClick = this.handleClick.bind(this);
+            this.toggleCommand = this.toggleCommand.bind(this);
+            this.toggleState = this.toggleState.bind(this);
+            this.formatMenu = this.formatMenu.bind(this);
+            this.handleSubmitLink = this.handleSubmitLink.bind(this);
+            this.handleImgUpload = this.handleImgUpload.bind(this);
+            this.handleCancel = this.handleCancel.bind(this);
+            this.handleSubmitImgLink = this.handleSubmitImgLink.bind(this);
+            this.handleDeleteLink = this.handleDeleteLink.bind(this);
+            this.handleHeadingClick = this.handleHeadingClick.bind(this);
+    
+            let that = this;
+            let state = this.props.view.state;
+            // console.log(state.doc);
+            // console.log(state.selection);
+            this.props.view.setProps({
+                state,
+                /**
+                 * Handles a transaction before it is applied to the editor state.
+                 * 
+                 * Obtains the marks for the current selection and makes those
+                 * the current 'storedMarks' (i.e. active marks for the next input.)
+                 * Finally, updates the editor state and view to reflect the transaction.
+                 * 
+                 * @param transaction - The state transaction generated upon interaction w/ editor.
+                 */
+                dispatchTransaction(transaction: Transaction) {
                     
-                    if (parent.type.name === "paragraph" && parentOffset === 0) {// This is to handle formatting continuity.
-                        transaction = transaction.setStoredMarks(marks); /** Important that setStoredMarks is used as opposed 
-                        to manually toggling marks as that will infinitely
-                        create transactions and inevitably error.
-                        */ 
+                    let newState = that.props.view.state.apply(transaction);
+                    let serializer = Markdown.serializer;
+                    let source = serializer.serialize(transaction.doc);
+                    // let doc = this.state.doc;
+                    if (transaction.selectionSet) {
+                        if (that.state.widgetAttached && that.state.widgetAttached.isAttached) {
+                            Widget.detach(that.state.widgetAttached);
+                            that.setState({widgetAttached: null});
+                        }
                     }
-
+                    
+                    // console.log(source);
+                    // let { $from } = transaction.selection;
+                    // console.log($from.node());
+                    // if ($from.node().child($from.index(1)).type.name === "image") {
+                    //     console.log("issa image");
+                    //     transaction = transaction.setSelection(new TextSelection(doc.resolve($from.pos + 1)));
+                    // }
+    
+                    that.props.model.value.text = source;
+    
+                    if (!transaction.storedMarksSet) {
+                        let parent = transaction.selection.$from.parent;
+                        let parentOffset = transaction.selection.$from.parentOffset;
+                        let marks = scripts.getMarksForSelection(transaction, newState);
+                        that.setState({activeMarks: marks.map(mark => {
+                                if (mark.type.name === "link") {
+                                    return "";
+                                }
+                                else {
+                                    return mark.type.name;
+                                }
+                        })});
+                        
+                        if (parent.type.name === "paragraph" && parentOffset === 0) {// This is to handle formatting continuity.
+                            transaction = transaction.setStoredMarks(marks); /** Important that setStoredMarks is used as opposed 
+                            to manually toggling marks as that will infinitely
+                            create transactions and inevitably error.
+                            */ 
+                        }
+    
+                    }
+                    
+                    newState = that.props.view.state.apply(transaction);
+                    console.log(newState.doc);
+                    that.props.view.updateState(newState);
                 }
-                
-                newState = that.props.view.state.apply(transaction);
-                console.log(newState.doc);
-                that.props.view.updateState(newState);
-            }
-        })
+            })
+        }
+        
     }
 
+    componentDidMount() {
+
+        if (!this.props.view) {
+            this.setState({inactiveMarks: ["strong", "em", "underline", "strikethrough", "heading", "code", "blockquote", "link", "image", "bullet_list", "ordered_list"]});
+        }
+    }
     componentWillUnmount() {
-        this.props.linkMenuWidget.dispose();
-        this.props.imageMenuWidget.dispose();
+        if (this.props.view) {
+            this.props.linkMenuWidget.dispose();
+            this.props.imageMenuWidget.dispose();
+            this.props.headingMenuWidget.dispose();
+        }
+
     }
 
     handleImgUpload(fileUrl: unknown, e: React.SyntheticEvent) {
@@ -414,6 +427,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                             format={item} 
                             handleClick={this.handleClick} 
                             active={this.state.activeMarks.includes(marks[idx])} 
+                            cancelled={this.state.inactiveMarks.includes(marks[idx])}
                             key={item} />
                     })}
             </div>

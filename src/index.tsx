@@ -37,6 +37,7 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
 
   nbTracker.currentChanged.connect(() => {
     let prosemirrorWidget = new ProsemirrorWidget(app.commands);
+    
     // nbTracker.currentWidget.toolbar.insertAfter("cellType", "heading-menu", menu_scripts.createHeadingMenu(app.commands));
     nbTracker.currentWidget.toolbar.insertAfter("cellType", "rich-text-menu", prosemirrorWidget);
     nbTracker.activeCellChanged.connect(() => {
@@ -45,13 +46,12 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
         if (activeCell instanceof MarkdownCell) { 
           activeCell.editor.focus();
           console.log(activeCell.editor.hasFocus);
-          prosemirrorWidget.show();
-
           prosemirrorWidget.renderMenu(activeCell);
         }
         else {
-          prosemirrorWidget.hide();
+          prosemirrorWidget.renderInactiveMenu();
         }
+
       })
   })
 

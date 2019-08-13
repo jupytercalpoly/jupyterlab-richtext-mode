@@ -5,7 +5,7 @@ import React from 'react';
 /**
  * A React component for the rich text menu's individual items/marks.
  */
-export default class MenuItem extends React.Component<{format: string, active: boolean, handleClick: (e: React.SyntheticEvent) => void}> {
+export default class MenuItem extends React.Component<{format: string, active: boolean, cancelled: boolean, handleClick: (e: React.SyntheticEvent) => void}> {
 
     constructor(props: any) {
         super(props);
@@ -108,14 +108,27 @@ export default class MenuItem extends React.Component<{format: string, active: b
      * Renders the menu item component.
      */
     render() {
-        return (
+        if (this.props.cancelled) {
+            return (
+                <i 
+                // src={this.getImgSrc()} 
+                // alt="formatting" 
+                id={this.getFormatMark()} 
+                className="material-icons inactive-menu-icon"
+                >{this.props.format}</i>               
+            )
+        }
+        else {
+            return (
                 <i 
                 // src={this.getImgSrc()} 
                 // alt="formatting" 
                 id={this.getFormatMark()} 
                 className={this.props.format === "insert_link" || this.props.format === "photo" ? "menuItem material-icons" : this.props.active ? "activeMenuItem material-icons" : "menuItem material-icons"}
                 onClick={this.props.handleClick}>{this.props.format}</i>
-        )
+            )
+        }
+
     }
 
 }
