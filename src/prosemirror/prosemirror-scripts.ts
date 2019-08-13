@@ -7,6 +7,7 @@ TextSelection,
 import { Mark, MarkType, ResolvedPos, Node, Schema } from "prosemirror-model";
 import { schema } from "./prosemirror-schema";
 import { EditorView } from "prosemirror-view";
+import { splitListItem } from "prosemirror-schema-list";
 
 /**
  * Obtains the marks for the currently active selection.
@@ -19,23 +20,33 @@ import { EditorView } from "prosemirror-view";
  */
 export function getMarksForSelection(transaction: Transaction, state: EditorState): Mark[] {
     let selection = transaction.selection;
-    let doc = transaction.doc;
+    // let doc = transaction.doc;
     // console.log(selection.from);
     if (!selection.empty) { // Non-empty selection
-        console.log(selection);
-        let leftNode = doc.cut(selection.from, selection.to);
-        console.log(leftNode);
+        // console.log(selection);
+        // console.log(selection.content());
+        // console.log(selection.$from.marks());
+        // let leftNode = doc.cut(selection.from, selection.to);
+        // console.log(leftNode);
 
         
-        if (leftNode.isTextblock) {
-            if (leftNode.textContent === "") {
-                // return getNodeBefore(transaction);
-                return [];
-            }
-            else {
-                return leftNode.firstChild.marks;
-            }
-        }
+        // // if (leftNode.isTextblock) {
+        // //     if (leftNode.textContent === "") {
+        // //         // return getNodeBefore(transaction);
+        // //         return [];
+        // //     }
+        // //     else {
+        // //         console.log(leftNode.firstChild);
+        // //         return leftNode.firstChild.marks;
+        // //     }
+        // // }
+        // if (!leftNode.textContent) {
+        //     return [];
+        // }
+        // else {
+        //     return leftNode.firstChild.marks;
+        // }
+        return selection.$from.marks();
     }
 
     else if (selection.from != 1) { // Empty selection 
@@ -124,7 +135,7 @@ export function toggleMark(markType: MarkType, attrs?: Object) {
                 let marks = getMarksBefore(state);
                 console.log(marks);
                 console.log(state.storedMarks);
-                if ((state.storedMarks || marks) && (marks ? marks.includes(mark) : false || (state.storedMarks ? state.storedMarks.includes(mark) : false))) {
+                if ((state.storedMarks || marks) && ((marks ? marks.includes(mark) : false) || (state.storedMarks ? state.storedMarks.includes(mark) : false))) {
                     console.log(`removing stored mark ${mark}`);
                     dispatch(state.tr.removeStoredMark(mark));
                 }
@@ -218,6 +229,7 @@ export function buildKeymap(schema: Schema) {
     keys["Mod-B"] = toggleMark(schema.marks.strong);
     keys["Mod-i"] = toggleMark(schema.marks.em);
     keys["Mod-I"] = toggleMark(schema.marks.em);
+    keys["Enter"] = splitListItem(schema.nodes.list_item);
     return keys;
 }
 

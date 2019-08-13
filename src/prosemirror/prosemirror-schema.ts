@@ -91,6 +91,11 @@ export const schema = new Schema({
       toDOM(node) { return node.text }
     },
 
+    inline_markdown: {
+      inline: true,
+      group: "inline",
+      toDOM(node) { return ["span", 0]}
+    },
     image: {
       inline: true,
       attrs: {

@@ -4,7 +4,9 @@ import MenuHeader from "./menuheader";
 export class LinkMenu extends React.Component<{initialText: string, 
                                             initialLink: string, 
                                             cancel: (e: React.SyntheticEvent) => void, 
-                                            submitLink: (initialText: string, initialLink: string, text: string, link: string) => void}, 
+                                            submitLink: (initialText: string, initialLink: string, text: string, link: string) => void,
+                                            deleteLink: (e: React.SyntheticEvent, link: string) => void}, 
+                                        
                                             {textValue: string, linkValue: string}> {
     
     constructor(props: any) {
@@ -15,6 +17,7 @@ export class LinkMenu extends React.Component<{initialText: string,
         }
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleClick = this.handleClick.bind(this);
     }
 
     handleChange(e: React.SyntheticEvent) {
@@ -36,6 +39,12 @@ export class LinkMenu extends React.Component<{initialText: string,
             this.props.submitLink(this.props.initialText, this.props.initialLink, this.state.textValue, this.state.linkValue);
         }
     }
+
+    handleClick(e: React.SyntheticEvent) {
+        if (this.props.initialLink && this.props.initialLink === this.state.linkValue) {
+            this.props.deleteLink(e, this.props.initialLink);
+        }
+    }
     render() {
        
             return (
@@ -45,29 +54,41 @@ export class LinkMenu extends React.Component<{initialText: string,
                     canClick={false}
                     />
                     <form onSubmit={this.handleSubmit}>
-                        <label className="editor-menuLabel" style={{display: "block", marginBottom: "5px"}}>
-                            Text
-                            <input 
-                            type="text" 
-                            name="text" 
-                            id="text" 
-                            value={this.state.textValue} 
-                            onChange={this.handleChange}
-                            style={{marginLeft: "3px"}}
-                            />
-                        </label>
+                        <div style={{display: "flex"}}>
+                            <div>
+                                <label className="editor-menuLabel" style={{display: "block", marginBottom: "5px"}}>
+                                    Text
+                                    <input 
+                                    type="text" 
+                                    name="text" 
+                                    id="text" 
+                                    value={this.state.textValue} 
+                                    onChange={this.handleChange}
+                                    style={{marginLeft: "3px"}}
+                                    />
+                                </label>
 
 
-                        <label className="editor-menuLabel">
-                            Link
-                            <input 
-                            type="text" 
-                            name="link" 
-                            id="link" 
-                            value={this.state.linkValue} 
-                            onChange={this.handleChange}
-                            style={{marginLeft: "7px"}} />
-                        </label>   
+                                <label className="editor-menuLabel">
+                                    Link
+                                    <input 
+                                    type="text" 
+                                    name="link" 
+                                    id="link" 
+                                    value={this.state.linkValue} 
+                                    onChange={this.handleChange}
+                                    style={{marginLeft: "7px"}} />
+                                </label>   
+                            </div>
+                            <div style={{maxWidth: "25px", marginTop: "23px", marginLeft: "3px"}}>
+                                <i 
+                                className={(this.props.initialLink && this.props.initialLink === this.state.linkValue) ? "material-icons" : "material-icons inactive-icon"}
+                                onClick={this.handleClick}>link_off</i>
+                            </div>
+                        </div>
+
+
+
 
   
                         <div className="linkButtons">

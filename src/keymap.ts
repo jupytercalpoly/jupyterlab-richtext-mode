@@ -3,7 +3,7 @@ import {wrapIn, setBlockType, chainCommands, toggleMark, exitCode,
 import {wrapInList, splitListItem, liftListItem, sinkListItem} from "prosemirror-schema-list"
 import {undo, redo} from "prosemirror-history"
 import {undoInputRule} from "prosemirror-inputrules"
-import { Schema } from "prosemirror-model";
+import { Schema, MarkType, NodeType } from "prosemirror-model";
 import { EditorState, Transaction } from "prosemirror-state";
 
 const mac = typeof navigator != "undefined" ? /Mac/.test(navigator.platform) : false
@@ -37,14 +37,9 @@ const mac = typeof navigator != "undefined" ? /Mac/.test(navigator.platform) : f
 // argument, which maps key names (say `"Mod-B"` to either `false`, to
 // remove the binding, or a new key name string.
 export function buildKeymap(schema: Schema) {
-let keys = {}, type
-function bind(key: string, cmd: (state: EditorState, dispatch: (tr: Transaction) => void)) {
-if (mapKeys) {
-  let mapped = mapKeys[key]
-  if (mapped === false) return
-  if (mapped) key = mapped
-}
-keys[key] = cmd
+let keys: KeyObject = {}, type: MarkType | NodeType;
+function bind(key: string, cmd: (state: EditorState, dispatch: (tr: Transaction) => void) => boolean) {
+    keys[key] = cmd
 }
 
 
@@ -104,4 +99,7 @@ for (let i = 1; i <= 6; i++) bind("Shift-Ctrl-" + i, setBlockType(type, {level: 
 // }
 
 return keys
+}
+interface KeyObject {
+    [key: string]: (state: EditorState, dispatch: (tr: Transaction) => void) => boolean;
 }

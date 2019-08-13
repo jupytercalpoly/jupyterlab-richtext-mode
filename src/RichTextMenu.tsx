@@ -56,6 +56,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         this.handleImgUpload = this.handleImgUpload.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
         this.handleSubmitImgLink = this.handleSubmitImgLink.bind(this);
+        this.handleDeleteLink = this.handleDeleteLink.bind(this);
         let that = this;
         let state = this.props.view.state;
         // console.log(state.doc);
@@ -147,7 +148,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             // let { from, to } = newSelection;
             let tr = view.state.tr;
             tr = tr.insertText(text);
-            tr.setSelection(new TextSelection($from, tr.doc.resolve($from.pos + text.length)));
+            tr.setSelection(TextSelection.create(tr.doc, $from.pos, $from.pos + text.length));
             tr.addMark(tr.selection.from, tr.selection.to, schema.marks.link.create({href: link, title: link}));
             view.dispatch(tr);
                     // view.dispatch(view.state.tr.setSelection(newSelection));
@@ -164,6 +165,17 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         this.setState({widgetAttached: null});
     }
 
+    handleDeleteLink(e: React.SyntheticEvent, link: string) {
+        let view = this.props.view;
+        let schema = view.state.schema;
+        let { from, to } = view.state.selection;
+        e.preventDefault();
+
+        view.dispatch(view.state.tr.removeMark(from, to, schema.marks.link.create({href: link, title: link})));
+        view.focus();
+        Widget.detach(this.props.linkMenuWidget);
+        this.setState({widgetAttached: null});
+    }
     handleSubmitImgLink(url: string) {
 
         let view = this.props.view;
@@ -265,12 +277,21 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 console.log("link widget");
                 let { text, link } = scripts.getTextForSelection(this.props.view.state.selection, 
                     this.props.view);
-                ReactDOM.render(<LinkMenu initialText={text} initialLink={link} submitLink={this.handleSubmitLink} key={this.props.view.state.selection.from} cancel={this.handleCancel} />, this.props.linkMenuWidget.node);
+                ReactDOM.render(<LinkMenu 
+                                initialText={text} 
+                                initialLink={link} 
+                                submitLink={this.handleSubmitLink} 
+                                key={this.props.view.state.selection.from} 
+                                cancel={this.handleCancel} 
+                                deleteLink={this.handleDeleteLink} />, this.props.linkMenuWidget.node);
                 widget = this.props.linkMenuWidget;
                 break;
             default:
                 console.log("image widget");
-                ReactDOM.render(<ImageMenu handleImgUpload={this.handleImgUpload} handleSubmitImgLink={this.handleSubmitImgLink} key={this.props.view.state.selection.from}/>, this.props.imageMenuWidget.node);
+                ReactDOM.render(<ImageMenu 
+                                handleImgUpload={this.handleImgUpload} 
+                                handleSubmitImgLink={this.handleSubmitImgLink} 
+                                key={this.props.view.state.selection.from}/>, this.props.imageMenuWidget.node);
                 widget = this.props.imageMenuWidget;
                 break;
         }

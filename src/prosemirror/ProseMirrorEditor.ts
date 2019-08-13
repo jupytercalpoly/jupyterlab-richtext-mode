@@ -8,6 +8,8 @@ import { EditorView } from "prosemirror-view";
 import * as Markdown from '../prosemirror/markdown';
 import {keymap} from "prosemirror-keymap";
 import {baseKeymap} from "prosemirror-commands";
+import {buildKeymap} from "./prosemirror-scripts";
+import { schema } from "./prosemirror-schema";
 // import { Transaction } from "prosemirror-state";
 /**
  * The height of a line in the editor.
@@ -352,6 +354,7 @@ namespace Private {
                     initValue
                 ),
                 plugins: [
+                    keymap(buildKeymap(schema)),
                     keymap(baseKeymap),
                 ]
             }),

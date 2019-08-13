@@ -1,5 +1,6 @@
 import { Menu, MenuBar } from "@phosphor/widgets";
 import { CommandRegistry } from "@phosphor/commands";
+// import Reac  t from 'react';
 // import { EditorView } from "prosemirror-view";
 // import { EditorView } from "prosemirror-view";
 // import { setBlockType } from "prosemirror-commands";
@@ -24,4 +25,8 @@ export function createHeadingMenu(commands: CommandRegistry) {
     bar.addMenu(menu);
     return bar;
 }
+
+// export class HeadingMenu extends React.Component {
+
+// }
 

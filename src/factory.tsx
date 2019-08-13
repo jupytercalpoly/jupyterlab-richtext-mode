@@ -7,7 +7,7 @@ import { Cell,
  import { CodeEditor } from "@jupyterlab/codeeditor";
  import { ProseMirrorEditor } from "./prosemirror/ProseMirrorEditor";
 
-export default class ContentFactoryEditor extends NotebookPanel.ContentFactory {
+ export default class ContentFactoryEditor extends NotebookPanel.ContentFactory {
     constructor(options?: Cell.ContentFactory.IOptions | undefined) {
         super(options);
         
