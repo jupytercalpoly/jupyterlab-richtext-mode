@@ -103,7 +103,7 @@ export const serializer = new Markdown.MarkdownSerializer({
           : "](" + _state.esc(mark.attrs.href) + (mark.attrs.title ? " " + _state.quote(mark.attrs.title) : "") + ")"
       }
     },
-    underline: {open: "<ins>", close: "<ins>", mixable: true, expelEnclosingWhitespace: true},
+    underline: {open: "<ins>", close: "</ins>", mixable: true, expelEnclosingWhitespace: true},
     strikethrough: {open: "~~", close: "~~", mixable: true, expelEnclosingWhitespace: true},
     code: {open: "`", close: "`", mixable: true, expelEnclosingWhitespace: true}
 

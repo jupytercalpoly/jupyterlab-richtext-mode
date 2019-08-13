@@ -53,7 +53,7 @@ export class LinkMenu extends React.Component<{initialText: string,
                     name="link"
                     canClick={false}
                     />
-                    <form onSubmit={this.handleSubmit}>
+                    <form onSubmit={this.handleSubmit} className="jp-scribe-menu-content">
                         <div style={{display: "flex"}}>
                             <div>
                                 <label className="editor-menuLabel" style={{display: "block", marginBottom: "5px"}}>
@@ -87,13 +87,9 @@ export class LinkMenu extends React.Component<{initialText: string,
                             </div>
                         </div>
 
-
-
-
-  
                         <div className="linkButtons">
-                            <button style={{width: "25%"}} type="button" onClick={this.props.cancel}>CANCEL</button>
-                            <button type="submit" style={{backgroundColor: "#2196F3", color: "white", width: "25%"}}>APPLY</button> 
+                            <button className="jp-scribe-menu-cancel jp-mod-styled" type="button" onClick={this.props.cancel}>CANCEL</button>
+                            <button type="submit" className="jp-scribe-menu-apply jp-mod-styled">APPLY</button> 
                         </div>               
     
                     </form>

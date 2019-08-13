@@ -97,6 +97,8 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 return "bullet_list";
             case "format_list_numbered":
                 return "ordered_list";
+            case "text_fields":
+                return "heading";
             default:
                 break;
         }
