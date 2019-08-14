@@ -10,6 +10,7 @@ import {keymap} from "prosemirror-keymap";
 import {baseKeymap} from "prosemirror-commands";
 import {buildKeymap} from "./prosemirror-scripts";
 import { schema } from "./prosemirror-schema";
+import { CodeBlockView } from "./nodeviews";
 // import { Transaction } from "prosemirror-state";
 /**
  * The height of a line in the editor.
@@ -358,6 +359,9 @@ namespace Private {
                     keymap(baseKeymap),
                 ]
             }),
+            nodeViews: {
+              code_block(node, view, getPos) { return new CodeBlockView(node, view, getPos)}
+            }
             // dispatchTransaction(transaction: Transaction) {
             //     console.log(transaction);
             //     // model.value.insert(0, "ayy lmao");

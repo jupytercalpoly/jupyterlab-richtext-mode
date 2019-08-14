@@ -230,9 +230,26 @@ export function buildKeymap(schema: Schema) {
     keys["Mod-i"] = toggleMark(schema.marks.em);
     keys["Mod-I"] = toggleMark(schema.marks.em);
     keys["Enter"] = splitListItem(schema.nodes.list_item);
+    keys["ArrowLeft"] = arrowHandler("left");
+    keys["ArrowRight"] = arrowHandler("right");
+    keys["ArrowUp"] = arrowHandler("up");
+    keys["ArrowDown"] = arrowHandler("down");
     return keys;
 }
-
+function arrowHandler(dir: any) {
+    return (state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView) => {
+      if (state.selection.empty && view.endOfTextblock(dir)) {
+        let side = dir == "left" || dir == "up" ? -1 : 1, $head = state.selection.$head
+        let nextPos = Selection.near(state.doc.resolve(side > 0 ? $head.after() : $head.before()), side)
+        if (nextPos.$head && nextPos.$head.parent.type.name == "code_block") {
+          dispatch(state.tr.setSelection(nextPos))
+          return true
+        }
+      }
+      return false
+    }
+  }
+  
 interface KeyObject {
-    [key: string]: (state: EditorState, dispatch: (tr: Transaction) => void) => boolean;
+    [key: string]: (state: EditorState, dispatch: (tr: Transaction) => void, view?: EditorView) => boolean;
 }
