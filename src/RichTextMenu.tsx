@@ -134,7 +134,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
     componentDidMount() {
 
         if (!this.props.view) {
-            this.setState({inactiveMarks: ["strong", "em", "underline", "strikethrough", "heading", "code", "blockquote", "link", "image", "bullet_list", "ordered_list"]});
+            this.setState({inactiveMarks: ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image"]});
         }
     }
     componentWillUnmount() {
@@ -418,8 +418,9 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
     render() {
         
         const formats = ["format_bold", "format_italic", "format_underline", "format_strikethrough", 
-        "text_fields", "code", "format_quote", "insert_link", "photo", "format_list_bulleted", "format_list_numbered"];
-        const marks = ["strong", "em", "underline", "strikethrough", "heading", "code", "blockquote", "link", "image", "bullet_list", "ordered_list"];
+        "text_fields", "format_list_bulleted", "format_list_numbered", "format_quote", "code",  "insert_link", "photo", ];
+        const marks = ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image"];
+        const separators = ["strong", "bullet_list", "link"]
         return (
             <div className="menu">
                     {formats.map((item, idx) => {
@@ -428,6 +429,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                             handleClick={this.handleClick} 
                             active={this.state.activeMarks.includes(marks[idx])} 
                             cancelled={this.state.inactiveMarks.includes(marks[idx])}
+                            separates={separators.includes(marks[idx])}
                             key={item} />
                     })}
             </div>

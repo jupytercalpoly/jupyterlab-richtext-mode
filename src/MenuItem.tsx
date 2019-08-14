@@ -5,11 +5,12 @@ import React from 'react';
 /**
  * A React component for the rich text menu's individual items/marks.
  */
-export default class MenuItem extends React.Component<{format: string, active: boolean, cancelled: boolean, handleClick: (e: React.SyntheticEvent) => void}> {
+export default class MenuItem extends React.Component<{format: string, active: boolean, cancelled: boolean, separates: boolean, handleClick: (e: React.SyntheticEvent) => void}> {
 
     constructor(props: any) {
         super(props);
         this.getFormatMark = this.getFormatMark.bind(this);
+        this.getClassName = this.getClassName.bind(this);
     }
 
     // componentDidMount() {
@@ -104,6 +105,29 @@ export default class MenuItem extends React.Component<{format: string, active: b
         }
     }
 
+    getClassName() {
+        let format = this.props.format;
+        let active = this.props.active;
+        let separates = this.props.separates;
+        let str = "material-icons";
+
+ 
+        if (format === "insert_link" || format === "photo") {
+            str += " menuItem";
+        }
+        else if (active) {
+            str += " activeMenuItem";
+        }
+        else {
+            str += " menuItem";
+        }
+
+        if (separates) {
+            str += " separatorItem";
+        }
+
+        return str;
+    }
     /**
      * Renders the menu item component.
      */
@@ -124,7 +148,7 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 // src={this.getImgSrc()} 
                 // alt="formatting" 
                 id={this.getFormatMark()} 
-                className={this.props.format === "insert_link" || this.props.format === "photo" ? "menuItem material-icons" : this.props.active ? "activeMenuItem material-icons" : "menuItem material-icons"}
+                className={this.getClassName()}
                 onClick={this.props.handleClick}>{this.props.format}</i>
             )
         }
