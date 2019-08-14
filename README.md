@@ -1,7 +1,7 @@
 # jupyter-scribe
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jupytercalpoly/jupyterlab-richtext-mode/master?urlpath=lab/tree/notebooks/Demo.ipynb)
 
-An extension that transforms Markdown cells into rich text-editing cells, powered by ProseMirror.
+An extension that transforms Markdown cells into rich-text-editing cells, powered by ProseMirror.
 
 ## Requirements
 
