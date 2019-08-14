@@ -8,6 +8,8 @@ import { EditorView } from "prosemirror-view";
 import * as Markdown from '../prosemirror/markdown';
 import {keymap} from "prosemirror-keymap";
 import {baseKeymap} from "prosemirror-commands";
+import {buildKeymap} from "./prosemirror-scripts";
+import { schema } from "./prosemirror-schema";
 // import { Transaction } from "prosemirror-state";
 /**
  * The height of a line in the editor.
@@ -22,8 +24,9 @@ const DEFAULT_NUMBER: number = 0;
 export class ProseMirrorEditor implements CodeEditor.IEditor {
     
     constructor(options: ProseMirrorEditor.IOptions) {
+      console.log("editor created!");
         let host = (this.host = options.host);
-        host.classList.add('jp-Editor');
+        host.classList.add("jp-RenderedHTMLCommon");
         host.classList.add('jp-ProseMirror');
         host.addEventListener('focus', this, true);
         host.addEventListener('blur', this, true);
@@ -351,6 +354,7 @@ namespace Private {
                     initValue
                 ),
                 plugins: [
+                    keymap(buildKeymap(schema)),
                     keymap(baseKeymap),
                 ]
             }),

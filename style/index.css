@@ -9,6 +9,14 @@
     cursor: text;
     padding: var(--jp-code-padding); */
 
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Material Icons'),
+        local('MaterialIcons-Regular'),
+        url(./MaterialIcons-Regular.ttf) format('truetype');
+}
 
 .menu {
     width: 100%;
@@ -31,9 +39,69 @@
 .activeMenuItem {
     padding: 1px;
     margin: 1px;
-    background-color: grey;
+    background-color: blue;
 }
 
+.material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 18px;  /* Preferred icon size */
+    display: inline-block;
+    line-height: 1.0;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+  
+    /* Support for all WebKit browsers. */
+    -webkit-font-smoothing: antialiased;
+    /* Support for Safari and Chrome. */
+    text-rendering: optimizeLegibility;
+  
+    /* Support for Firefox. */
+    -moz-osx-font-smoothing: grayscale;
+  
+    /* Support for IE. */
+    font-feature-settings: 'liga';
+  }
+
+  .inactive-menu-icon {
+      padding: 1px;
+      margin: 2px 1px 1px 1px;
+  }
+
+  .separatorItem {
+      display: inline-block;
+      border-left: 2px solid var(--jp-layout-color4);
+      padding-left: 3px;
+  }
+
+  .inactive-icon, .inactive-menu-icon {
+    opacity: 0.5;
+    
+}
+
+
+  i.menuItem.material-icons, i.activeMenuItem.material-icons {
+      color: var(--jp-layout-color4);
+      max-height: 18px;
+      margin-top: 2px;
+  }
+  i.menuItem.material-icons:hover, i.activeMenuItem.material-icons:hover {
+    background: var(--jp-layout-color2);
+  }
+
+  .material-icons:hover {
+      cursor: pointer;
+  }
+
+
+
+  .inactive-icon:hover, .inactive-menu-icon:hover {
+    cursor: not-allowed;
+  }
 /* This is here b/c for some reason prosemirror editor doesn't show <strong> correctly.  */
 strong { 
     font-weight: 700;
@@ -49,11 +117,167 @@ code {
 }
 
 .jp-ProseMirror {
-    padding: var(--jp-code-padding) var(--jp-code-padding);
+    padding-left: var(--jp-code-padding);
+    padding-right: 20px;
+    border: none;
+    background-color: rgb(255, 255, 255);
     cursor: text;
+    line-height: var(--jp-content-line-height);
 }
 
 .jp-ProseMirror blockquote {
     border-left: 5px solid var(--jp-border-color2);
     padding: 0 1em;
+}
+
+.jp-Notebook.jp-mod-editMode .jp-Cell.jp-mod-active .p-Widget.jp-ProseMirror.jp-InputArea-editor {
+    border: none;
+    box-shadow: none;
+}
+.ProseMirror > *:last-child {
+    margin-bottom: 0.5em;
+}
+.jp-ProseMirror p {
+    margin-bottom: 1em;
+}
+.jp-ProseMirror a {
+    cursor: text;
+    text-decoration: underline;
+}
+
+.jp-ProseMirror a:hover {
+    cursor: text;
+}
+
+/* Menu css */
+/* .jp-scribe-menu-hr {
+    border-color: #E0E0E0;
+    background-color: #E0E0E0;
+    margin: 0px;
+} */
+
+.jp-scribe-menu-apply {
+    background-color: var(--jp-brand-color1);
+    border: 1px solid var(--jp-brand-color1);
+    border-radius: var(--jp-border-radius);
+    color: white;
+}
+
+.jp-scribe-menu-cancel {
+    background-color: var(--md-grey-500);
+    border: 1px solid var(--md-grey-500);
+    border-radius: var(--jp-border-radius);
+    color: white;
+}
+
+.jp-scribe-menu-content {
+    padding: 5px 12px 12px 12px;
+}
+
+
+.jp-scribe-heading-menu:hover {
+    background-color: #F2F2F2;
+    cursor: pointer;
+}
+
+/* Link menu css */
+.linkButtons {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 10px;
+}
+
+ .editor-menu {
+    z-index: 10000;
+    /* padding: 12px; */
+    background: white;
+    min-width: 175px;
+    border: var(--jp-border-width) solid var(--jp-border-color1);
+}
+
+.jp-HoverBox {
+    position: fixed;
+    box-shadow: var(--jp-elevation-z6);
+}
+
+.editor-menuLabel {
+  color: var(--jp-ui-font-color1);
+  font-size: var(--jp-ui-font-size0);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+
+}
+
+/* Image menu css */
+/* .linkToImage::after {
+    font-family: "Material Icons";
+    content: "arrow_right";
+    -webkit-font-feature-settings: 'liga';
+    font-feature-settings: 'liga';
+    font-size: 21px;
+    display: inline-block;
+    line-height: 1.0;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+    font-weight: normal;
+    font-style: normal;
+    /* Support for all WebKit browsers. */
+    /* -webkit-font-smoothing: antialiased; */
+    /* Support for Safari and Chrome. */
+    /* text-rendering: optimizeLegibility; */
+/* }  */
+
+.linkToImage {
+    margin-bottom: 5px;
+
+}
+
+.linkToImage:hover {
+    cursor: pointer;
+    background: #E0E0E0;
+
+}
+
+.backToMenu:hover {
+    cursor: pointer;
+}
+
+/* Heading menu css */
+
+
+.jp-scribe-menu-heading0 {
+    font-size: var(--jp-content-font-size1);   
+    line-height: var(--jp-content-line-height);
+}
+.jp-scribe-menu-heading1 {
+    font-size: var(--jp-content-font-size5);
+    line-height: var(--jp-content-line-height);
+}
+
+.jp-scribe-menu-heading2 {
+    font-size: var(--jp-content-font-size4);
+    line-height: var(--jp-content-line-height);
+}
+
+.jp-scribe-menu-heading3 {
+    font-size: var(--jp-content-font-size3);
+    line-height: var(--jp-content-line-height);
+}
+
+.jp-scribe-menu-heading4 {
+    font-size: var(--jp-content-font-size2);
+    line-height: var(--jp-content-line-height);
+}
+
+.jp-scribe-menu-heading5 {
+    font-size: var(--jp-content-font-size1);
+    line-height: var(--jp-content-line-height);
+}
+.jp-scribe-menu-heading6 {
+    font-size: var(--jp-content-font-size0);
+    line-height: var(--jp-content-line-height);
 }

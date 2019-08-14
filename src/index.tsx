@@ -30,22 +30,28 @@ import ContentFactoryEditor from './factory';
 // import React from 'react';
 import { ProsemirrorWidget } from './widget';
 
+
+
 //@ts-ignore
 function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker) {
 
   nbTracker.currentChanged.connect(() => {
-    let prosemirrorWidget = new ProsemirrorWidget();
+    let prosemirrorWidget = new ProsemirrorWidget(app.commands);
+    
+    // nbTracker.currentWidget.toolbar.insertAfter("cellType", "heading-menu", menu_scripts.createHeadingMenu(app.commands));
     nbTracker.currentWidget.toolbar.insertAfter("cellType", "rich-text-menu", prosemirrorWidget);
     nbTracker.activeCellChanged.connect(() => {
       let activeCell = nbTracker.activeCell;
   
         if (activeCell instanceof MarkdownCell) { 
-          prosemirrorWidget.show();
+          activeCell.editor.focus();
+          console.log(activeCell.editor.hasFocus);
           prosemirrorWidget.renderMenu(activeCell);
         }
         else {
-          prosemirrorWidget.hide();
+          prosemirrorWidget.renderInactiveMenu();
         }
+
       })
   })
 
