@@ -3,7 +3,7 @@ import { schema } from './prosemirror-schema';
 import markdownit from "markdown-it/lib";
 import { Fragment, Mark } from "prosemirror-model";
 
-export const parser = new Markdown.MarkdownParser(schema, markdownit("commonmark", {html: false}), {
+export const parser = new Markdown.MarkdownParser(schema, markdownit({html: true}), {
     blockquote: {block: "blockquote"},
     paragraph: {block: "paragraph"},
     list_item: {block: "list_item"},
@@ -19,7 +19,7 @@ export const parser = new Markdown.MarkdownParser(schema, markdownit("commonmark
       alt: tok.children[0] && tok.children[0].content || null
     })},
     hardbreak: {node: "hard_break"},
-  
+    
     em: {mark: "em"},
     strong: {mark: "strong", escaped: false},
     link: {mark: "link", getAttrs: (tok: any) => ({
@@ -73,7 +73,9 @@ export const serializer = new Markdown.MarkdownSerializer({
       state.renderInline(node)
       state.closeBlock(node)
     },
-  
+    inline_math(state, node) {
+      state.text(node.attrs.texts)
+    },
     image(state, node) {
       state.write("![" + state.esc(node.attrs.alt || "") + "](" + state.esc(node.attrs.src) +
       //@ts-ignore

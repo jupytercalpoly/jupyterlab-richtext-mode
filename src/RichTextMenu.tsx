@@ -1,5 +1,5 @@
 import React from 'react';
-import MenuItem from './MenuItem';
+import MenuItem from './menuitem';
 // import { toggleMark, 
 //     // baseKeymap 
 // } from "prosemirror-commands";
@@ -24,6 +24,8 @@ import { Widget } from '@phosphor/widgets';
 import ReactDOM from "react-dom";
 import { schema } from "./prosemirror/prosemirror-schema";
 import { wrapInList } from "prosemirror-schema-list";
+
+// import { PageConfig } from "@jupyterlab/coreutils";
 // import { MenuWidgetObject } from './widget';
 // import { Menu } from '@phosphor/widgets';
 // import { Schema } from 'prosemirror-model';
@@ -36,8 +38,10 @@ import { wrapInList } from "prosemirror-schema-list";
  * @props view - The EditorView for the editor, used for catching transactions.
  * @state activeMarks - 
  */
+
 export default class RichTextMenu extends React.Component<{view: EditorView, 
-    model: CodeEditor.IModel, linkMenuWidget: Widget, imageMenuWidget: Widget, headingMenuWidget: Widget, codeMenuWidget: Widget}, 
+    model: CodeEditor.IModel, linkMenuWidget: Widget, imageMenuWidget: Widget, headingMenuWidget: Widget, codeMenuWidget: Widget,
+    codeLanguageMenuWidget: Widget}, 
     {activeMarks: string[], inactiveMarks: string[], widgetsSet: Widget[], widgetAttached: Widget}> {
 
         // Render menus into their specific widget nodes in menuWidgets
@@ -50,8 +54,10 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             widgetAttached: null,
             widgetsSet: [] // After the MenuItem component mounts and I try to get the bounding DOMRect, it gives the wrong information, so these are flags to see
                             // if the menu widgets were set. 
+
         }
         if (this.props.view) {
+            
             this.handleClick = this.handleClick.bind(this);
             this.toggleCommand = this.toggleCommand.bind(this);
             this.toggleState = this.toggleState.bind(this);
@@ -66,6 +72,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             this.handleInlineCode = this.handleInlineCode.bind(this);
             let that = this;
             let state = this.props.view.state;
+            // let MathJax: any;
             // console.log(state.doc);
             // console.log(state.selection);
             this.props.view.setProps({
@@ -80,7 +87,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                  * @param transaction - The state transaction generated upon interaction w/ editor.
                  */
                 dispatchTransaction(transaction: Transaction) {
-                    
+                    // that.props.typesetter.typeset((that.props.view.dom as HTMLElement));                    
                     let newState = that.props.view.state.apply(transaction);
                     let serializer = Markdown.serializer;
                     let source = serializer.serialize(transaction.doc);
@@ -91,7 +98,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                             that.setState({widgetAttached: null});
                         }
                     }
-                    console.log(transaction.selection.$from.blockRange().parent);
+                    console.log(transaction.selection.from);
+                    // console.log(transaction.selection.$from.blockRange().parent);
 
                     // // console.log(source);
                     // // let { $from } = transaction.selection;
@@ -146,6 +154,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             this.props.imageMenuWidget.dispose();
             this.props.headingMenuWidget.dispose();
             this.props.codeMenuWidget.dispose();
+            this.props.codeLanguageMenuWidget.dispose();
         }
 
     }
@@ -226,6 +235,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         view.focus();
         setBlockType(schema.nodes.code_block, {params: language})(view.state, view.dispatch);
         Widget.detach(this.props.codeMenuWidget);
+        Widget.detach(this.props.codeLanguageMenuWidget);
         this.setState({widgetAttached: null});
     }
     /**
@@ -309,6 +319,9 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
      */
     handleCancel(e: React.SyntheticEvent) {
         Widget.detach(this.state.widgetAttached);
+        if (this.props.codeLanguageMenuWidget.isAttached) {
+            Widget.detach(this.props.codeLanguageMenuWidget);
+        }
         // Widget.detach(this.props.linkMenuWidget);
         // if (this.state.widgetAttached === this.props.linkMenuWidget) {
         //     this.setState({widgetAttached: null});
@@ -378,7 +391,9 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 ReactDOM.render(<CodeMenu 
                                 handleInlineCode={this.handleInlineCode} 
                                 handleBlockCode={this.handleBlockCode} 
-                                cancel={this.handleCancel}/>, this.props.codeMenuWidget.node);
+                                cancel={this.handleCancel}
+                                languageWidget={this.props.codeLanguageMenuWidget}
+                                key={this.props.view.state.selection.from}/>, this.props.codeMenuWidget.node);
                 widget = this.props.codeMenuWidget;
                 break;
             default:
@@ -411,6 +426,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 privilege: "below",
                 style
             });
+
         }
 
         if (!widget.isAttached) {
@@ -456,7 +472,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
      */
     render() {
         
-        const formats = ["format_bold", "format_italic", "format_underline", "format_strikethrough", 
+        const formats = ["format_bold", "format_italic", "format_underline", "strikethrough_s", 
         "text_fields", "format_list_bulleted", "format_list_numbered", "format_quote", "code",  "insert_link", "photo", ];
         const marks = ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image"];
         const separators = ["strong", "bullet_list", "link"]

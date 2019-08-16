@@ -1,12 +1,14 @@
 import CodeMirror from "codemirror"
 import {exitCode} from "prosemirror-commands"
 import {undo, redo} from "prosemirror-history"
-import { EditorView } from "prosemirror-view";
+import { EditorView} from "prosemirror-view";
 import { Node } from "prosemirror-model";
 import { TextSelection, Selection } from "prosemirror-state";
 import "../../node_modules/codemirror/mode/javascript/javascript";
 import "../../node_modules/codemirror/mode/python/python";
-import "../../node_modules/codemirror/addon/display/autorefresh";
+import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
+import { PageConfig } from "@jupyterlab/coreutils";
+// import "../../node_modules/codemirror/addon/display/autorefresh";
 export class CodeBlockView {
 
   private node: Node;
@@ -18,6 +20,7 @@ export class CodeBlockView {
   private updating: boolean;
   private doc: CodeMirror.Doc;
   constructor(node: Node, view: EditorView, getPos: () => number) {
+      console.log("code blockc reated!");
     // Store for later
     this.node = node
     this.view = view
@@ -32,7 +35,7 @@ export class CodeBlockView {
       theme: "jupyter",
       mode: node.attrs.params,
       //@ts-ignore
-      autoRefresh: {delay: 0},
+    //   autoRefresh: true,
       extraKeys: this.codeMirrorKeymap(),
       
     })
@@ -43,7 +46,7 @@ export class CodeBlockView {
     console.log(this.dom);
     // CodeMirror needs to be in the DOM to properly initialize, so
     // schedule it to update itself
-    setTimeout(() => this.cm.refresh(), 20)
+    setTimeout(() => this.cm.refresh());
   
     // This flag is used to avoid an update loop between the outer and
     // inner editor
@@ -160,4 +163,65 @@ function computeChange(oldVal: string, newVal: string) {
            oldVal.charCodeAt(oldEnd - 1) == newVal.charCodeAt(newEnd - 1)) { oldEnd--; newEnd-- }
     return {from: start, to: oldEnd, text: newVal.slice(start, newEnd)}
   }
+
+export class InlineMathView {
+  private node: Node;
+  private view: EditorView;
+  private getPos: () => number;
+  public dom: HTMLElement;
+
+  private typesetter: MathJaxTypesetter = new MathJaxTypesetter({
+    url: PageConfig.getOption('fullMathjaxUrl'),
+    config: PageConfig.getOption('mathjaxConfig')});
+
+  constructor(node: Node, view: EditorView, getPos: () => number) {
+      this.node = node;
+      this.view = view;
+      this.getPos = getPos;
+      this.dom =  document.createElement("span");
+      this.dom.appendChild(document.createTextNode(this.node.attrs.texts));
+      
+      console.log(this.view);
+      console.log(this.getPos());
+ 
+      console.log(this.node.attrs.texts);
+      
+      this.typesetter.typeset(this.dom);
+  }
+
+  // update(node: Node, decorations: Decoration[]): boolean {
+  //   console.log(node);
+  //   return false;
+  // }
+
+  // ignoreMutation() {
+  //     return true;
+  // }
+
+  // stopEvent(event: Event) {
+  //     return true;
+  // }
+}
+
+export class ImageView {
+  private node: Node;
+  private view: EditorView;
+  private getPos: () => number;
+  public dom: HTMLElement;
+  
+  constructor(node: Node, view: EditorView, getPos: () => number) {
+    this.node = node;
+    this.view = view;
+    this.getPos = getPos;
+    this.dom = document.createElement("img");
+    this.dom.setAttribute("src", node.attrs.src);
+    this.dom.addEventListener("click", e => {
+      console.log("You clicked me!");
+      e.preventDefault();
+    })
+    console.log(this.node);
+    console.log(this.view);
+    console.log(this.getPos);
+  }
+}
 

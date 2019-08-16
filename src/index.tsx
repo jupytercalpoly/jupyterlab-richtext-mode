@@ -29,20 +29,20 @@ import ContentFactoryEditor from './factory';
 // import RichTextMenu from "./RichTextMenu";
 // import React from 'react';
 import { ProsemirrorWidget } from './widget';
-
+// import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
+// import { PageConfig } from "@jupyterlab/coreutils";
 
 
 //@ts-ignore
 function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker) {
-
+  
   nbTracker.currentChanged.connect(() => {
     let prosemirrorWidget = new ProsemirrorWidget(app.commands);
-    
     // nbTracker.currentWidget.toolbar.insertAfter("cellType", "heading-menu", menu_scripts.createHeadingMenu(app.commands));
     nbTracker.currentWidget.toolbar.insertAfter("cellType", "rich-text-menu", prosemirrorWidget);
     nbTracker.activeCellChanged.connect(() => {
       let activeCell = nbTracker.activeCell;
-  
+        
         if (activeCell instanceof MarkdownCell) { 
           activeCell.editor.focus();
           console.log(activeCell.editor.hasFocus);

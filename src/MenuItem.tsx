@@ -86,7 +86,7 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 return "underline";
             case "code":
                 return "code";
-            case "format_strikethrough":
+            case "strikethrough_s":
                 return "strikethrough";
             case "format_quote":
                 return "blockquote";

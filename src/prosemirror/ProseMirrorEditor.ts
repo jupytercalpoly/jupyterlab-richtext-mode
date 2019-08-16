@@ -10,7 +10,10 @@ import {keymap} from "prosemirror-keymap";
 import {baseKeymap} from "prosemirror-commands";
 import {buildKeymap} from "./prosemirror-scripts";
 import { schema } from "./prosemirror-schema";
-import { CodeBlockView } from "./nodeviews";
+import { CodeBlockView, InlineMathView, ImageView } from "./nodeviews";
+import { createInputRules } from "./inputrules";
+import { inputRules } from "prosemirror-inputrules";
+import markdownit from "markdown-it/lib";
 // import { Transaction } from "prosemirror-state";
 /**
  * The height of a line in the editor.
@@ -349,6 +352,8 @@ namespace Private {
         //     codeFolding
         // } = config;
         let initValue = model.value.text;
+        console.log(markdownit({html: true}).parse("<ins>asd</ins>", {}));
+        console.log(markdownit().use(require("markdown-it-ins")).parse("++asd++", {}));
         let view = new EditorView(host, {
             state: EditorState.create({
                 doc: Markdown.parser.parse(
@@ -357,11 +362,15 @@ namespace Private {
                 plugins: [
                     keymap(buildKeymap(schema)),
                     keymap(baseKeymap),
+                    inputRules({rules: createInputRules()})
                 ]
             }),
             nodeViews: {
-              code_block(node, view, getPos) { return new CodeBlockView(node, view, getPos)}
-            }
+              code_block(node, view, getPos) { return new CodeBlockView(node, view, getPos)},
+              inline_math(node, view, getPos) { return new InlineMathView(node, view, getPos)},
+              image(node, view, getPos) {return new ImageView(node, view, getPos)}
+            },
+            
             // dispatchTransaction(transaction: Transaction) {
             //     console.log(transaction);
             //     // model.value.insert(0, "ayy lmao");
