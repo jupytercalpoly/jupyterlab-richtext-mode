@@ -120,7 +120,7 @@ code {
     padding-left: var(--jp-code-padding);
     padding-right: 20px;
     border: none;
-    background-color: rgb(255, 255, 255);
+    background-color: transparent;
     cursor: text;
     line-height: var(--jp-content-line-height);
 }
