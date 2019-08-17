@@ -39,7 +39,7 @@
 .activeMenuItem {
     padding: 1px;
     margin: 1px;
-    background-color: blue;
+    background-color: var(--jp-brand-color1);
 }
 
 .material-icons {
@@ -85,10 +85,14 @@
 
 
   i.menuItem.material-icons, i.activeMenuItem.material-icons {
-      color: var(--jp-layout-color4);
+      color: var(--jp-ui-font-color3);
       max-height: 18px;
       margin-top: 2px;
   }
+  i.activeMenuItem.material-icons {
+      color: var(--jp-ui-inverse-font-color0);
+  }
+
   i.menuItem.material-icons:hover, i.activeMenuItem.material-icons:hover {
     background: var(--jp-layout-color2);
   }
