@@ -1,9 +1,11 @@
 import * as Markdown from 'prosemirror-markdown';
 import { schema } from './prosemirror-schema';
-import markdownit from "markdown-it/lib";
+// import markdownit from "markdown-it/lib";
 import { Fragment, Mark } from "prosemirror-model";
+import { MarkdownParser } from "./from_markdown";
 
-export const parser = new Markdown.MarkdownParser(schema, markdownit("commonmark", {html: false}), {
+const md = require('markdown-it')().use(require('markdown-it-mathjax')());
+export const parser = new MarkdownParser(schema, md, {
     blockquote: {block: "blockquote"},
     paragraph: {block: "paragraph"},
     list_item: {block: "list_item"},
@@ -19,7 +21,8 @@ export const parser = new Markdown.MarkdownParser(schema, markdownit("commonmark
       alt: tok.children[0] && tok.children[0].content || null
     })},
     hardbreak: {node: "hard_break"},
-  
+    inline_math: {node: "inline_math", getAttrs: (tok: any) => ({texts: `$${tok.content}$`})},
+    display_math: {block: "block_math", getAttrs: (tok: any) => ({texts: `$$${tok.content}$$`})},
     em: {mark: "em"},
     strong: {mark: "strong", escaped: false},
     link: {mark: "link", getAttrs: (tok: any) => ({
@@ -73,7 +76,13 @@ export const serializer = new Markdown.MarkdownSerializer({
       state.renderInline(node)
       state.closeBlock(node)
     },
-  
+    inline_math(state, node) {
+      state.text(node.attrs.texts)
+    },
+    block_math(state, node) {
+      state.text(node.attrs.texts);
+      state.closeBlock(node);
+    },
     image(state, node) {
       state.write("![" + state.esc(node.attrs.alt || "") + "](" + state.esc(node.attrs.src) +
       //@ts-ignore
@@ -105,7 +114,8 @@ export const serializer = new Markdown.MarkdownSerializer({
     },
     underline: {open: "<ins>", close: "</ins>", mixable: true, expelEnclosingWhitespace: true},
     strikethrough: {open: "~~", close: "~~", mixable: true, expelEnclosingWhitespace: true},
-    code: {open: "`", close: "`", mixable: true, expelEnclosingWhitespace: true}
+    code: {open: "`", close: "`", mixable: true, expelEnclosingWhitespace: true},
+    math: {open: "", close: "", mixable: true, expelEnclosingWhitepsace: true}
 
   })
 

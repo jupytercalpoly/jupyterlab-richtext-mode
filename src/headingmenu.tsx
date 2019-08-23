@@ -29,7 +29,7 @@ import MenuHeader from "./menuheader";
 //     return bar;
 // }
 
-export class HeadingMenu extends React.Component<{handleClick: (e: React.SyntheticEvent) => void}, {}> {
+export class HeadingMenu extends React.Component<{handleClick: (e: React.SyntheticEvent) => void, activeLevel: number}, {}> {
     
     constructor(props: any) {
         super(props);
@@ -44,7 +44,7 @@ export class HeadingMenu extends React.Component<{handleClick: (e: React.Synthet
                 <MenuHeader name="text styles" /> 
                 {
                     headingLevels.map( (level: number) => {
-                        return <HeadingMenuItem level={level} handleClick={this.props.handleClick} key={level} />
+                        return <HeadingMenuItem level={level} activeLevel={this.props.activeLevel} handleClick={this.props.handleClick} key={level} />
                     })
                 }
             </div>

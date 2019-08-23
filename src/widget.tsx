@@ -9,6 +9,7 @@ import { CommandRegistry } from "@phosphor/commands";
 // import { ReactWidget } from "@jupyterlab/apputils";
 
 import { EditorView } from "prosemirror-view";
+// import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
 
 export class ProsemirrorWidget extends Widget {
 
@@ -33,8 +34,12 @@ export class ProsemirrorWidget extends Widget {
         let linkMenuWidget = new Widget();
         let imageMenuWidget = new Widget();
         let headingMenuWidget = new Widget();
+        let codeMenuWidget = new Widget();
+        let codeLanguageMenuWidget = new Widget();
         ReactDOM.render(<RichTextMenu view={this._view} model={model} linkMenuWidget={linkMenuWidget} 
             imageMenuWidget={imageMenuWidget} headingMenuWidget={headingMenuWidget} 
+            codeMenuWidget={codeMenuWidget}
+            codeLanguageMenuWidget={codeLanguageMenuWidget}
             key={activeCell.model.id}/>, this.node)
         // Widget.attach(headingMenu, this.node);
 
@@ -46,6 +51,8 @@ export class ProsemirrorWidget extends Widget {
                                       linkMenuWidget={null}
                                       imageMenuWidget={null}
                                       headingMenuWidget={null}
+                                      codeMenuWidget={null}
+                                      codeLanguageMenuWidget={null}
                                         />, this.node);
     }
 

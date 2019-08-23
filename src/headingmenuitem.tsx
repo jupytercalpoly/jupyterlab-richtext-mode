@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default class HeadingMenuItem extends React.Component<{level: number, handleClick: (e: React.SyntheticEvent) => void}, {}> {
+export default class HeadingMenuItem extends React.Component<{level: number, activeLevel: number, handleClick: (e: React.SyntheticEvent) => void}, {}> {
 
     constructor(props: any) {
         super(props);
@@ -26,15 +26,30 @@ export default class HeadingMenuItem extends React.Component<{level: number, han
         }
     }
     render() {
-        return (
-            <div className="jp-scribe-heading-menu">
-                <p 
-                id={`heading${this.props.level}`} 
-                className={`jp-scribe-menu-heading${this.props.level}`} 
-                style={{padding: "10px 20px", borderBottom: "1px solid #E0E0E0"}}
-                onClick={this.props.handleClick}>{this.getLevelText()}</p>
-                
-            </div>
-        )
+        if (this.props.activeLevel === this.props.level) {
+            return (
+                <div className="jp-scribe-heading-menu-active">
+                    <p 
+                    id={`heading${this.props.level}`} 
+                    className={`jp-scribe-menu-heading${this.props.level}`} 
+                    style={{padding: "10px 6px", borderBottom: "1px solid #E0E0E0"}}
+                    ><i className="material-icons check-icon" style={{fontSize: "14px"}}>check</i>{this.getLevelText()}</p>
+                    
+                </div>
+            )
+        }
+        else {
+            return (
+                <div className="jp-scribe-heading-menu">
+                    <p 
+                    id={`heading${this.props.level}`} 
+                    className={`jp-scribe-menu-heading${this.props.level}`} 
+                    style={{padding: "10px 25px", borderBottom: "1px solid #E0E0E0"}}
+                    onClick={this.props.handleClick}>{this.getLevelText()}</p>
+                    
+                </div>
+            )
+        }
+
     }
 }

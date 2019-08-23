@@ -1,5 +1,5 @@
 import React from 'react';
-import MenuItem from './MenuItem';
+import MenuItem from './menuitem';
 // import { toggleMark, 
 //     // baseKeymap 
 // } from "prosemirror-commands";
@@ -12,17 +12,20 @@ import { Transaction, TextSelection
 } from "prosemirror-state";
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import * as Markdown from "./prosemirror/markdown";
-import {  wrapIn, setBlockType } from 'prosemirror-commands';
+import {  wrapIn, setBlockType, lift } from 'prosemirror-commands';
 import { HoverBox, 
     // ReactWidget 
 } from "@jupyterlab/apputils";
 import { LinkMenu } from "./linkmenu";
 import { ImageMenu } from "./imagemenu";
 import { HeadingMenu } from "./headingmenu";
+import { CodeMenu } from "./codemenu";
 import { Widget } from '@phosphor/widgets';
 import ReactDOM from "react-dom";
 import { schema } from "./prosemirror/prosemirror-schema";
 import { wrapInList } from "prosemirror-schema-list";
+
+// import { PageConfig } from "@jupyterlab/coreutils";
 // import { MenuWidgetObject } from './widget';
 // import { Menu } from '@phosphor/widgets';
 // import { Schema } from 'prosemirror-model';
@@ -35,11 +38,14 @@ import { wrapInList } from "prosemirror-schema-list";
  * @props view - The EditorView for the editor, used for catching transactions.
  * @state activeMarks - 
  */
+
 export default class RichTextMenu extends React.Component<{view: EditorView, 
-    model: CodeEditor.IModel, linkMenuWidget: Widget, imageMenuWidget: Widget, headingMenuWidget: Widget}, 
+    model: CodeEditor.IModel, linkMenuWidget: Widget, imageMenuWidget: Widget, headingMenuWidget: Widget, codeMenuWidget: Widget,
+    codeLanguageMenuWidget: Widget}, 
     {activeMarks: string[], inactiveMarks: string[], widgetsSet: Widget[], widgetAttached: Widget}> {
 
         // Render menus into their specific widget nodes in menuWidgets
+
     constructor(props: any) {
         console.log("Rich text menu created!");
         super(props);
@@ -49,8 +55,10 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             widgetAttached: null,
             widgetsSet: [] // After the MenuItem component mounts and I try to get the bounding DOMRect, it gives the wrong information, so these are flags to see
                             // if the menu widgets were set. 
+
         }
         if (this.props.view) {
+            
             this.handleClick = this.handleClick.bind(this);
             this.toggleCommand = this.toggleCommand.bind(this);
             this.toggleState = this.toggleState.bind(this);
@@ -61,9 +69,11 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             this.handleSubmitImgLink = this.handleSubmitImgLink.bind(this);
             this.handleDeleteLink = this.handleDeleteLink.bind(this);
             this.handleHeadingClick = this.handleHeadingClick.bind(this);
-    
+            this.handleBlockCode = this.handleBlockCode.bind(this);
+            this.handleInlineCode = this.handleInlineCode.bind(this);
             let that = this;
             let state = this.props.view.state;
+            // let MathJax: any;
             // console.log(state.doc);
             // console.log(state.selection);
             this.props.view.setProps({
@@ -78,28 +88,33 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                  * @param transaction - The state transaction generated upon interaction w/ editor.
                  */
                 dispatchTransaction(transaction: Transaction) {
-                    
+                    // that.props.typesetter.typeset((that.props.view.dom as HTMLElement));                    
                     let newState = that.props.view.state.apply(transaction);
                     let serializer = Markdown.serializer;
                     let source = serializer.serialize(transaction.doc);
                     // let doc = this.state.doc;
+                    // console.log(transaction.selection);
                     if (transaction.selectionSet) {
                         if (that.state.widgetAttached && that.state.widgetAttached.isAttached) {
                             Widget.detach(that.state.widgetAttached);
                             that.setState({widgetAttached: null});
                         }
                     }
-                    
-                    // console.log(source);
-                    // let { $from } = transaction.selection;
-                    // console.log($from.node());
-                    // if ($from.node().child($from.index(1)).type.name === "image") {
-                    //     console.log("issa image");
-                    //     transaction = transaction.setSelection(new TextSelection(doc.resolve($from.pos + 1)));
-                    // }
+                    console.log(this.state.storedMarks);
+                    // console.log(transaction.selection);
+                    // console.log(transaction.selection.from);
+                    // console.log(transaction.selection.$from.blockRange().parent);
+
+                    // // console.log(source);
+                    // // let { $from } = transaction.selection;
+                    // // console.log($from.node());
+                    // // if ($from.node().child($from.index(1)).type.name === "image") {
+                    // //     console.log("issa image");
+                    // //     transaction = transaction.setSelection(new TextSelection(doc.resolve($from.pos + 1)));
+                    // // }
     
                     that.props.model.value.text = source;
-    
+                    console.log(transaction.doc);
                     if (!transaction.storedMarksSet) {
                         let parent = transaction.selection.$from.parent;
                         let parentOffset = transaction.selection.$from.parentOffset;
@@ -123,7 +138,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                     }
                     
                     newState = that.props.view.state.apply(transaction);
-                    console.log(newState.doc);
+                    // console.log(newState.doc);
                     that.props.view.updateState(newState);
                 }
             })
@@ -142,6 +157,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             this.props.linkMenuWidget.dispose();
             this.props.imageMenuWidget.dispose();
             this.props.headingMenuWidget.dispose();
+            this.props.codeMenuWidget.dispose();
+            this.props.codeLanguageMenuWidget.dispose();
         }
 
     }
@@ -204,6 +221,27 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         Widget.detach(this.props.imageMenuWidget);
         this.setState({widgetAttached: null});
     }
+
+    handleInlineCode(e: React.SyntheticEvent) {
+        e.preventDefault();
+        let view = this.props.view;
+        let schema = view.state.schema;
+        view.focus();
+        scripts.toggleMark(schema.marks.code)(view.state, view.dispatch);
+        Widget.detach(this.props.codeMenuWidget);
+        this.setState({widgetAttached: null});
+    }
+
+    handleBlockCode(e: React.SyntheticEvent, language: string) {
+        e.preventDefault();
+        let view = this.props.view;
+        let schema = view.state.schema;
+        view.focus();
+        setBlockType(schema.nodes.code_block, {params: language})(view.state, view.dispatch);
+        Widget.detach(this.props.codeMenuWidget);
+        Widget.detach(this.props.codeLanguageMenuWidget);
+        this.setState({widgetAttached: null});
+    }
     /**
      * Handles the on-click events for the rich text menu.
      * 
@@ -233,6 +271,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
     toggleCommand(command: string, e: React.SyntheticEvent) {
         const view = this.props.view;
         const schema = view.state.schema;
+        let selection = view.state.selection;
         switch (command) {
             case "strong":
                 scripts.toggleMark(schema.marks.strong)(view.state, view.dispatch);
@@ -244,13 +283,18 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 scripts.toggleMark(schema.marks.underline)(view.state, view.dispatch);
                 break;
             case "code":
-                scripts.toggleMark(schema.marks.code)(view.state, view.dispatch);
+                this.formatMenu(e);
                 break;
             case "strikethrough":
                 scripts.toggleMark(schema.marks.strikethrough)(view.state, view.dispatch);
                 break;
             case "blockquote":
-                wrapIn(schema.nodes.blockquote)(view.state, view.dispatch);
+                if (selection.$from.node(1).type.name === "blockquote") {
+                    lift(view.state, view.dispatch);
+                }
+                else {
+                    wrapIn(schema.nodes.blockquote)(view.state, view.dispatch);
+                }
                 break;
             case "link":
                 this.formatMenu(e);
@@ -279,6 +323,9 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
      */
     handleCancel(e: React.SyntheticEvent) {
         Widget.detach(this.state.widgetAttached);
+        if (this.props.codeLanguageMenuWidget.isAttached) {
+            Widget.detach(this.props.codeLanguageMenuWidget);
+        }
         // Widget.detach(this.props.linkMenuWidget);
         // if (this.state.widgetAttached === this.props.linkMenuWidget) {
         //     this.setState({widgetAttached: null});
@@ -316,6 +363,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             default:
                 break;
         }
+        Widget.detach(this.props.headingMenuWidget);
+        this.setState({widgetAttached: null});
     }
     /**
      * Set geometry of the link widget.
@@ -339,8 +388,21 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 break;
             case "heading":
                 console.log("heading widget");
-                ReactDOM.render(<HeadingMenu handleClick={this.handleHeadingClick} />, this.props.headingMenuWidget.node);
+                let activeLevel = scripts.getHeadingLevel(this.props.view.state.selection);
+                ReactDOM.render(<HeadingMenu 
+                                handleClick={this.handleHeadingClick} 
+                                activeLevel={activeLevel} />, this.props.headingMenuWidget.node);
                 widget = this.props.headingMenuWidget;
+                break;
+            case "code":
+                console.log("code widget");
+                ReactDOM.render(<CodeMenu 
+                                handleInlineCode={this.handleInlineCode} 
+                                handleBlockCode={this.handleBlockCode} 
+                                cancel={this.handleCancel}
+                                languageWidget={this.props.codeLanguageMenuWidget}
+                                key={this.props.view.state.selection.from}/>, this.props.codeMenuWidget.node);
+                widget = this.props.codeMenuWidget;
                 break;
             default:
                 console.log("image widget");
@@ -372,6 +434,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 privilege: "below",
                 style
             });
+
         }
 
         if (!widget.isAttached) {
@@ -417,10 +480,11 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
      */
     render() {
         
-        const formats = ["format_bold", "format_italic", "format_underline", "format_strikethrough", 
+        const formats = ["format_bold", "format_italic", "format_underline", "strikethrough_s", 
         "text_fields", "format_list_bulleted", "format_list_numbered", "format_quote", "code",  "insert_link", "photo", ];
+        const tooltips = ["bold", "italic", "underline", "strikethrough", "text-styles", "bulleted-list", "numbered-list", "blockquote", "code", "link", "image"];
         const marks = ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image"];
-        const separators = ["strong", "bullet_list", "link"]
+        // const separators = ["strong", "bullet_list", "link"]
         return (
             <div className="menu">
                     {formats.map((item, idx) => {
@@ -429,7 +493,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                             handleClick={this.handleClick} 
                             active={this.state.activeMarks.includes(marks[idx])} 
                             cancelled={this.state.inactiveMarks.includes(marks[idx])}
-                            separates={separators.includes(marks[idx])}
+                            tooltip={tooltips[idx]}
+                            // separates={separators.includes(marks[idx])}
                             key={item} />
                     })}
             </div>

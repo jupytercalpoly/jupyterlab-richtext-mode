@@ -5,6 +5,7 @@ An extension that transforms Markdown cells into rich-text-editing cells, powere
 
 ![gif showing what happens](./gif/example.gif)
 
+
 ## Requirements
 
 * JupyterLab >= 1.0.2
