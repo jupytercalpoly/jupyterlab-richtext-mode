@@ -1,14 +1,22 @@
 import CodeMirror from "codemirror"
-import {exitCode} from "prosemirror-commands"
+import {exitCode, selectNodeForward} from "prosemirror-commands"
 import {undo, redo} from "prosemirror-history"
-import { EditorView} from "prosemirror-view";
-import { Node } from "prosemirror-model";
-import { TextSelection, Selection } from "prosemirror-state";
+import { EditorView, Decoration} from "prosemirror-view";
+import { Node,
+  //  ResolvedPos 
+  } from "prosemirror-model";
+import { TextSelection,
+   Selection
+   } from "prosemirror-state";
 import "../../node_modules/codemirror/mode/javascript/javascript";
 import "../../node_modules/codemirror/mode/python/python";
 import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
 import { PageConfig } from "@jupyterlab/coreutils";
-// import "../../node_modules/codemirror/addon/display/autorefresh";
+import { schema } from "./prosemirror-schema";
+// import { EditorState, Transaction } from "prosemirror-state";
+import "../../node_modules/codemirror/addon/display/autorefresh";
+import "../../node_modules/codemirror/addon/selection/mark-selection";
+// import { parser } from "./markdown";
 export class CodeBlockView {
 
   private node: Node;
@@ -35,7 +43,9 @@ export class CodeBlockView {
       theme: "jupyter",
       mode: node.attrs.params,
       //@ts-ignore
-    //   autoRefresh: true,
+      styleSelectedText: true,
+      //@ts-ignore
+      autoRefresh: true,
       extraKeys: this.codeMirrorKeymap(),
       
     })
@@ -52,7 +62,7 @@ export class CodeBlockView {
     // inner editor
     this.updating = false
     // Track whether changes are have been made but not yet propagated
-    this.cm.on("beforeChange", () => {console.log("change made!"); this.incomingChanges = true});
+    this.cm.on("beforeChange", () => {this.incomingChanges = true});
     // Propagate updates from the code editor to ProseMirror
     this.cm.on("cursorActivity", () => {
         console.log(this.doc.getSelection());
@@ -66,6 +76,7 @@ export class CodeBlockView {
       this.incomingChanges = false
     })
     this.cm.on("focus", () => this.forwardSelection())
+    this.cm.on("blur", () => this.doc.setCursor({line: 0, ch: 0}));
   }
 
   forwardSelection() {
@@ -80,6 +91,7 @@ export class CodeBlockView {
     let offset = this.getPos() + 1
     let anchor = this.doc.indexFromPos(this.doc.getCursor("anchor")) + offset
     let head = this.doc.indexFromPos(this.doc.getCursor("head")) + offset
+    console.log(TextSelection.create(doc, anchor, head));
     return TextSelection.create(doc, anchor, head)
   }
 
@@ -121,19 +133,95 @@ export class CodeBlockView {
     })
   }
 
-  maybeEscape(unit: any, dir: any) {
+  maybeDestroy() {
+    if (this.doc.getValue() === "") {
+      let tr = this.view.state.tr;
+      tr.delete(tr.selection.from, tr.selection.to);
+      this.view.dispatch(tr);
+    }
+  }
+
+  maybeEscape(unit: string, dir: number) {
     let pos = this.doc.getCursor()
     console.log(pos);
-    if (this.doc.somethingSelected() ||
-        pos.line != (dir < 0 ? this.doc.firstLine() : this.doc.lastLine()) ||
-        (unit == "char" &&
-         pos.ch != (dir < 0 ? 0 : this.doc.getLine(pos.line).length)))
-      return CodeMirror.Pass
-    this.view.focus()
-    let targetPos = this.getPos() + (dir < 0 ? 0 : this.node.nodeSize)
-    let selection = Selection.near(this.view.state.doc.resolve(targetPos), dir)
-    this.view.dispatch(this.view.state.tr.setSelection(selection).scrollIntoView())
-    this.view.focus()
+    console.log(this.getPos());
+    if (!this.doc.somethingSelected()) {
+      // If at the end of the code block and pressing right, then make sure to set the selection to the end and not leave the block.
+      if (unit === "char") {
+        return CodeMirror.Pass;
+      } 
+      else {
+        if (dir === 1) {
+          if (pos.line === this.doc.lastLine() && pos.ch === this.doc.getLine(pos.line).length) {
+            this.escapeCodeBlock(dir);
+            return null;
+          }
+          else {
+            return CodeMirror.Pass;
+          }
+        }
+        else {
+          if (pos.line === this.doc.firstLine() && pos.ch === 0) {
+            this.escapeCodeBlock(dir);
+            return null;
+          }
+          else {
+            return CodeMirror.Pass;
+          }
+        }
+
+      }
+
+      // If at the end of the code block and pressing down/up, create an empty paragraph below/above the code block.
+      // else if (pos.line != (dir < 0 ? this.doc.firstLine() : this.doc.lastLine()) ||
+      // (unit == "char" &&
+      //  pos.ch != (dir < 0 ? 0 : this.doc.getLine(pos.line).length))) {
+      //   return CodeMirror.Pass;
+      // }
+    } 
+    else {
+      return CodeMirror.Pass;
+    }
+
+  //   if (this.doc.somethingSelected() ||
+  //   pos.line != (dir < 0 ? this.doc.firstLine() : this.doc.lastLine()) ||
+  //   (unit == "char" &&
+  //    pos.ch != (dir < 0 ? 0 : this.doc.getLine(pos.line).length)))
+  //     return CodeMirror.Pass
+
+  // }
+  }
+
+  escapeCodeBlock(dir: number) {
+
+      this.view.focus()
+      console.log(this.getPos());
+      let targetPos = this.getPos() + (dir < 0 ? 0 : this.node.nodeSize);
+      let selectedPos = this.view.state.doc.resolve(targetPos);
+      let hasNode = (dir < 0 ? (selectedPos.nodeBefore !== null) : (selectedPos.nodeAfter !== null));
+      console.log(hasNode);
+      // console.log(selection);
+      // console.log(selection.$from.node());
+      let tr = this.view.state.tr;
+      let selection;
+      if (!hasNode) {
+        tr = tr.insert(targetPos, schema.nodes.paragraph.create());
+        selection = Selection.near(tr.doc.resolve(targetPos), dir)
+
+        
+        // this.view
+        // this.view.dispatch(this.view.state.tr.setSelection(selection).insert(selection.from, schema.nodes.paragraph.create()).scrollIntoView())
+
+      }
+      else {
+        selection = Selection.near(tr.doc.resolve(targetPos), dir);
+        console.log(selection);
+
+      }
+      this.view.dispatch(tr.setSelection(selection).scrollIntoView());
+
+      this.view.focus()
+
   }
 
   update(node: Node) {
@@ -154,6 +242,24 @@ export class CodeBlockView {
 
 }
 
+// function findCutBefore($pos: ResolvedPos) {
+//   console.log($pos);
+//   console.log($pos.parent);
+//   if (!$pos.parent.type.spec.isolating) for (let i = $pos.depth - 1; i >= 0; i--) {
+//     if ($pos.index(i) > 0) return $pos.doc.resolve($pos.before(i + 1))
+//     if ($pos.node(i).type.spec.isolating) break
+//   }
+//   return null
+// }
+
+// function findCutAfter($pos: ResolvedPos) {
+//   if (!$pos.parent.type.spec.isolating) for (let i = $pos.depth - 1; i >= 0; i--) {
+//     let parent = $pos.node(i)
+//     if ($pos.index(i) + 1 < parent.childCount) return $pos.doc.resolve($pos.after(i + 1))
+//     if (parent.type.spec.isolating) break
+//   }
+//   return null
+// }
 
 function computeChange(oldVal: string, newVal: string) {
     if (oldVal == newVal) return null
@@ -169,7 +275,8 @@ export class InlineMathView {
   private view: EditorView;
   private getPos: () => number;
   public dom: HTMLElement;
-
+  public contentDOM: HTMLElement;
+  // private innerView: EditorView;
   private typesetter: MathJaxTypesetter = new MathJaxTypesetter({
     url: PageConfig.getOption('fullMathjaxUrl'),
     config: PageConfig.getOption('mathjaxConfig')});
@@ -178,22 +285,137 @@ export class InlineMathView {
       this.node = node;
       this.view = view;
       this.getPos = getPos;
-      this.dom =  document.createElement("span");
+      this.dom = document.createElement("span");
       this.dom.appendChild(document.createTextNode(this.node.attrs.texts));
-      
-      console.log(this.view);
-      console.log(this.getPos());
+      this.dom.addEventListener("dblclick", e => {
+        let tr = this.view.state.tr;
+        this.view.dispatch(tr.deleteSelection()
+                              .insert(tr.selection.from, schema.text(this.node.attrs.texts, [schema.marks.math.create()]))
+                              .removeStoredMark(schema.marks.math)
+                              .scrollIntoView());
+      })
+      // console.log(this.view);
+      // console.log(this.getPos());eq
  
-      console.log(this.node.attrs.texts);
-      
+      // console.log(this.node.attrs.texts);
+
+      // this.innerView.focus();
+      // this.selectNode();
       this.typesetter.typeset(this.dom);
+
   }
+  update(node: Node, decorations: Decoration[]) {
+    console.log(this.getPos);
+    return false;
+  }
+}
+
+
+
+  export class BlockMathView {
+    private node: Node;
+    private view: EditorView;
+    private getPos: () => number;
+    public dom: HTMLElement;
+    public contentDOM: HTMLElement;
+    // private innerView: EditorView;
+    private typesetter: MathJaxTypesetter = new MathJaxTypesetter({
+      url: PageConfig.getOption('fullMathjaxUrl'),
+      config: PageConfig.getOption('mathjaxConfig')});
+  
+    constructor(node: Node, view: EditorView, getPos: () => number) {
+        this.node = node;
+        this.view = view;
+        this.getPos = getPos;
+        this.dom = document.createElement("div");
+        this.dom.style.cssText = "margin-top: 5px;";
+        this.dom.appendChild(document.createTextNode(this.node.attrs.texts));
+        this.dom.addEventListener("dblclick", e => {
+          console.log("dblclicked!");
+          let tr = this.view.state.tr;
+          
+          // this.view.dispatch(tr.deleteSelection());
+          // createParagraphNear(this.view.state, this.view.dispatch);    
+          // tr = this.view.state.tr; 
+          // this.view.dispatch(tr.insert(tr.selection.from, schema.text(this.node.attrs.texts, [schema.marks.math.create()]))
+          // .scrollIntoView());    
+          let nodeAfter = tr.selection.$head.nodeAfter;
+          if (nodeAfter) {
+            if (nodeAfter.type.name === "paragraph") {
+              selectNodeForward(this.view.state, this.view.dispatch);
+              let tr = this.view.state.tr;
+              this.view.dispatch(tr.deleteSelection().insert(tr.selection.from, schema.text(this.node.attrs.texts, [schema.marks.math.create()]))
+                                  .scrollIntoView());
+            }
+            else {
+              this.view.dispatch(tr.replaceSelectionWith(schema.nodes.paragraph.create(null, schema.text(this.node.attrs.texts, [schema.marks.math.create()])))
+              .scrollIntoView());              
+            }
+          }
+          else {
+            this.view.dispatch(tr.replaceSelectionWith(schema.nodes.paragraph.create(null, schema.text(this.node.attrs.texts, [schema.marks.math.create()])))
+                                .scrollIntoView());
+          }
+
+        })
+        // console.log(this.view);
+        // console.log(this.getPos());
+   
+        // console.log(this.node.attrs.texts);
+  
+        // this.innerView.focus();
+        // this.selectNode();
+        this.typesetter.typeset(this.dom);
+  
+    }
+
+    update(node: Node, decorations: Decoration[]) {
+      console.log(this.getPos);
+      return false;
+    }
+
+  }
+  
+
+  // dispatchInner(transaction: Transaction) {
+  //   console.log(transaction.selection);
+  //   console.log(transaction.selection.$from.node());
+  //   this.innerView.updateState(this.innerView.state.apply(transaction));
+  // }
 
   // update(node: Node, decorations: Decoration[]): boolean {
   //   console.log(node);
-  //   return false;
+  //   return true;
   // }
 
+  // selectNode() {
+  //   if (!this.innerView) {
+  //     this.innerView = new EditorView(this.dom, {
+  //       state: EditorState.create({
+  //         schema: mathSchema
+  //       }),
+  //       dispatchTransaction: this.dispatchInner.bind(this),
+  //       handleDOMEvents: {
+  //         mousedown: (view: EditorView, event: Event): boolean => {
+  //           if (this.view.hasFocus()) this.innerView.focus()
+  //           return true;
+  //         }
+  //       }
+  //     })
+  //     this.innerView.dispatch(this.innerView.state.tr.insertText("$"));
+  //   }
+
+  // }
+  // deselectNode() {
+  //   this.innerView.destroy();
+  //   this.innerView = null;
+  //   this.dom.textContent = "";
+  //   this.view.focus();
+  // }
+  // setSelection(anchor: number, head: number, root: Document) {
+  //   console.log(anchor, head);
+
+  // }
   // ignoreMutation() {
   //     return true;
   // }
@@ -201,18 +423,21 @@ export class InlineMathView {
   // stopEvent(event: Event) {
   //     return true;
   // }
-}
 
 export class ImageView {
+
   private node: Node;
-  private view: EditorView;
-  private getPos: () => number;
+  // private view: EditorView;
+  // private getPos: () => number;
   public dom: HTMLElement;
   
-  constructor(node: Node, view: EditorView, getPos: () => number) {
+  constructor(node: Node, 
+    // view: EditorView, 
+    // getPos: () => number
+    ) {
     this.node = node;
-    this.view = view;
-    this.getPos = getPos;
+    // this.view = view;
+    // this.getPos = getPos;
     this.dom = document.createElement("img");
     this.dom.setAttribute("src", node.attrs.src);
     this.dom.addEventListener("click", e => {
@@ -220,8 +445,22 @@ export class ImageView {
       e.preventDefault();
     })
     console.log(this.node);
-    console.log(this.view);
-    console.log(this.getPos);
+    // console.log(this.view);
+    // console.log(this.getPos);
   }
+
+  update(node: Node, decorations: Decoration[]): boolean {
+    console.log("updated!!");
+    console.log(decorations);
+    console.log(node);
+    if (node === this.node) {
+      console.log("issa same node!");
+      return true;
+    }
+    return false;
+  }
+
+  stopEvent() { return true }
+  ignoreMutations() { return true }
 }
 

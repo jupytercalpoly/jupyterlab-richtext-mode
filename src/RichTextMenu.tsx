@@ -45,6 +45,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
     {activeMarks: string[], inactiveMarks: string[], widgetsSet: Widget[], widgetAttached: Widget}> {
 
         // Render menus into their specific widget nodes in menuWidgets
+
     constructor(props: any) {
         console.log("Rich text menu created!");
         super(props);
@@ -92,13 +93,16 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                     let serializer = Markdown.serializer;
                     let source = serializer.serialize(transaction.doc);
                     // let doc = this.state.doc;
+                    // console.log(transaction.selection);
                     if (transaction.selectionSet) {
                         if (that.state.widgetAttached && that.state.widgetAttached.isAttached) {
                             Widget.detach(that.state.widgetAttached);
                             that.setState({widgetAttached: null});
                         }
                     }
-                    console.log(transaction.selection.from);
+                    console.log(this.state.storedMarks);
+                    // console.log(transaction.selection);
+                    // console.log(transaction.selection.from);
                     // console.log(transaction.selection.$from.blockRange().parent);
 
                     // // console.log(source);
@@ -110,30 +114,30 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                     // // }
     
                     that.props.model.value.text = source;
-    
-                    // if (!transaction.storedMarksSet) {
-                    //     let parent = transaction.selection.$from.parent;
-                    //     let parentOffset = transaction.selection.$from.parentOffset;
-                    //     let marks = scripts.getMarksForSelection(transaction, newState);
-                    //     that.setState({activeMarks: marks.map(mark => {
-                    //             if (mark.type.name === "link") {
-                    //                 return "";
-                    //             }
-                    //             else {
-                    //                 return mark.type.name;
-                    //             }
-                    //     })});
+                    console.log(transaction.doc);
+                    if (!transaction.storedMarksSet) {
+                        let parent = transaction.selection.$from.parent;
+                        let parentOffset = transaction.selection.$from.parentOffset;
+                        let marks = scripts.getMarksForSelection(transaction, newState);
+                        that.setState({activeMarks: marks.map(mark => {
+                                if (mark.type.name === "link") {
+                                    return "";
+                                }
+                                else {
+                                    return mark.type.name;
+                                }
+                        })});
                         
-                    //     if (parent.type.name === "paragraph" && parentOffset === 0) {// This is to handle formatting continuity.
-                    //         transaction = transaction.setStoredMarks(marks); /** Important that setStoredMarks is used as opposed 
-                    //         to manually toggling marks as that will infinitely
-                    //         create transactions and inevitably error.
-                    //         */ 
-                    //     }
+                        if (parent.type.name === "paragraph" && parentOffset === 0) {// This is to handle formatting continuity.
+                            transaction = transaction.setStoredMarks(marks); /** Important that setStoredMarks is used as opposed 
+                            to manually toggling marks as that will infinitely
+                            create transactions and inevitably error.
+                            */ 
+                        }
     
-                    // }
+                    }
                     
-                    // newState = that.props.view.state.apply(transaction);
+                    newState = that.props.view.state.apply(transaction);
                     // console.log(newState.doc);
                     that.props.view.updateState(newState);
                 }
@@ -359,6 +363,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             default:
                 break;
         }
+        Widget.detach(this.props.headingMenuWidget);
+        this.setState({widgetAttached: null});
     }
     /**
      * Set geometry of the link widget.
@@ -382,8 +388,10 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 break;
             case "heading":
                 console.log("heading widget");
+                let activeLevel = scripts.getHeadingLevel(this.props.view.state.selection);
                 ReactDOM.render(<HeadingMenu 
-                                handleClick={this.handleHeadingClick} />, this.props.headingMenuWidget.node);
+                                handleClick={this.handleHeadingClick} 
+                                activeLevel={activeLevel} />, this.props.headingMenuWidget.node);
                 widget = this.props.headingMenuWidget;
                 break;
             case "code":
@@ -474,8 +482,9 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         
         const formats = ["format_bold", "format_italic", "format_underline", "strikethrough_s", 
         "text_fields", "format_list_bulleted", "format_list_numbered", "format_quote", "code",  "insert_link", "photo", ];
+        const tooltips = ["bold", "italic", "underline", "strikethrough", "text-styles", "bulleted-list", "numbered-list", "blockquote", "code", "link", "image"];
         const marks = ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image"];
-        const separators = ["strong", "bullet_list", "link"]
+        // const separators = ["strong", "bullet_list", "link"]
         return (
             <div className="menu">
                     {formats.map((item, idx) => {
@@ -484,7 +493,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                             handleClick={this.handleClick} 
                             active={this.state.activeMarks.includes(marks[idx])} 
                             cancelled={this.state.inactiveMarks.includes(marks[idx])}
-                            separates={separators.includes(marks[idx])}
+                            tooltip={tooltips[idx]}
+                            // separates={separators.includes(marks[idx])}
                             key={item} />
                     })}
             </div>

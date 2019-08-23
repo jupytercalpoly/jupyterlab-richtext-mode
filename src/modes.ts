@@ -1,12 +1,11 @@
 let modesString = `
 APL
+ASCII armor
 ASN.1
 Asterisk dialplan
 Brainfuck
-C, C++, C#
-Ceylon
+CLike
 Clojure
-Closure Stylesheets (GSS)
 CMake
 COBOL
 CoffeeScript
@@ -14,42 +13,40 @@ Common Lisp
 Crystal
 CSS
 Cypher
-Cython
 D
 Dart
+diff
 Django (templating language)
 Dockerfile
-diff
 DTD
 Dylan
 EBNF
 ECL
 Eiffel
-Elixir
 Elm
 Erlang
 Factor
 FCL
 Forth
 Fortran
-F#
 Gas (AT&T-style assembly)
+Github Flavored Markdown (GFM)
 Gherkin
 Go
 Groovy
 HAML
 Handlebars
+Haskell
 Haskell (Literate)
 Haxe
 HTML embedded (JSP, ASP.NET)
 HTML mixed-mode
 HTTP
 IDL
-Java
-JavaScript (JSX)
+javascript
 Jinja2
+JavaScript (JSX)
 Julia
-Kotlin
 LESS
 LiveScript
 Lua
@@ -78,7 +75,7 @@ Properties files
 ProtoBuf
 Pug
 Puppet
-Python
+python
 Q
 R
 RPM
@@ -129,5 +126,7 @@ YAML
 YAML frontmatter
 Z80
 `;
+
+
 let modes = modesString.split("\n");
 export default modes;

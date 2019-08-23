@@ -3,17 +3,23 @@ import { Signal } from "@phosphor/signaling";
 import { UUID } from "@phosphor/coreutils";
 import { IDisposable, DisposableDelegate } from "@phosphor/disposable";
 import { ArrayExt } from '@phosphor/algorithm';
-import { EditorState } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
+import { EditorState, 
+  // Plugin
+ } from "prosemirror-state";
+import { EditorView, 
+  // Decoration, 
+  // DecorationSet
+ } from "prosemirror-view";
 import * as Markdown from '../prosemirror/markdown';
 import {keymap} from "prosemirror-keymap";
 import {baseKeymap} from "prosemirror-commands";
 import {buildKeymap} from "./prosemirror-scripts";
 import { schema } from "./prosemirror-schema";
-import { CodeBlockView, InlineMathView, ImageView } from "./nodeviews";
+import { CodeBlockView, InlineMathView, BlockMathView, ImageView } from "./nodeviews";
 import { createInputRules } from "./inputrules";
 import { inputRules } from "prosemirror-inputrules";
-import markdownit from "markdown-it/lib";
+// import { Node } from "prosemirror-model";
+// import markdownit from "markdown-it/lib";
 // import { Transaction } from "prosemirror-state";
 /**
  * The height of a line in the editor.
@@ -352,8 +358,28 @@ namespace Private {
         //     codeFolding
         // } = config;
         let initValue = model.value.text;
-        console.log(markdownit({html: true}).parse("<ins>asd</ins>", {}));
-        console.log(markdownit().use(require("markdown-it-ins")).parse("++asd++", {}));
+        // console.log(markdownit({html: true}).parse("<ins>asd</ins>", {}));
+        // let md = require('markdown-it')().use(require('markdown-it-mathjax')());
+        // console.log(md.render('$1 *2* 3$'));
+        // console.log(md.parse('$asd$ $$asd$$', {}));
+        // console.log(markdownit().use(require("markdown-it-mathjax")).parse("$asd$", {}));
+        // console.log(markdownit().use(require("markdown-it-mathjax")).render('$asd$'));
+        // let testPlugin = new Plugin({
+        //   props: {
+        //     decorations(state: EditorState) {
+        //       const selection = state.selection;
+        //       const decorations: Decoration[] = [];
+        //       state.doc.nodesBetween(selection.from, selection.to, (node: Node, pos: number, parent: Node, index: number) => {
+        //         if (node.type.name === "inline_math" || node.type.name === "block_math") {
+        //           console.log("we boutta decorate this math");
+        //           decorations.push(Decoration.node(pos, pos + node.nodeSize, {class: 'selected-math'}));
+
+        //         }
+        //       })
+        //       return DecorationSet.create(state.doc, decorations);
+        //     }
+        //   }
+        // })
         let view = new EditorView(host, {
             state: EditorState.create({
                 doc: Markdown.parser.parse(
@@ -362,13 +388,15 @@ namespace Private {
                 plugins: [
                     keymap(buildKeymap(schema)),
                     keymap(baseKeymap),
-                    inputRules({rules: createInputRules()})
+                    inputRules({rules: createInputRules()}),
+                    // testPlugin
                 ]
             }),
             nodeViews: {
               code_block(node, view, getPos) { return new CodeBlockView(node, view, getPos)},
               inline_math(node, view, getPos) { return new InlineMathView(node, view, getPos)},
-              image(node, view, getPos) {return new ImageView(node, view, getPos)}
+              image(node) {return new ImageView(node)},
+              block_math(node, view, getPos) { return new BlockMathView(node, view, getPos)}
             },
             
             // dispatchTransaction(transaction: Transaction) {

@@ -29,13 +29,16 @@ import ContentFactoryEditor from './factory';
 // import RichTextMenu from "./RichTextMenu";
 // import React from 'react';
 import { ProsemirrorWidget } from './widget';
+import { CommandRegistry } from '@phosphor/commands';
+import { ContextMenu } from '@phosphor/widgets';
 // import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
 // import { PageConfig } from "@jupyterlab/coreutils";
 
 
 //@ts-ignore
 function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker) {
-  
+  addKeybindings(app.commands);
+  addContextMenuItems(app.contextMenu);
   nbTracker.currentChanged.connect(() => {
     let prosemirrorWidget = new ProsemirrorWidget(app.commands);
     // nbTracker.currentWidget.toolbar.insertAfter("cellType", "heading-menu", menu_scripts.createHeadingMenu(app.commands));
@@ -57,6 +60,61 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
 
 }
 
+function addContextMenuItems(contextMenu: ContextMenu) {
+  contextMenu.addItem({
+    command: "prosemirror-copy-menu",
+    selector: ".jp-Notebook .jp-Cell",
+    rank: 10
+  })
+}
+
+function addKeybindings(commands: CommandRegistry) {
+  commands.addCommand("prosemirror-bold", {
+    execute: () => {
+      let currentEditor = document.querySelector(".ProseMirror-focused");
+      currentEditor.dispatchEvent(new KeyboardEvent("keydown", {metaKey: true, key: "b"}));
+    }
+  })
+
+  commands.addCommand("prosemirror-italic", {
+    execute: () => {
+      let currentEditor = document.querySelector(".ProseMirror-focused");
+      currentEditor.dispatchEvent(new KeyboardEvent("keydown", {metaKey: true, key: "i"}));
+    }
+  })
+
+  commands.addCommand("prosemirror-copy-menu", {
+    label: "Copy Content",
+    execute: () => {
+      let currentEditor = document.querySelector(".ProseMirror");
+      currentEditor.dispatchEvent(new ClipboardEvent("copy"));
+    }
+  })
+
+  // commands.addCommand("prosemirror-strikethrough", {
+  //   execute: () => {
+  //     let currentEditor = document.querySelector(".ProseMirror-focused");
+  //     currentEditor.dispatchEvent(new KeyboardEvent("keydown", {metaKey: true, shiftKey: true, key: "k"}));
+  //     console.log("strikethrough!")
+  //   }
+  // })
+
+  commands.addKeyBinding({
+    command: "prosemirror-bold",
+    keys: ['Cmd B'],
+    selector: '.ProseMirror-focused'
+  })
+  commands.addKeyBinding({
+    command: "prosemirror-italic",
+    keys: ['Cmd I'],
+    selector: '.ProseMirror-focused'
+  })
+  // commands.addKeyBinding({
+  //   command: "prosemirror-strikethrough",
+  //   keys: ['Cmd Shift K'],
+  //   selector: '.ProseMirror-focused'
+  // })
+}
 /**
  * Overrides the NotebookPanel content factory to replace Markdown editor with ProseMirror editor.
  * @param app - Application front end.

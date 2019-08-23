@@ -3,6 +3,22 @@ import {Schema} from "prosemirror-model"
 // import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
 // import { PageConfig } from "@jupyterlab/coreutils";
 // ::Schema Document schema for the data model used by CommonMark.
+export const mathSchema = new Schema({
+  nodes: {
+    doc: {
+      content: "paragraph"
+    },
+    paragraph: {
+      content: "inline*",
+      parseDOM: [{tag: "p"}],
+      toDOM() {return ["p", 0]}
+    },
+    text: {
+      group: "inline",
+      toDOM(node) { return node.text }
+    }
+  }
+});
 export const schema = new Schema({
   nodes: {
     doc: {
@@ -82,7 +98,7 @@ export const schema = new Schema({
     },
 
     list_item: {
-      content: "paragraph block*",
+      content: "block+",
       defining: true,
       parseDOM: [{tag: "li"}],
       toDOM() { return ["li", 0] }
@@ -93,11 +109,6 @@ export const schema = new Schema({
       toDOM(node) { return node.text }
     },
 
-    inline_markdown: {
-      inline: true,
-      group: "inline",
-      toDOM(node) { return ["span", 0]}
-    },
     image: {
       inline: true,
       attrs: {
@@ -130,6 +141,7 @@ export const schema = new Schema({
     inline_math: {
       inline: true,
       group: "inline",
+      selectable: true,
       attrs: {
         texts: {}
       },
@@ -146,7 +158,18 @@ export const schema = new Schema({
       draggable: true,
       parseDOM: [{tag: "div"}],
       toDOM(node) { return ["div", 0]}
-    }
+    },
+
+    // block_math: {
+    //   group: "inline",
+    //   inline: true,
+    //   attrs: {
+    //     texts: {}
+    //   },
+    //   draggable: true,
+    //   parseDOM: [{tag: "span"}],
+    //   toDOM(node) { return ["span", 0]}
+    // }
   },
 
   marks: {
@@ -186,7 +209,15 @@ export const schema = new Schema({
     },
     code: {
       parseDOM: [{tag: "code"}],
-      toDOM() { return ["code"] }
+      toDOM() { return ["code"]}
+    },
+    math: {
+      parseDOM: [{tag: "span"}],
+      toDOM() { return ["span"]}
+    },
+    math_block: {
+      parseDOM: [{tag: "span"}],
+      toDOM() { return ["span"]}
     }
   }
 })
