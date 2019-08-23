@@ -7,9 +7,9 @@
     "jupyterlab",
     "jupyterlab-extension"
   ],
-  "homepage": "https://github.com/djupytercalpoly/jupyterlab-richtext-mode",
+  "homepage": "https://github.com/jupytercalpoly/jupyterlab-richtext-mode",
   "bugs": {
-    "url": "https://github.com/djupytercalpoly/jupyterlab-richtext-mode/issues"
+    "url": "https://github.com/jupytercalpoly/jupyterlab-richtext-mode/issues"
   },
   "license": "BSD-3-Clause",
   "author": "Derek Lam",
