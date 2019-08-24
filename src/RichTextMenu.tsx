@@ -23,7 +23,8 @@ import { CodeMenu } from "./codemenu";
 import { Widget } from '@phosphor/widgets';
 import ReactDOM from "react-dom";
 import { schema } from "./prosemirror/prosemirror-schema";
-import { wrapInList } from "prosemirror-schema-list";
+import { wrapInList, liftListItem, sinkListItem } from "prosemirror-schema-list";
+import {undo, redo} from "prosemirror-history";
 
 // import { PageConfig } from "@jupyterlab/coreutils";
 // import { MenuWidgetObject } from './widget';
@@ -149,7 +150,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
     componentDidMount() {
 
         if (!this.props.view) {
-            this.setState({inactiveMarks: ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image"]});
+            this.setState({inactiveMarks: ["undo", "redo", "strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image"]});
         }
     }
     componentWillUnmount() {
@@ -310,6 +311,18 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 break;
             case "ordered_list":
                 wrapInList(schema.nodes.ordered_list)(view.state, view.dispatch);
+                break;
+            case "indent_increase":
+                sinkListItem(schema.nodes.list_item)(view.state, view.dispatch);
+                break;
+            case "indent_decrease":
+                liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+                break;
+            case "undo":
+                undo(view.state, view.dispatch);
+                break;
+            case "redo":
+                redo(view.state, view.dispatch);
                 break;
             default: 
                 break;
@@ -480,10 +493,10 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
      */
     render() {
         
-        const formats = ["format_bold", "format_italic", "format_underline", "strikethrough_s", 
-        "text_fields", "format_list_bulleted", "format_list_numbered", "format_quote", "code",  "insert_link", "photo", ];
+        const formats = ["undo", "redo", "format_bold", "format_italic", "format_underline", "strikethrough_s", 
+        "text_fields", "format_list_bulleted", "format_list_numbered", "format_indent_decrease", "format_indent_increase", "format_quote", "code",  "insert_link", "photo", ];
         const tooltips = ["bold", "italic", "underline", "strikethrough", "text-styles", "bulleted-list", "numbered-list", "blockquote", "code", "link", "image"];
-        const marks = ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image"];
+        const marks = ["undo", "redo", "strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "indent_increase", "indent_decrease", "blockquote", "code", "link", "image"];
         // const separators = ["strong", "bullet_list", "link"]
         return (
             <div className="menu">

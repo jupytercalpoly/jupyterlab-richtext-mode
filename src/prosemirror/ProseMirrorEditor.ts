@@ -18,6 +18,7 @@ import { schema } from "./prosemirror-schema";
 import { CodeBlockView, InlineMathView, BlockMathView, ImageView } from "./nodeviews";
 import { createInputRules } from "./inputrules";
 import { inputRules } from "prosemirror-inputrules";
+import { history } from "prosemirror-history";
 // import { Node } from "prosemirror-model";
 // import markdownit from "markdown-it/lib";
 // import { Transaction } from "prosemirror-state";
@@ -386,6 +387,8 @@ namespace Private {
                     initValue
                 ),
                 plugins: [
+                    // Load history plugin
+                    history(),
                     keymap(buildKeymap(schema)),
                     keymap(baseKeymap),
                     inputRules({rules: createInputRules()}),
