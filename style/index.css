@@ -39,7 +39,7 @@
 .activeMenuItem {
     padding: 1px;
     margin: 1px;
-    background-color: blue;
+    background-color: var(--jp-brand-color1);
 }
 
 .material-icons {
@@ -85,10 +85,14 @@
 
 
   i.menuItem.material-icons, i.activeMenuItem.material-icons {
-      color: var(--jp-layout-color4);
+      color: var(--jp-ui-font-color3);
       max-height: 18px;
       margin-top: 2px;
   }
+  i.activeMenuItem.material-icons {
+      color: var(--jp-ui-inverse-font-color0);
+  }
+
   i.menuItem.material-icons:hover, i.activeMenuItem.material-icons:hover {
     background: var(--jp-layout-color2);
   }
@@ -120,7 +124,7 @@ code {
     padding-left: var(--jp-code-padding);
     padding-right: 20px;
     border: none;
-    background-color: rgb(255, 255, 255);
+    background-color: transparent;
     cursor: text;
     line-height: var(--jp-content-line-height);
 }
@@ -172,6 +176,8 @@ code {
 
 .jp-scribe-menu-content {
     padding: 5px 12px 12px 12px;
+    background-color: var(--jp-layout-color2);
+    color: var(--jp-ui-font-color0);
 }
 
 
@@ -201,12 +207,12 @@ code {
 }
 
 .editor-menuLabel {
+  background-color: var(--jp-layout-color2);
   color: var(--jp-ui-font-color1);
   font-size: var(--jp-ui-font-size0);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
-
 }
 
 /* Image menu css */
