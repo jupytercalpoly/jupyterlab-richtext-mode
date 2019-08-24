@@ -52,6 +52,7 @@
     "fuzzyset": "0.0.4",
     "markdown-it": "^9.0.1",
     "markdown-it-ins": "^2.0.0",
+    "markdown-it-mathjax": "^2.0.0",
     "material-design-icons-iconfont": "^5.0.1",
     "mathjax": "^2.7.5",
     "mathjax-node": "^2.1.1",
