@@ -100,6 +100,10 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 return "ordered_list";
             case "text_fields":
                 return "heading";
+            case "undo":
+                return "undo";
+            case "redo":
+                return "redo";
             default:
                 break;
         }
