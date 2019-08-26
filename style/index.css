@@ -8,14 +8,19 @@
     background: var(--jp-cell-editor-background);
     cursor: text;
     padding: var(--jp-code-padding); */
+@import url("~material-design-icons-iconfont/dist/material-design-icons.css");
 
-@font-face {
-    font-family: 'Material Icons';
+/* @font-face {
+    font-family: 'Material Icons Mod 1';
     font-style: normal;
     font-weight: 400;
     src: local('Material Icons'),
-        local('MaterialIcons-Regular'),
-        url(./MaterialIcons-Regular.ttf) format('truetype');
+        local('MaterialIcons_mod_1'),
+        url(./MaterialIcons_mod_1.ttf) format('truetype');
+} */
+
+.ProseMirror {
+    white-space: pre-wrap;
 }
 
 .menu {
@@ -39,7 +44,7 @@
 .activeMenuItem {
     padding: 1px;
     margin: 1px;
-    background-color: blue;
+    background-color: rgba(115, 134, 148, 0.3);
 }
 
 .material-icons {
@@ -89,13 +94,25 @@
       max-height: 18px;
       margin-top: 2px;
   }
-  i.menuItem.material-icons:hover, i.activeMenuItem.material-icons:hover {
+  i.menuItem.material-icons:hover
+  /* , i.activeMenuItem.material-icons:hover  */
+  {
     background: var(--jp-layout-color2);
+    cursor: pointer;
   }
 
-  .material-icons:hover {
-      cursor: pointer;
-  }
+i.activeMenuItem.material-icons:hover {
+    cursor: pointer;
+}
+
+.check-icon {
+    position: relative;
+    right: 3px;
+}
+
+span.CodeMirror-selectedtext {
+    background-color: #a8d1ff;
+}
 
 
 
@@ -156,14 +173,14 @@ code {
     margin: 0px;
 } */
 
-.jp-scribe-menu-apply {
+button.jp-mod-styled.jp-scribe-menu-apply {
     background-color: var(--jp-brand-color1);
     border: 1px solid var(--jp-brand-color1);
     border-radius: var(--jp-border-radius);
     color: white;
 }
 
-.jp-scribe-menu-cancel {
+button.jp-mod-styled.jp-scribe-menu-cancel {
     background-color: var(--md-grey-500);
     border: 1px solid var(--md-grey-500);
     border-radius: var(--jp-border-radius);
@@ -180,6 +197,12 @@ code {
     cursor: pointer;
 }
 
+/* .jp-scribe-heading-menu-active::before {
+    font-family: 'Material Icons';
+    content: "check";
+    -webkit-font-feature-settings: 'liga';
+
+} */
 /* Link menu css */
 .linkButtons {
     display: flex;
@@ -193,6 +216,13 @@ code {
     background: white;
     min-width: 175px;
     border: var(--jp-border-width) solid var(--jp-border-color1);
+}
+
+.editor-menu-lifted {
+    z-index: 10001;
+    background: white;
+    min-width: 100px;
+    border: var(--jp-border-width) solid var(--jp-border-color1);    
 }
 
 .jp-HoverBox {
@@ -281,3 +311,53 @@ code {
     font-size: var(--jp-content-font-size0);
     line-height: var(--jp-content-line-height);
 }
+
+.ProseMirror {
+    position: relative;
+  }
+  
+  .ProseMirror {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    -webkit-font-variant-ligatures: none;
+    font-variant-ligatures: none;
+  }
+  
+  .ProseMirror pre {
+    white-space: pre-wrap;
+  }
+  
+  .ProseMirror li {
+    position: relative;
+  }
+  
+  .ProseMirror-hideselection *::selection { background: transparent; }
+  .ProseMirror-hideselection *::-moz-selection { background: transparent; }
+  .ProseMirror-hideselection { caret-color: transparent; }
+  
+  .ProseMirror-selectednode {
+    outline: 2px solid #8cf;
+  }
+  
+  /* Make sure li selections wrap around markers */
+  
+  li.ProseMirror-selectednode {
+    outline: none;
+  }
+  
+  li.ProseMirror-selectednode:after {
+    content: "";
+    position: absolute;
+    left: -32px;
+    right: -2px; top: -2px; bottom: -2px;
+    border: 2px solid #8cf;
+    pointer-events: none;
+  }
+  
+.ProseMirror .CodeMirror.cm-s-jupyter {
+      margin: 1.5em 2.5em;
+  }
+
+  .selected-math {
+      background: grey;
+  }
