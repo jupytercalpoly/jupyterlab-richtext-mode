@@ -3,9 +3,12 @@
 
 An extension that transforms Markdown cells into rich-text-editing cells, powered by ProseMirror.
 
+![gif showing what happens](./gif/example.gif)
+
+
 ## Requirements
 
-* JupyterLab >= 1.0.0
+* JupyterLab >= 1.0.2
 
 
 ## Contributing
@@ -20,9 +23,9 @@ The `jlpm` command is JupyterLab's pinned version of
 # Clone the repo to your local environment
 # Move to wyswiwyg-editor directory
 # Install dependencies
-jlpm
+npm install
 # Build Typescript source
-jlpm build
+npm run build
 # Link your development version of the extension with JupyterLab
 jupyter labextension link .
 # Rebuild Typescript source after making changes
