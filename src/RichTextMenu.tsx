@@ -479,23 +479,19 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
      * Renders the rich text menu component.
      */
     render() {
-        
-        const formats = ["format_bold", "format_italic", "format_underline", "strikethrough_s", 
-        "text_fields", "format_list_bulleted", "format_list_numbered", "format_quote", "code",  "insert_link", "photo", ];
+
         const tooltips = ["bold", "italic", "underline", "strikethrough", "text-styles", "bulleted-list", "numbered-list", "blockquote", "code", "link", "image"];
-        const marks = ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image"];
-        // const separators = ["strong", "bullet_list", "link"]
+        const marks = ["stick", "strong", "em", "underline", "strikethrough", "heading", "stick", "bullet_list", "ordered_list", "blockquote", "code", "stick", "link", "image"];
         return (
             <div className="menu">
-                    {formats.map((item, idx) => {
+                    {marks.map((item, idx) => {
                             return <MenuItem 
                             format={item} 
                             handleClick={this.handleClick} 
-                            active={this.state.activeMarks.includes(marks[idx])} 
-                            cancelled={this.state.inactiveMarks.includes(marks[idx])}
+                            active={this.state.activeMarks.includes(item)} 
+                            cancelled={this.state.inactiveMarks.includes(item)}
                             tooltip={tooltips[idx]}
-                            // separates={separators.includes(marks[idx])}
-                            key={item} />
+                            key={idx} />
                     })}
             </div>
         );

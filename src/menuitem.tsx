@@ -9,8 +9,9 @@ export default class MenuItem extends React.Component<{format: string, active: b
 
     constructor(props: any) {
         super(props);
-        this.getFormatMark = this.getFormatMark.bind(this);
+        // this.getFormatMark = this.getFormatMark.bind(this);
         this.getClassName = this.getClassName.bind(this);
+        this.getImgSrc = this.getImgSrc.bind(this);
     }
 
     // componentDidMount() {
@@ -49,69 +50,84 @@ export default class MenuItem extends React.Component<{format: string, active: b
     //     // }
 
     // }
-    // /**
-    //  * Gets the icon to be loaded based on the 'format' prop.
-    //  * @returns - Hardcoded 'require' statements because 'require'
-    //  * doesn't allow variables.
-    //  */
-    // getImgSrc() {
-    //     switch (this.props.format) {
-    //         case "strong":
-    //             return require("../static/scribe-format-strong.svg");
-    //         case "em":
-    //             return require("../static/scribe-format-em.svg");
-    //         case "underline":
-    //             return require("../static/scribe-format-underline.svg");
-    //         case "code":
-    //             return require("../static/scribe-format-code.svg");
-    //         case "strikethrough":
-    //             return require("../static/scribe-format-strikethrough.svg");
-    //         case "blockquote":
-    //             return require("../static/scribe-format-blockquote.svg");
-    //         default:
-    //             break;
-    //     }
-    // }
-
     /**
-     * Gets the name of the format in ProseMirror language.
+     * Gets the icon to be loaded based on the 'format' prop.
+     * @returns - Hardcoded 'require' statements because 'require'
+     * doesn't allow variables.
      */
-    getFormatMark() {
+    getImgSrc() {
         switch (this.props.format) {
-            case "format_bold":
-                return "strong";
-            case "format_italic":
-                return "em";
-            case "format_underline":
-                return "underline";
+            case "strong":
+                return require("../static/scribe-format-bold.svg");
+            case "em":
+                return require("../static/scribe-format-italic.svg");
+            case "underline":
+                return require("../static/scribe-format-underline.svg");
             case "code":
-                return "code";
-            case "strikethrough_s":
-                return "strikethrough";
-            case "format_quote":
-                return "blockquote";
-            case "insert_link":
-                return "link";
-            case "photo":
-                return "image";
-            case "format_list_bulleted":
-                return "bullet_list";
-            case "format_list_numbered":
-                return "ordered_list";
-            case "text_fields":
-                return "heading";
+                return require("../static/scribe-format-code.svg");
+            case "strikethrough":
+                return require("../static/scribe-format-strikethrough.svg");
+            case "heading":
+                return require("../static/scribe-format-text-style.svg");
+            case "bullet_list":
+                return require("../static/scribe-format-list-bulleted.svg");
+            case "ordered_list":
+                return require("../static/scribe-format-list-numbered.svg");
+            case "blockquote":
+                return require("../static/scribe-format-blockquote.svg");
+            case "link":
+                return require("../static/scribe-format-link.svg");
+            case "image":
+                return require("../static/scribe-format-photo.svg");
+            case "stick":
+                return require("../static/scribe-stick.svg");
             default:
                 break;
         }
     }
 
+    // /**
+    //  * Gets the name of the format in ProseMirror language.
+    //  */
+    // getFormatMark() {
+    //     switch (this.props.format) {
+    //         case "format_bold":
+    //             return "strong";
+    //         case "format_italic":
+    //             return "em";
+    //         case "format_underline":
+    //             return "underline";
+    //         case "code":
+    //             return "code";
+    //         case "strikethrough_s":
+    //             return "strikethrough";
+    //         case "format_quote":
+    //             return "blockquote";
+    //         case "insert_link":
+    //             return "link";
+    //         case "photo":
+    //             return "image";
+    //         case "format_list_bulleted":
+    //             return "bullet_list";
+    //         case "format_list_numbered":
+    //             return "ordered_list";
+    //         case "text_fields":
+    //             return "heading";
+    //         default:
+    //             break;
+    //     }
+    // }
+
     getClassName() {
         let format = this.props.format;
         let active = this.props.active;
 
-        let str = "material-icons";
+        let str = "";
 
- 
+        if (format === "stick") {
+            return "menuSeparator";
+        }
+
         if (format === "insert_link" || format === "photo") {
             str += " menuItem";
         }
@@ -130,24 +146,26 @@ export default class MenuItem extends React.Component<{format: string, active: b
     render() {
         if (this.props.cancelled) {
             return (
-                <i 
+                <img 
                 // src={this.getImgSrc()} 
                 // alt="formatting" 
-                id={this.getFormatMark()} 
-                className="material-icons inactive-menu-icon"
+                id={this.props.format} 
+                src={this.getImgSrc()}
+                className="inactive-menu-icon"
                 title={this.props.tooltip}
-                >{this.props.format}</i>               
+                />            
             )
         }
         else {
             return (
-                <i 
+                <img 
                 // src={this.getImgSrc()} 
                 // alt="formatting" 
-                id={this.getFormatMark()} 
+                id={this.props.format} 
                 className={this.getClassName()}
+                src={this.getImgSrc()}
                 title={this.props.tooltip}
-                onClick={this.props.handleClick}>{this.props.format}</i>
+                onClick={this.props.format !== "stick" ? this.props.handleClick : () => null} />
             )
         }
 
