@@ -283,8 +283,10 @@ function liftBlockMath(tokens: any[]) {
 
 function parseHTMLToken(token: any) {
   console.log("parsing html!");
-  let regex = RegExp(/(?<=\<).+(?=\>)/);
-  let htmlTag = regex.exec(token.content)[0];
+  let regex = RegExp(/<(.+)(?=\>)/);
+  console.log(regex.exec(token.content));
+  let htmlTag = regex.exec(token.content)[1];
+  console.log(htmlTag);
   if (htmlTag.includes("/")) {
     token.type = htmlTag.slice(1) + "_close";
   }

@@ -7,9 +7,9 @@ import { schema } from "./prosemirror-schema";
 export function createInputRules(): InputRule[] {
     let inputRules = [];
     inputRules.push(new InputRule(/\$\$.+\$\$/, blockMathFinish));
-    inputRules.push(new InputRule(/(?<!\$)(\$[^\$]+\$)(?!.)/, inlineMathFinish));
+    inputRules.push(new InputRule(/((?!\$).|^)(\$[^\$]+\$)(?!.)/, inlineMathFinish));
     // inputRules.push(new InputRule(/\${2}(?!.)/, blockMathRule));
-    inputRules.push(new InputRule(/(?<!\$)\$(?!.)/, inlineMathRule));
+    inputRules.push(new InputRule(/((?!\$).|^)\$(?!.)/, inlineMathRule));
     return inputRules;
 }
 
