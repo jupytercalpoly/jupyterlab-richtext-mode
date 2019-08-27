@@ -4,7 +4,7 @@ import { schema } from './prosemirror-schema';
 import { Fragment, Mark } from "prosemirror-model";
 import { MarkdownParser } from "./from_markdown";
 
-const md = require('markdown-it')().use(require('markdown-it-mathjax')());
+const md = require('markdown-it')({html: true}).use(require('markdown-it-mathjax')());
 export const parser = new MarkdownParser(schema, md, {
     blockquote: {block: "blockquote"},
     paragraph: {block: "paragraph"},

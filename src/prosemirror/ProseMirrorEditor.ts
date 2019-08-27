@@ -379,7 +379,7 @@ namespace Private {
         //       return DecorationSet.create(state.doc, decorations);
         //     }
         //   }
-        // })
+        // });
         let view = new EditorView(host, {
             state: EditorState.create({
                 doc: Markdown.parser.parse(

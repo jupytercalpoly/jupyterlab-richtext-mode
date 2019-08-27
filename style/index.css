@@ -36,14 +36,22 @@
     padding-left: 72px;
 }
 
+
+.menuSeparator {
+    color: var(--jp-layout-color4);
+    opacity: 0.25;
+}
+
 .menuItem {
     padding: 1px;
     margin: 1px;
+    color: var(--jp-layout-color4);
 }
 
 .activeMenuItem {
     padding: 1px;
     margin: 1px;
+    color: var(--jp-layout-color4);
     background-color: rgba(115, 134, 148, 0.3);
 }
 
@@ -77,11 +85,6 @@
       margin: 2px 1px 1px 1px;
   }
 
-  .separatorItem {
-      display: inline-block;
-      border-left: 2px solid var(--jp-layout-color4);
-      padding-left: 3px;
-  }
 
   .inactive-icon, .inactive-menu-icon {
     opacity: 0.5;
@@ -89,19 +92,21 @@
 }
 
 
-  i.menuItem.material-icons, i.activeMenuItem.material-icons {
-      color: var(--jp-layout-color4);
-      max-height: 18px;
-      margin-top: 2px;
-  }
-  i.menuItem.material-icons:hover
-  /* , i.activeMenuItem.material-icons:hover  */
-  {
+/* i.menuItem, i.activeMenuItem {
+    max-height: 18px;
+    margin-top: 2px;
+} */
+img.menuItem:hover
+/* , i.activeMenuItem.material-icons:hover  */
+{
     background: var(--jp-layout-color2);
     cursor: pointer;
-  }
+}
 
-i.activeMenuItem.material-icons:hover {
+img.activeMenuItem:hover {
+    cursor: pointer;
+}
+img.activeMenuItem.editor-menuLabel {
     cursor: pointer;
 }
 
@@ -357,7 +362,7 @@ button.jp-mod-styled.jp-scribe-menu-cancel {
 .ProseMirror .CodeMirror.cm-s-jupyter {
       margin: 1.5em 2.5em;
   }
-
+/* 
   .selected-math {
       background: grey;
-  }
+  } */

@@ -365,6 +365,7 @@ function arrowHandler(dir: any) {
           return true
         }
       }
+      console.log(`arrow ${dir} not handled`);
       return false
     }
   }

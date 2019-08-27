@@ -69,9 +69,9 @@ class MarkdownParseState {
   // : (NodeType, ?Object, ?[Node]) → ?Node
   // Add a node at the current position.
   addNode(type: NodeType, attrs?: Object, content?: [Node]) {
-    console.log(type, content);
+    // console.log(type, content);
     let node = type.createAndFill(attrs, content, this.marks);
-    console.log(node);
+    // console.log(node);
     if (!node) return null
     this.push(node)
     return node
@@ -116,14 +116,14 @@ function noOp() {}
 function tokenHandlers(schema: Schema, tokens: Object) {
   let handlers = Object.create(null)
   for (let type in tokens) {
-      console.log(type);
+      // console.log(type);
       //@ts-ignore
     let spec = tokens[type]
     if (spec.block) {
         //@ts-ignore
       let nodeType = schema.nodeType(spec.block)
       if (noOpenClose(type)) {
-          console.log(type);
+          // console.log(type);
         handlers[type] = (state: any, tok: any) => {
           state.openNode(nodeType, attrs(spec, tok))
           if (!(type === "display_math")) {
@@ -231,7 +231,7 @@ export class MarkdownParser {
   // and create a ProseMirror document as prescribed by this parser's
   // rules.
   parse(text: string) {
-      console.log("parsing!");
+      // console.log("parsing!");
     let state = new MarkdownParseState(this.schema, this.tokenHandlers), doc
     let tokens = this.tokenizer.parse(text, {});
     let newTokens = liftBlockMath(tokens);
@@ -246,13 +246,18 @@ function liftBlockMath(tokens: any[]) {
     let newTokens = [];
     for (let i = 0; i < tokens.length; i++) {
         let token = tokens[i];
+
         if (token.children) {
-            console.log("found children");
+            // console.log("found children");
             let newChild;
             let foundDisplayMath = false;
             for (let child = 0; child < token.children.length; child++) {
+                if (token.children[child].type === "html_inline") {
+                  console.log("found html_inline");
+                  parseHTMLToken(token.children[child]);
+                }
                 if (token.children[child].type === "display_math") {
-                    console.log("found the display math");
+                    // console.log("found the display math");
                     newChild = token.children[child];
                     newChild.block = true;
                     newTokens.pop();
@@ -274,5 +279,21 @@ function liftBlockMath(tokens: any[]) {
     }
     console.log(newTokens);
     return newTokens;
+}
+
+function parseHTMLToken(token: any) {
+  console.log("parsing html!");
+  let regex = RegExp(/<(.+)(?=\>)/);
+  console.log(regex.exec(token.content));
+  let htmlTag = regex.exec(token.content)[1];
+  console.log(htmlTag);
+  if (htmlTag.includes("/")) {
+    token.type = htmlTag.slice(1) + "_close";
+  }
+  else {
+    token.type = htmlTag + "_open";
+  }
+  console.log(token);
+  return token;
 }
 
