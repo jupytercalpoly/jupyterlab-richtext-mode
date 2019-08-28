@@ -67,7 +67,27 @@ export function inlineMathFinish(state: EditorState, match: string[], start: num
 
     let tr = getSelectionReplace(state, match);
     tr = tr.removeMark(tr.selection.from, tr.selection.to, schema.marks.math);
-    tr = tr.replaceSelectionWith(schema.nodes.inline_math.create({texts: match[0]}));
+    console.log(match[0]);
+    console.log(match[0].charAt(0));
+    console.log(match[0].charCodeAt(0));
+    console.log(match[0].charAt(1));
+    console.log(match[0][0]);
+    console.log(match[0].slice(1).charCodeAt(0));
+    if (match[0][0] !== "$") {
+        console.log("not regular");
+        if (!(match[0].charCodeAt(0) === 65532)) {
+            console.log("isn't obj");
+            tr = tr.replaceSelectionWith(schema.text(match[0][0]));
+
+        }
+    
+        tr = tr.replaceSelectionWith(schema.nodes.inline_math.create({texts: match[0].slice(1)}));
+    }
+    else {
+        console.log("regular");
+        tr = tr.replaceSelectionWith(schema.nodes.inline_math.create({texts: match[0]}));
+    }
+    console.log(match);
     tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from));
     // console.log(tr.selection);
     // tr = tr.insertText("s", tr.selection.from);

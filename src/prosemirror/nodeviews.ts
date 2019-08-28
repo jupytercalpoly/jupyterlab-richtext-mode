@@ -124,6 +124,7 @@ export class CodeBlockView {
       Left: () => this.maybeEscape("char", -1),
       Down: () => this.maybeEscape("line", 1),
       Right: () => this.maybeEscape("char", 1),
+      Backspace: () => this.maybeDestroy(),
       [`${mod}-Z`]: () => undo(view.state, view.dispatch),
       [`Shift-${mod}-Z`]: () => redo(view.state, view.dispatch),
       [`${mod}-Y`]: () => redo(view.state, view.dispatch),
@@ -134,10 +135,17 @@ export class CodeBlockView {
   }
 
   maybeDestroy() {
+    console.log("maybe destroy?");
     if (this.doc.getValue() === "") {
       let tr = this.view.state.tr;
-      tr.delete(tr.selection.from, tr.selection.to);
+      tr = tr.delete(tr.selection.from - 2, tr.selection.to);
       this.view.dispatch(tr);
+      this.view.focus();
+      return null;
+    }
+    else {
+      console.log("pass");
+      return CodeMirror.Pass;
     }
   }
 
