@@ -69,6 +69,7 @@ function addContextMenuItems(contextMenu: ContextMenu) {
 }
 
 function addKeybindings(commands: CommandRegistry) {
+
   commands.addCommand("prosemirror-bold", {
     execute: () => {
       let currentEditor = document.querySelector(".ProseMirror-focused");
@@ -82,7 +83,19 @@ function addKeybindings(commands: CommandRegistry) {
       currentEditor.dispatchEvent(new KeyboardEvent("keydown", {metaKey: true, key: "i"}));
     }
   })
+  commands.addCommand("prosemirror-tab", {
+    execute: () => {
+      let currentEditor = document.querySelector(".ProseMirror-focused");
+      currentEditor.dispatchEvent(new KeyboardEvent("keydown", {key: "Tab"}));
+    }
+  })
 
+  commands.addCommand("prosemirror-shift-tab", {
+    execute: () => {
+      let currentEditor = document.querySelector(".ProseMirror-focused");
+      currentEditor.dispatchEvent(new KeyboardEvent("keydown", {shiftKey: true, key: "Tab"}));
+    }
+  })
   commands.addCommand("prosemirror-copy-menu", {
     label: "Copy Content",
     execute: () => {
@@ -103,12 +116,25 @@ function addKeybindings(commands: CommandRegistry) {
     command: "prosemirror-bold",
     keys: ['Cmd B'],
     selector: '.ProseMirror-focused'
-  })
+  });
+
   commands.addKeyBinding({
     command: "prosemirror-italic",
     keys: ['Cmd I'],
     selector: '.ProseMirror-focused'
-  })
+  });
+
+  commands.addKeyBinding({
+    command: "prosemirror-tab",
+    keys: ["Tab"],
+    selector: ".ProseMirror-focused"
+  });
+
+  commands.addKeyBinding({
+    command: "prosemirror-shift-tab",
+    keys: ["Shift Tab"],
+    selector: ".ProseMirror-focused"
+  });
   // commands.addKeyBinding({
   //   command: "prosemirror-strikethrough",
   //   keys: ['Cmd Shift K'],

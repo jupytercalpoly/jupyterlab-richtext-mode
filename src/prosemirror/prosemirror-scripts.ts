@@ -6,11 +6,13 @@ TextSelection,
 } from "prosemirror-state";
 import { Mark, MarkType, 
     ResolvedPos,
-    Node, Schema } from "prosemirror-model";
+    Node, Schema, NodeType } from "prosemirror-model";
 import { schema } from "./prosemirror-schema";
 import { EditorView } from "prosemirror-view";
-import { splitListItem, wrapInList } from "prosemirror-schema-list";
-import { chainCommands, } from "prosemirror-commands"; 
+import { splitListItem, wrapInList, sinkListItem, liftListItem } from "prosemirror-schema-list";
+import { chainCommands, 
+    // lift,
+ } from "prosemirror-commands"; 
 
 /**
  * Obtains the marks for the currently active selection.
@@ -26,38 +28,31 @@ export function getMarksForSelection(transaction: Transaction, state: EditorStat
     // let doc = transaction.doc;
     // console.log(selection.from);
     if (!selection.empty) { // Non-empty selection
-        // console.log(selection);
-        // console.log(selection.content());
-        // console.log(selection.$from.marks());
-        // let leftNode = doc.cut(selection.from, selection.to);
-        // console.log(leftNode);
-
-        
-        // // if (leftNode.isTextblock) {
-        // //     if (leftNode.textContent === "") {
-        // //         // return getNodeBefore(transaction);
-        // //         return [];
-        // //     }
-        // //     else {
-        // //         console.log(leftNode.firstChild);
-        // //         return leftNode.firstChild.marks;
-        // //     }
-        // // }
-        // if (!leftNode.textContent) {
-        //     return [];
-        // }
-        // else {
-        //     return leftNode.firstChild.marks;
-        // }
         return selection.$from.marks();
     }
 
     else if (selection.from != 1) { // Empty selection 
-        // console.log(state.storedMarks);
-        // console.log(selection.$from.marks());
         return getMarksBefore(state);
     }
     return [];
+}
+
+
+export function getWrappingNodes(transaction: Transaction): string[] {
+    let { $from } = transaction.selection;
+    let nodeList: string[] = [];
+    if (findNodeParentEquals($from, schema.nodes.bullet_list)) {
+        nodeList.push("bullet_list");
+    }
+    else if (findNodeParentEquals($from, schema.nodes.ordered_list)) {
+        nodeList.push("ordered_list");
+    }
+
+    if (findNodeParentEquals($from, schema.nodes.blockquote)) {
+        nodeList.push("blockquote");
+    }
+
+    return nodeList;
 }
 
 /**
@@ -351,6 +346,8 @@ export function buildKeymap(schema: Schema) {
     keys["ArrowRight"] = arrowHandler("right");
     keys["ArrowUp"] = arrowHandler("up");
     keys["ArrowDown"] = arrowHandler("down");
+    keys["Tab"] = sinkListItem(schema.nodes.list_item);
+    keys["Shift-Tab"] = liftListItem(schema.nodes.list_item);
     return keys;
 }
 function arrowHandler(dir: any) {
@@ -366,10 +363,49 @@ function arrowHandler(dir: any) {
         }
       }
       console.log(`arrow ${dir} not handled`);
+      view.focus();
       return false
     }
   }
   
+export function findNodeParentEquals(pos: ResolvedPos, node: NodeType) {
+    let depth = pos.depth;
+    // console.log(depth);
+    for (let i = depth; i >= 1; i--) {
+        // console.log(pos.node(depth));
+        if (pos.node(i).type === node) {
+            console.log("foundit");
+            return true;
+        }
+    }
+    console.log("couldntfindit:(");
+    return false;
+}
+
+// export function joinList(state: EditorState, dispatch: (tr: Transaction) => void) {
+//     let { $from } = state.selection;
+//     if (findCutBefore($from)) {
+//         console.log("found cut!");
+//         console.log(findCutBefore($from).node());
+//         if (findCutBefore($from).node().type.name === "bullet_list") {
+//             joinUp(state, dispatch);
+//         }
+//         else {
+//             return false;
+//         }
+//     }
+//     else {
+//         return false;
+//     }
+//     return true;
+// }
+// function findCutBefore($pos: ResolvedPos) {
+//     if (!$pos.parent.type.spec.isolating) for (let i = $pos.depth - 1; i >= 0; i--) {
+//       if ($pos.index(i) > 0) return $pos.doc.resolve($pos.before(i + 1))
+//       if ($pos.node(i).type.spec.isolating) break
+//     }
+//     return null
+//   }
 
 // export function descendantOf(node: Node, type: NodeType) {
     
@@ -377,3 +413,5 @@ function arrowHandler(dir: any) {
 interface KeyObject {
     [key: string]: (state: EditorState, dispatch: (tr: Transaction) => void, view?: EditorView) => boolean;
 }
+
+

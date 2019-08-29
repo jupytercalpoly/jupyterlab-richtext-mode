@@ -3,22 +3,6 @@ import {Schema} from "prosemirror-model"
 // import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
 // import { PageConfig } from "@jupyterlab/coreutils";
 // ::Schema Document schema for the data model used by CommonMark.
-export const mathSchema = new Schema({
-  nodes: {
-    doc: {
-      content: "paragraph"
-    },
-    paragraph: {
-      content: "inline*",
-      parseDOM: [{tag: "p"}],
-      toDOM() {return ["p", 0]}
-    },
-    text: {
-      group: "inline",
-      toDOM(node) { return node.text }
-    }
-  }
-});
 export const schema = new Schema({
   nodes: {
     doc: {

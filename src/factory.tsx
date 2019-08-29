@@ -27,8 +27,7 @@ import { Cell,
           }
         let newContentFactory = new ContentFactoryEditor({editorFactory: proseMirrorEditor})
         options.contentFactory = newContentFactory;
-        console.log(options.contentFactory);
         
         return new MarkdownCell(options).initializeState();
       }
-}
+  }

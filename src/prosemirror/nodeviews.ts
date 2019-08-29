@@ -302,6 +302,7 @@ export class InlineMathView {
                               .removeStoredMark(schema.marks.math)
                               .scrollIntoView());
       })
+      console.log(`made inline_math for ${this.node.attrs.texts}`);
       // console.log(this.view);
       // console.log(this.getPos());eq
  

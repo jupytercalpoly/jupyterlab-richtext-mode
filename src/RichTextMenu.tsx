@@ -23,7 +23,7 @@ import { CodeMenu } from "./codemenu";
 import { Widget } from '@phosphor/widgets';
 import ReactDOM from "react-dom";
 import { schema } from "./prosemirror/prosemirror-schema";
-import { wrapInList } from "prosemirror-schema-list";
+import { wrapInList, liftListItem } from "prosemirror-schema-list";
 
 // import { PageConfig } from "@jupyterlab/coreutils";
 // import { MenuWidgetObject } from './widget';
@@ -42,7 +42,7 @@ import { wrapInList } from "prosemirror-schema-list";
 export default class RichTextMenu extends React.Component<{view: EditorView, 
     model: CodeEditor.IModel, linkMenuWidget: Widget, imageMenuWidget: Widget, headingMenuWidget: Widget, codeMenuWidget: Widget,
     codeLanguageMenuWidget: Widget}, 
-    {activeMarks: string[], inactiveMarks: string[], widgetsSet: Widget[], widgetAttached: Widget}> {
+    {activeMarks: string[], activeWrapNodes: string[], inactiveMarks: string[], widgetsSet: Widget[], widgetAttached: Widget}> {
 
         // Render menus into their specific widget nodes in menuWidgets
 
@@ -51,6 +51,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         super(props);
         this.state = {
             activeMarks: [],
+            activeWrapNodes: [],
             inactiveMarks: [],
             widgetAttached: null,
             widgetsSet: [] // After the MenuItem component mounts and I try to get the bounding DOMRect, it gives the wrong information, so these are flags to see
@@ -92,6 +93,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                     let newState = that.props.view.state.apply(transaction);
                     let serializer = Markdown.serializer;
                     let source = serializer.serialize(transaction.doc);
+                    let activeWrapNodes = [];
                     // let doc = this.state.doc;
                     // console.log(transaction.selection);
                     if (transaction.selectionSet) {
@@ -100,7 +102,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                             that.setState({widgetAttached: null});
                         }
                     }
-                    console.log(this.state.storedMarks);
+                    // console.log(this.state.storedMarks);
                     // console.log(transaction.selection);
                     // console.log(transaction.selection.from);
                     // console.log(transaction.selection.$from.blockRange().parent);
@@ -114,7 +116,12 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                     // // }
     
                     that.props.model.value.text = source;
+                    console.log(transaction.selection);
                     console.log(transaction.doc);
+
+                    activeWrapNodes = scripts.getWrappingNodes(transaction);
+                    that.setState({activeWrapNodes});
+
                     if (!transaction.storedMarksSet) {
                         let parent = transaction.selection.$from.parent;
                         let parentOffset = transaction.selection.$from.parentOffset;
@@ -289,7 +296,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 scripts.toggleMark(schema.marks.strikethrough)(view.state, view.dispatch);
                 break;
             case "blockquote":
-                if (selection.$from.node(1).type.name === "blockquote") {
+                if (scripts.findNodeParentEquals(selection.$from, schema.nodes.blockquote)) {
                     lift(view.state, view.dispatch);
                 }
                 else {
@@ -306,11 +313,30 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 this.formatMenu(e);
                 break;
             case "bullet_list":
-                wrapInList(schema.nodes.bullet_list)(view.state, view.dispatch);
+                if (scripts.findNodeParentEquals(selection.$from, schema.nodes.bullet_list)) {
+                    liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+                }
+                else if (scripts.findNodeParentEquals(selection.$from, schema.nodes.ordered_list)) {
+                    liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+                    wrapInList(schema.nodes.bullet_list)(view.state, view.dispatch);
+                }
+                else {
+                    wrapInList(schema.nodes.bullet_list)(view.state, view.dispatch);
+                }
                 break;
             case "ordered_list":
-                wrapInList(schema.nodes.ordered_list)(view.state, view.dispatch);
-                break;
+                
+                    if (scripts.findNodeParentEquals(selection.$from, schema.nodes.ordered_list)) {
+                        liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+                    }
+                    else if (scripts.findNodeParentEquals(selection.$from, schema.nodes.bullet_list)) {
+                        liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+                        wrapInList(schema.nodes.ordered_list)(view.state, view.dispatch);
+                    }
+                    else {
+                        wrapInList(schema.nodes.ordered_list)(view.state, view.dispatch);
+                    }
+                    break;
             default: 
                 break;
         };
@@ -464,14 +490,24 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
      * @param command - The name of the mark to be toggled.
      */
     toggleState(command: string) {
-        const newState = [...this.state.activeMarks];
-        if (this.state.activeMarks.includes(command)) {
-            newState.splice(newState.indexOf(command), 1);
+        switch (command) {
+            case "bullet_list":
+                return;
+            case "ordered_list":
+                return;
+            case "blockquote":
+                return;
+            default:
+                const newState = [...this.state.activeMarks];
+                if (this.state.activeMarks.includes(command)) {
+                    newState.splice(newState.indexOf(command), 1);
+                }
+                else {
+                    newState.push(command);
+                }
+                this.setState({activeMarks: newState});
         }
-        else {
-            newState.push(command);
-        }
-        this.setState({activeMarks: newState});
+
     }
 
     
@@ -488,7 +524,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                             return <MenuItem 
                             format={item} 
                             handleClick={this.handleClick} 
-                            active={this.state.activeMarks.includes(item)} 
+                            active={this.state.activeMarks.includes(item) || this.state.activeWrapNodes.includes(item)} 
                             cancelled={this.state.inactiveMarks.includes(item)}
                             tooltip={tooltips[idx]}
                             key={idx} />
