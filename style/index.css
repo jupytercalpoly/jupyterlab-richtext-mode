@@ -36,22 +36,22 @@
     padding-left: 72px;
 }
 
-
-.menuSeparator {
-    color: var(--jp-layout-color4);
-    opacity: 0.25;
+.menu-separator-color {
+    fill: var(--jp-layout-color3);
+}
+.menu-item-color {
+    fill: var(--jp-layout-color4);
 }
 
 .menuItem {
     padding: 1px;
     margin: 1px;
-    color: var(--jp-layout-color4);
+
 }
 
 .activeMenuItem {
     padding: 1px;
     margin: 1px;
-    color: var(--jp-layout-color4);
     background-color: rgba(115, 134, 148, 0.3);
 }
 

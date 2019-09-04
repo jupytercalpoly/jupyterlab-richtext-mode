@@ -58,7 +58,7 @@ class MarkdownParseState {
   parseTokens(toks: any) {
     for (let i = 0; i < toks.length; i++) {
       let tok = toks[i]
-      console.log(tok);
+      // console.log(tok);
       let handler = this.tokenHandlers[tok.type]
       if (!handler)
         throw new Error("Token type `" + tok.type + "` not supported by Markdown parser")
@@ -277,23 +277,23 @@ function liftBlockMath(tokens: any[]) {
             newTokens.push(token);
         }
     }
-    console.log(newTokens);
+    // console.log(newTokens);
     return newTokens;
 }
 
 function parseHTMLToken(token: any) {
-  console.log("parsing html!");
+  // console.log("parsing html!");
   let regex = RegExp(/<(.+)(?=\>)/);
-  console.log(regex.exec(token.content));
+  // console.log(regex.exec(token.content));
   let htmlTag = regex.exec(token.content)[1];
-  console.log(htmlTag);
+  // console.log(htmlTag);
   if (htmlTag.includes("/")) {
     token.type = htmlTag.slice(1) + "_close";
   }
   else {
     token.type = htmlTag + "_open";
   }
-  console.log(token);
+  // console.log(token);
   return token;
 }
 

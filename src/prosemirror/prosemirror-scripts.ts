@@ -2,15 +2,23 @@ import { Transaction, EditorState,
 Selection,
 TextSelection,
 // NodeSelection,
+// NodeSelection,
 
 } from "prosemirror-state";
 import { Mark, MarkType, 
     ResolvedPos,
-    Node, Schema } from "prosemirror-model";
+    Node, Schema, NodeType,
+ } from "prosemirror-model";
 import { schema } from "./prosemirror-schema";
 import { EditorView } from "prosemirror-view";
-import { splitListItem, wrapInList } from "prosemirror-schema-list";
-import { chainCommands, } from "prosemirror-commands"; 
+import { splitListItem, wrapInList, liftListItem, sinkListItem } from "prosemirror-schema-list";
+import { chainCommands, setBlockType, 
+    lift,
+    wrapIn
+ } from "prosemirror-commands"; 
+// import { parser } from "./markdown";
+
+//  import { ReplaceAroundStep } from "prosemirror-transform";
 
 /**
  * Obtains the marks for the currently active selection.
@@ -26,38 +34,31 @@ export function getMarksForSelection(transaction: Transaction, state: EditorStat
     // let doc = transaction.doc;
     // console.log(selection.from);
     if (!selection.empty) { // Non-empty selection
-        // console.log(selection);
-        // console.log(selection.content());
-        // console.log(selection.$from.marks());
-        // let leftNode = doc.cut(selection.from, selection.to);
-        // console.log(leftNode);
-
-        
-        // // if (leftNode.isTextblock) {
-        // //     if (leftNode.textContent === "") {
-        // //         // return getNodeBefore(transaction);
-        // //         return [];
-        // //     }
-        // //     else {
-        // //         console.log(leftNode.firstChild);
-        // //         return leftNode.firstChild.marks;
-        // //     }
-        // // }
-        // if (!leftNode.textContent) {
-        //     return [];
-        // }
-        // else {
-        //     return leftNode.firstChild.marks;
-        // }
         return selection.$from.marks();
     }
 
     else if (selection.from != 1) { // Empty selection 
-        // console.log(state.storedMarks);
-        // console.log(selection.$from.marks());
         return getMarksBefore(state);
     }
     return [];
+}
+
+
+export function getWrappingNodes(transaction: Transaction): string[] {
+    let { $from } = transaction.selection;
+    let nodeList: string[] = [];
+    if (findNodeParentEquals($from, schema.nodes.bullet_list)) {
+        nodeList.push("bullet_list");
+    }
+    else if (findNodeParentEquals($from, schema.nodes.ordered_list)) {
+        nodeList.push("ordered_list");
+    }
+
+    if (findNodeParentEquals($from, schema.nodes.blockquote)) {
+        nodeList.push("blockquote");
+    }
+
+    return nodeList;
 }
 
 /**
@@ -86,22 +87,7 @@ function getMarksBefore(state: EditorState) {
     }
 
     return from.marksAcross(selection.$to);
-//     let prev = 0;
-//     let node = doc.resolve(selection.from).nodeBefore;
 
-//     while (!node || (node ? (node.textContent === "") : !node)) {
-//         prev++ ;
-//         node = doc.resolve(selection.from - prev).nodeBefore;
-//         // console.log(node);
-//     }
-//     if (node.isTextblock) {
-//         // console.log(node.lastChild);
-//         return node.lastChild.marks;
-//     }
-//     if (node.isText) {
-//         return node.marks;
-//     }    
-// }
 };
 
 /**
@@ -245,30 +231,51 @@ export function getHeadingLevel(selection: Selection) {
     }
 }
 
+function createCodeBlock(state: EditorState, dispatch: (tr: Transaction) => void) {
+    let {$head, $anchor, from} = state.selection;
+    let marks = $head.marks().map(mark => mark.type.name);
+    if (!(marks.includes("md_code_block") || !($head.sameParent($anchor) || !($head.node().type.name === "paragraph")))) return false;
+    
+    let language: string;
+    let tr = state.tr;
+    let offset = $head.parentOffset;
+    console.log(offset);
+    if ($head.node().textBetween(offset - 1, offset) === "`") {
+        language = "";
+        console.log("no language!");
+    }
+    else {
+        let child: Node;
+        let newPos = state.doc.resolve(from - 1);
+        child = newPos.node().child(newPos.index(newPos.depth));
+        language = child.textContent.slice(3);
+    }
+
+    tr = tr.setSelection(TextSelection.create(tr.doc, from - 3 - language.length, from));
+    tr = tr.deleteSelection();
+    if (!tr.selection.$from.node().textContent) {
+        tr = tr.setBlockType(tr.selection.from, tr.selection.to, schema.nodes.code_block, {params: language});
+    }
+    else {
+        tr = tr.insert(tr.selection.from, schema.nodes.code_block.create({params: language}));
+        tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from - 2, tr.selection.from - 2));
+    }
+    dispatch(tr);
+    // return ;
+    // if ($head.node().textBetween(offset - 1, offset) === "`") { //  Case where no language is given
+
+
+    //     return ;
+    // }
+    return true;
+
+}
 export function newlineInMath(state: EditorState, dispatch: (tr: Transaction) => void) {
     let {$head, $anchor} = state.selection;
     let marks = $head.marks().map(mark => mark.type.name);
-    if (!(marks.includes("math") || marks.includes("block_math") || !($head.sameParent($anchor))) || !($head.node().type.name === "paragraph")) return false;
-    // console.log($head.node()); 
-
+    if (!(marks.includes("math")) || !($head.sameParent($anchor)) || !($head.node().type.name === "paragraph")) return false;
     let offset = $head.parentOffset;
-    // let childIndex = $head.index($head.depth);
-    // console.log(childIndex);
-    // let textNode;
-
-    // if ($head.node().childCount - 1 < childIndex) {
-    //     textNode = $head.node().child(childIndex - 1);
-    // }
-    // else {
-    //     textNode = $head.node().child(childIndex);
-    // }
-    // console.log(textNode);
-
-    // let text = textNode.text[$head.textOffset];
-    // console.log(text);
-
-    if (offset > 0 ? ($head.node().textBetween(offset - 1, offset) === "$") : ($head.node().textBetween(offset, offset) === "$")) return false;
-    // if (dispatch) dispatch(state.tr.insertText("\n").scrollIntoView());
+    if ($head.node().textBetween(offset - 1, offset) === "$") return false;
     if (dispatch) dispatch(state.tr.replaceSelectionWith(schema.nodes.hard_break.create()).scrollIntoView());
     return true;
 }
@@ -321,7 +328,7 @@ export function renderMath(state: EditorState, dispatch: (tr: Transaction) => vo
         tr = tr.replaceSelectionWith(schema.nodes.block_math.create({texts: mathText}));
         if (!tr.selection.$head.nodeAfter) {
             tr = tr.insert(tr.selection.from + 1, schema.nodes.paragraph.create());
-            tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from + 1));
+            tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from + 2));
         }
     }
     else {
@@ -332,6 +339,49 @@ export function renderMath(state: EditorState, dispatch: (tr: Transaction) => vo
     return true;
 }
 
+export function toggleBulletList(state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView<any>) {
+    let selection = view.state.selection;
+
+    if (findNodeParentEquals(selection.$from, schema.nodes.bullet_list)) {
+        liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+    }
+    else if (findNodeParentEquals(selection.$from, schema.nodes.ordered_list)) {
+        liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+        wrapInList(schema.nodes.bullet_list)(view.state, view.dispatch);
+    }
+    else {
+        wrapInList(schema.nodes.bullet_list)(view.state, view.dispatch);
+    }
+    return true;
+}
+
+export function toggleOrderedList(state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView<any>) {
+    let selection = view.state.selection;
+
+    if (findNodeParentEquals(selection.$from, schema.nodes.ordered_list)) {
+        liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+    }
+    else if (findNodeParentEquals(selection.$from, schema.nodes.bullet_list)) {
+        liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+        wrapInList(schema.nodes.ordered_list)(view.state, view.dispatch);
+    }
+    else {
+        wrapInList(schema.nodes.ordered_list)(view.state, view.dispatch);
+    }
+    return true;
+}
+
+export function toggleBlockquote(state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView<any>) {
+    let selection = view.state.selection;
+    console.log("toggling blockquote!");
+    if (findNodeParentEquals(selection.$from, schema.nodes.blockquote)) {
+        lift(view.state, view.dispatch);
+    }
+    else {
+        wrapIn(schema.nodes.blockquote)(view.state, view.dispatch);
+    }
+    return true;
+}
 export function buildKeymap(schema: Schema) {
 
 
@@ -343,14 +393,25 @@ export function buildKeymap(schema: Schema) {
     keys["Mod-I"] = toggleMark(schema.marks.em);
     keys["Mod-U"] = toggleMark(schema.marks.underline);
     keys["Mod-u"] = toggleMark(schema.marks.underline);
-    keys["Mod-K"] = toggleMark(schema.marks.strikethrough);
-    keys["Mod-Shift-8"] = wrapInList(schema.nodes.bullet_list);
-    keys["Mod-Shift-9"] = wrapInList(schema.nodes.ordered_list);
-    keys["Enter"] = chainCommands(newlineInMath, renderMath, splitListItem(schema.nodes.list_item));
+    keys["Mod-X"] = toggleMark(schema.marks.strikethrough);
+    keys["Mod-Shift-8"] = toggleBulletList;
+    keys["Mod-Shift-9"] = toggleOrderedList;
+    keys["Enter"] = chainCommands(newlineInMath, renderMath, createCodeBlock, splitListItem(schema.nodes.list_item));
     keys["ArrowLeft"] = arrowHandler("left");
     keys["ArrowRight"] = arrowHandler("right");
     keys["ArrowUp"] = arrowHandler("up");
     keys["ArrowDown"] = arrowHandler("down");
+    keys["Tab"] = sinkListItem(schema.nodes.list_item);
+    keys["Shift-Tab"] = liftListItem(schema.nodes.list_item);
+    keys["Mod-Alt-0"] = setBlockType(schema.nodes.paragraph);
+    keys["Mod-Alt-1"] = setBlockType(schema.nodes.heading, {level: 1});
+    keys["Mod-Alt-2"] = setBlockType(schema.nodes.heading, {level: 2});
+    keys["Mod-Alt-3"] = setBlockType(schema.nodes.heading, {level: 3});
+    keys["Mod-Alt-4"] = setBlockType(schema.nodes.heading, {level: 4});
+    keys["Mod-Alt-5"] = setBlockType(schema.nodes.heading, {level: 5});
+    keys["Mod-Alt-6"] = setBlockType(schema.nodes.heading, {level: 6});
+    keys["Mod-<"] = toggleMark(schema.marks.code);
+    keys["Mod-'"] = toggleBlockquote;
     return keys;
 }
 function arrowHandler(dir: any) {
@@ -366,14 +427,28 @@ function arrowHandler(dir: any) {
         }
       }
       console.log(`arrow ${dir} not handled`);
+      view.focus();
       return false
     }
   }
-  
 
-// export function descendantOf(node: Node, type: NodeType) {
-    
-// }
+export function findNodeParentEquals(pos: ResolvedPos, node: NodeType) {
+    let depth = pos.depth;
+    // console.log(depth);
+    for (let i = depth; i >= 1; i--) {
+        // console.log(pos.node(depth));
+        if (pos.node(i).type === node) {
+            console.log("foundit");
+            return true;
+        }
+    }
+    // console.log("couldntfindit:(");
+    return false;
+}
+
+
 interface KeyObject {
     [key: string]: (state: EditorState, dispatch: (tr: Transaction) => void, view?: EditorView) => boolean;
 }
+
+

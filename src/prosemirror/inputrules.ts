@@ -10,6 +10,8 @@ export function createInputRules(): InputRule[] {
     inputRules.push(new InputRule(/((?!\$).|^)(\$[^\$]+\$)(?!.)/, inlineMathFinish));
     // inputRules.push(new InputRule(/\${2}(?!.)/, blockMathRule));
     inputRules.push(new InputRule(/((?!\$).|^)\$(?!.)/, inlineMathRule));
+    inputRules.push(new InputRule(/(\*\*\*)|(\-\-\-)|(\_\_\_)/, horizontalRule));
+    inputRules.push(new InputRule(/\`\`\`(?!.)/, codeBlockRule));
     return inputRules;
 }
 
@@ -20,6 +22,32 @@ export function createInputRules(): InputRule[] {
 // function inlineMathTypeset(state: EditorState, match: string[], start: number, end: number): Transaction {
 //     let tr = 
 // }
+
+function codeBlockRule(state: EditorState, match: string[], start: number, end: number): Transaction {
+    let tr = state.tr;
+    tr = tr.insertText("`");
+    tr = tr.addMark(start, end + 1, schema.marks.md_code_block.create());
+    console.log("making code block!!");
+    return tr;
+}
+
+function horizontalRule(state: EditorState, match: string[], start: number, end: number): Transaction {
+    let tr = state.tr;
+    tr = tr.setSelection(TextSelection.create(tr.doc, start, end));
+    tr = tr.replaceSelectionWith(schema.nodes.horizontal_rule.create());
+    console.log(tr.selection.$from.depth);
+    if (tr.selection.$head.depth === 0 && tr.selection.$head.index(tr.selection.$head.depth) === tr.selection.$head.node(tr.selection.$head.depth).childCount) {
+        console.log("This is the last child!");
+        tr = tr.insert(tr.selection.from + 1, schema.nodes.paragraph.create());
+        tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from + 2));
+    }
+    // if (!tr.selection.$head.nodeAfter) {
+    //     console.log("no node after!");
+    //     tr = tr.insert(tr.selection.from + 1, schema.nodes.paragraph.create());
+    //     tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from + 1));
+    // }
+    return tr;
+}
 function inlineMathRule(state: EditorState, match: string[], start: number, end: number): Transaction {
 
 
@@ -67,7 +95,35 @@ export function inlineMathFinish(state: EditorState, match: string[], start: num
 
     let tr = getSelectionReplace(state, match);
     tr = tr.removeMark(tr.selection.from, tr.selection.to, schema.marks.math);
-    tr = tr.replaceSelectionWith(schema.nodes.inline_math.create({texts: match[0]}));
+    // console.log(match[0]);
+    // console.log(match[0].charAt(0));
+
+    // console.log(match[0].slice(1).charCodeAt(0));
+    let newMatch = match[0].replace(/\ufffc/ug, " ");
+    for (let i = 0; i < newMatch.length; i++) {
+        console.log(newMatch[i]);
+        console.log(newMatch.charCodeAt(i));
+    }
+    if (match[0][0] !== "$") { /* Fix when possible. */
+        // console.log("not regular");
+        // if (!(match[0].charCodeAt(0) === 65532)) {
+        //     // console.log("isn't obj");
+        //     // console.log(tr.selection);
+        //     tr = tr.replaceSelectionWith(schema.text(match[0][0]));
+
+        // }
+
+        tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from + 1, tr.selection.to + 1));
+        
+        // console.log(tr.selection);
+        tr = tr.replaceSelectionWith(schema.nodes.inline_math.create({texts: newMatch.slice(1)}));
+    }
+    else {
+        // console.log("regular");
+        // console.log(tr.selection);
+        tr = tr.replaceSelectionWith(schema.nodes.inline_math.create({texts: newMatch}));
+    }
+    console.log(match);
     tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from));
     // console.log(tr.selection);
     // tr = tr.insertText("s", tr.selection.from);
@@ -91,14 +147,15 @@ function blockMathFinish(state: EditorState, match: string[], start: number, end
         return tr;
         }
 
+    let newMatch = match[0].replace(/\ufffc/ug, " ");
     let tr = getSelectionReplace(state, match);
     // console.log(match[0]);
     tr = tr.removeMark(tr.selection.from, tr.selection.to, schema.marks.math);
     tr = tr.deleteSelection();
-    tr = tr.replaceSelectionWith(schema.nodes.block_math.create({texts: match[0]}));
-    if (!tr.selection.$head.nodeAfter) {
+    tr = tr.replaceSelectionWith(schema.nodes.block_math.create({texts: newMatch}));
+    if (tr.selection.$head.depth === 0 && tr.selection.$head.index(tr.selection.$head.depth) === tr.selection.$head.node(tr.selection.$head.depth).childCount) {
         tr = tr.insert(tr.selection.from + 1, schema.nodes.paragraph.create());
-        tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from + 1));
+        tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from + 2));
     }
     console.log("finished block math");
     return tr;

@@ -115,7 +115,8 @@ export const serializer = new Markdown.MarkdownSerializer({
     underline: {open: "<ins>", close: "</ins>", mixable: true, expelEnclosingWhitespace: true},
     strikethrough: {open: "~~", close: "~~", mixable: true, expelEnclosingWhitespace: true},
     code: {open: "`", close: "`", mixable: true, expelEnclosingWhitespace: true},
-    math: {open: "", close: "", mixable: true, expelEnclosingWhitepsace: true}
+    math: {open: "", close: "", mixable: true, expelEnclosingWhitepsace: true},
+    md_code_block: {open: "", close: "", mixable: true, expelEnclosingWhitepsace: true}
 
   })
 

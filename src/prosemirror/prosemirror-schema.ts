@@ -3,20 +3,34 @@ import {Schema} from "prosemirror-model"
 // import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
 // import { PageConfig } from "@jupyterlab/coreutils";
 // ::Schema Document schema for the data model used by CommonMark.
-export const mathSchema = new Schema({
+
+export const schema_markdown = new Schema({
   nodes: {
     doc: {
-      content: "paragraph"
+      content: "code_block"
     },
     paragraph: {
-      content: "inline*",
-      parseDOM: [{tag: "p"}],
-      toDOM() {return ["p", 0]}
+      content: "text*"
+    },
+    code_block: {
+      content: "text*",
+      group: "block",
+      code: true,
+      defining: true,
+      attrs: {params: {default: ""}},
+      parseDOM: [{tag: "pre", preserveWhitespace: true, getAttrs: node => (
+        //@ts-ignore
+        {params: node.getAttribute("data-params") || ""}
+      )}],
+      toDOM(node) { return ["pre", node.attrs.params ? {"data-params": node.attrs.params} : {}, ["code", 0]] }
     },
     text: {
       group: "inline",
       toDOM(node) { return node.text }
     }
+  },
+  marks: {
+
   }
 });
 export const schema = new Schema({
@@ -98,7 +112,7 @@ export const schema = new Schema({
     },
 
     list_item: {
-      content: "block+",
+      content: "paragraph block*",
       defining: true,
       parseDOM: [{tag: "li"}],
       toDOM() { return ["li", 0] }
@@ -216,6 +230,10 @@ export const schema = new Schema({
       toDOM() { return ["span"]}
     },
     math_block: {
+      parseDOM: [{tag: "span"}],
+      toDOM() { return ["span"]}
+    },
+    md_code_block: {
       parseDOM: [{tag: "span"}],
       toDOM() { return ["span"]}
     }
