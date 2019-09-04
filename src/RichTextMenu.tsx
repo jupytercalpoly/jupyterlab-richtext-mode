@@ -12,7 +12,7 @@ import { Transaction, TextSelection
 } from "prosemirror-state";
 // import { CodeEditor } from '@jupyterlab/codeeditor';
 import * as Markdown from "./prosemirror/markdown";
-import {  wrapIn, setBlockType, lift } from 'prosemirror-commands';
+import {  setBlockType } from 'prosemirror-commands';
 import { HoverBox, 
     // ReactWidget 
 } from "@jupyterlab/apputils";
@@ -23,7 +23,7 @@ import { CodeMenu } from "./codemenu";
 import { Widget } from '@phosphor/widgets';
 import ReactDOM from "react-dom";
 import { schema } from "./prosemirror/prosemirror-schema";
-import { wrapInList, liftListItem } from "prosemirror-schema-list";
+// import { wrapInList, liftListItem } from "prosemirror-schema-list";
 import { ICellModel } from '@jupyterlab/cells';
 
 // import { PageConfig } from "@jupyterlab/coreutils";
@@ -132,7 +132,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         
                         that.props.model.value.text = source;
                         // console.log(transaction.selection);
-                        // console.log(transaction.doc);
+                        console.log(transaction.doc);
     
                         activeWrapNodes = scripts.getWrappingNodes(transaction);
                         that.setState({activeWrapNodes});
@@ -172,9 +172,10 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
 
     componentDidMount() {
 
-        if (!this.props.view) {
-            this.setState({inactiveMarks: ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image"]});
+        if (!this.props.view || this.props.model.metadata.get("markdownMode") === true) {
+            this.setState({inactiveMarks: ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image", "stick"]});
         }
+
     }
     componentWillUnmount() {
         if (this.props.view) {
@@ -295,7 +296,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
     toggleCommand(command: string, e: React.SyntheticEvent) {
         const view = this.props.view;
         const schema = view.state.schema;
-        let selection = view.state.selection;
+        // let selection = view.state.selection;
         switch (command) {
             case "strong":
                 scripts.toggleMark(schema.marks.strong)(view.state, view.dispatch);
@@ -313,12 +314,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 scripts.toggleMark(schema.marks.strikethrough)(view.state, view.dispatch);
                 break;
             case "blockquote":
-                if (scripts.findNodeParentEquals(selection.$from, schema.nodes.blockquote)) {
-                    lift(view.state, view.dispatch);
-                }
-                else {
-                    wrapIn(schema.nodes.blockquote)(view.state, view.dispatch);
-                }
+                scripts.toggleBlockquote(view.state, view.dispatch, view);
                 break;
             case "link":
                 this.formatMenu(e);
@@ -330,30 +326,11 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 this.formatMenu(e);
                 break;
             case "bullet_list":
-                if (scripts.findNodeParentEquals(selection.$from, schema.nodes.bullet_list)) {
-                    liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
-                }
-                else if (scripts.findNodeParentEquals(selection.$from, schema.nodes.ordered_list)) {
-                    liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
-                    wrapInList(schema.nodes.bullet_list)(view.state, view.dispatch);
-                }
-                else {
-                    wrapInList(schema.nodes.bullet_list)(view.state, view.dispatch);
-                }
+                scripts.toggleBulletList(view.state, view.dispatch, view);
                 break;
             case "ordered_list":
-                
-                    if (scripts.findNodeParentEquals(selection.$from, schema.nodes.ordered_list)) {
-                        liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
-                    }
-                    else if (scripts.findNodeParentEquals(selection.$from, schema.nodes.bullet_list)) {
-                        liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
-                        wrapInList(schema.nodes.ordered_list)(view.state, view.dispatch);
-                    }
-                    else {
-                        wrapInList(schema.nodes.ordered_list)(view.state, view.dispatch);
-                    }
-                    break;
+                scripts.toggleOrderedList(view.state, view.dispatch, view);
+                break;
             default: 
                 break;
         };

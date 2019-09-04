@@ -19,7 +19,7 @@ import ContentFactoryEditor from './factory';
 
 import { ProsemirrorWidget } from './widget';
 import { CommandRegistry } from '@phosphor/commands';
-import { ContextMenu } from '@phosphor/widgets';
+import { ContextMenu, Menu } from '@phosphor/widgets';
 import { ProseMirrorEditor } from './prosemirror/ProseMirrorEditor';
 // import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
 // import { PageConfig } from "@jupyterlab/coreutils";
@@ -30,7 +30,7 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
   let prosemirrorWidget = new ProsemirrorWidget(app.commands);
   
   addKeybindings(app.commands, nbTracker, prosemirrorWidget);
-  addContextMenuItems(app.contextMenu);
+  addContextMenuItems(app.contextMenu, app.commands);
   nbTracker.currentChanged.connect(() => {
     if (nbTracker.currentWidget) {
       nbTracker.currentWidget.toolbar.insertAfter("cellType", "rich-text-menu", prosemirrorWidget);
@@ -54,11 +54,26 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
 
 }
 
-function addContextMenuItems(contextMenu: ContextMenu) {
+function addContextMenuItems(contextMenu: ContextMenu, commands: CommandRegistry) {
   contextMenu.addItem({
     command: "prosemirror-copy-menu",
     selector: ".jp-Notebook .jp-Cell",
     rank: 10
+  })
+
+  let markdownSubmenu = new Menu({commands});
+  markdownSubmenu.title.label = "Markdown Cell Editor View";
+  markdownSubmenu.addItem({
+    command: "prosemirror-switch-to-markdown",
+  });
+  markdownSubmenu.addItem({
+    command: "prosemirror-switch-from-markdown",
+  });
+  contextMenu.addItem({
+
+    selector: ".jp-mod-active .ProseMirror",
+    submenu: markdownSubmenu,
+    type: "submenu",
   })
 }
 
@@ -101,13 +116,40 @@ function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, 
       console.log(currentEditor.dispatchEvent(new ClipboardEvent("copy")));
     }
   })
+
   commands.addCommand("prosemirror-switch-mode", {
-    label: "Markdown Cell Editor View",
     execute: () => {
       (nbTracker.activeCell.editor as ProseMirrorEditor).switchEditor();
       prosemirrorWidget.renderMenu(nbTracker.activeCell);
     }
+  });
+
+  commands.addCommand("prosemirror-switch-to-markdown", {
+    label: "Raw Markdown",
+    isToggled: () => {
+      return nbTracker.activeCell ? nbTracker.activeCell.model.metadata.get("markdownMode") === true : false;
+    },
+    execute: () => {
+      if (nbTracker.activeCell.model.metadata.get("markdownMode") === false) {
+        commands.execute("prosemirror-switch-mode");
+      }
+    }
   })
+
+  commands.addCommand("prosemirror-switch-from-markdown", {
+    label: "Rich Text",
+    isToggled: () => {
+      let isMarkdown = nbTracker.activeCell ? nbTracker.activeCell.model.metadata.get("markdownMode") : true;
+      return isMarkdown === undefined ? true : !isMarkdown
+    },
+    execute: () => {
+      if (nbTracker.activeCell.model.metadata.get("markdownMode") === true) {
+        commands.execute("prosemirror-switch-mode");
+      }
+
+    }
+  })
+
 
   // commands.addCommand("prosemirror-strikethrough", {
   //   execute: () => {
@@ -119,13 +161,13 @@ function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, 
 
   commands.addKeyBinding({
     command: "prosemirror-bold",
-    keys: ['Cmd B'],
+    keys: ['Accel B'],
     selector: '.ProseMirror-focused'
   });
 
   commands.addKeyBinding({
     command: "prosemirror-italic",
-    keys: ['Cmd I'],
+    keys: ['Accel I'],
     selector: '.ProseMirror-focused'
   });
 
@@ -143,13 +185,13 @@ function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, 
 
   commands.addKeyBinding({
     command: "prosemirror-switch-mode",
-    keys: ['Cmd M'],
+    keys: ['Accel M'],
     selector: '.ProseMirror-focused'
   });
 
   commands.addKeyBinding({
     command: "prosemirror-switch-mode",
-    keys: ['Cmd M'],
+    keys: ['Accel M'],
     selector: '.jp-mod-active .ProseMirror .CodeMirror-focused'
   });
   // commands.addKeyBinding({

@@ -4,6 +4,7 @@ import { UUID } from "@phosphor/coreutils";
 import { IDisposable, DisposableDelegate } from "@phosphor/disposable";
 import { ArrayExt } from '@phosphor/algorithm';
 import { EditorState, 
+  TextSelection
   // Plugin
  } from "prosemirror-state";
 import { EditorView, 
@@ -139,6 +140,10 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
         }
         
     });
+    this._view.focus();
+    let tr = this._view.state.tr;
+    tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from + 3, tr.selection.from + 3));
+    this._view.dispatch(tr);
     // this._view.focus();
     this._cellModel.metadata.set("markdownMode", true);
     console.log(this._cellModel.metadata.get("markdownMode"));
@@ -178,7 +183,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
 
   console.log(this._view.state.schema);
   this._view.focus();
-
+  
   }
   /**
    * Dispose of the resources held by the widget.

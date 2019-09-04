@@ -13,7 +13,8 @@ import { schema } from "./prosemirror-schema";
 import { EditorView } from "prosemirror-view";
 import { splitListItem, wrapInList, liftListItem, sinkListItem } from "prosemirror-schema-list";
 import { chainCommands, setBlockType, 
-    // lift,
+    lift,
+    wrapIn
  } from "prosemirror-commands"; 
 // import { parser } from "./markdown";
 
@@ -86,22 +87,7 @@ function getMarksBefore(state: EditorState) {
     }
 
     return from.marksAcross(selection.$to);
-//     let prev = 0;
-//     let node = doc.resolve(selection.from).nodeBefore;
 
-//     while (!node || (node ? (node.textContent === "") : !node)) {
-//         prev++ ;
-//         node = doc.resolve(selection.from - prev).nodeBefore;
-//         // console.log(node);
-//     }
-//     if (node.isTextblock) {
-//         // console.log(node.lastChild);
-//         return node.lastChild.marks;
-//     }
-//     if (node.isText) {
-//         return node.marks;
-//     }    
-// }
 };
 
 /**
@@ -287,10 +273,9 @@ function createCodeBlock(state: EditorState, dispatch: (tr: Transaction) => void
 export function newlineInMath(state: EditorState, dispatch: (tr: Transaction) => void) {
     let {$head, $anchor} = state.selection;
     let marks = $head.marks().map(mark => mark.type.name);
-    if (!(marks.includes("math") || marks.includes("block_math") || !($head.sameParent($anchor))) || !($head.node().type.name === "paragraph")) return false;
-
-
-    // if (dispatch) dispatch(state.tr.insertText("\n").scrollIntoView());
+    if (!(marks.includes("math")) || !($head.sameParent($anchor)) || !($head.node().type.name === "paragraph")) return false;
+    let offset = $head.parentOffset;
+    if ($head.node().textBetween(offset - 1, offset) === "$") return false;
     if (dispatch) dispatch(state.tr.replaceSelectionWith(schema.nodes.hard_break.create()).scrollIntoView());
     return true;
 }
@@ -354,9 +339,47 @@ export function renderMath(state: EditorState, dispatch: (tr: Transaction) => vo
     return true;
 }
 
-function switchEditorView(state: EditorState, dispatch: (tr: Transaction) => void): boolean {
+export function toggleBulletList(state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView<any>) {
+    let selection = view.state.selection;
 
+    if (findNodeParentEquals(selection.$from, schema.nodes.bullet_list)) {
+        liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+    }
+    else if (findNodeParentEquals(selection.$from, schema.nodes.ordered_list)) {
+        liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+        wrapInList(schema.nodes.bullet_list)(view.state, view.dispatch);
+    }
+    else {
+        wrapInList(schema.nodes.bullet_list)(view.state, view.dispatch);
+    }
+    return true;
+}
 
+export function toggleOrderedList(state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView<any>) {
+    let selection = view.state.selection;
+
+    if (findNodeParentEquals(selection.$from, schema.nodes.ordered_list)) {
+        liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+    }
+    else if (findNodeParentEquals(selection.$from, schema.nodes.bullet_list)) {
+        liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+        wrapInList(schema.nodes.ordered_list)(view.state, view.dispatch);
+    }
+    else {
+        wrapInList(schema.nodes.ordered_list)(view.state, view.dispatch);
+    }
+    return true;
+}
+
+export function toggleBlockquote(state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView<any>) {
+    let selection = view.state.selection;
+    console.log("toggling blockquote!");
+    if (findNodeParentEquals(selection.$from, schema.nodes.blockquote)) {
+        lift(view.state, view.dispatch);
+    }
+    else {
+        wrapIn(schema.nodes.blockquote)(view.state, view.dispatch);
+    }
     return true;
 }
 export function buildKeymap(schema: Schema) {
@@ -371,9 +394,9 @@ export function buildKeymap(schema: Schema) {
     keys["Mod-U"] = toggleMark(schema.marks.underline);
     keys["Mod-u"] = toggleMark(schema.marks.underline);
     keys["Mod-X"] = toggleMark(schema.marks.strikethrough);
-    keys["Mod-Shift-8"] = wrapInList(schema.nodes.bullet_list);
-    keys["Mod-Shift-9"] = wrapInList(schema.nodes.ordered_list);
-    keys["Enter"] = chainCommands(renderMath, newlineInMath, createCodeBlock, splitListItem(schema.nodes.list_item));
+    keys["Mod-Shift-8"] = toggleBulletList;
+    keys["Mod-Shift-9"] = toggleOrderedList;
+    keys["Enter"] = chainCommands(newlineInMath, renderMath, createCodeBlock, splitListItem(schema.nodes.list_item));
     keys["ArrowLeft"] = arrowHandler("left");
     keys["ArrowRight"] = arrowHandler("right");
     keys["ArrowUp"] = arrowHandler("up");
@@ -387,7 +410,8 @@ export function buildKeymap(schema: Schema) {
     keys["Mod-Alt-4"] = setBlockType(schema.nodes.heading, {level: 4});
     keys["Mod-Alt-5"] = setBlockType(schema.nodes.heading, {level: 5});
     keys["Mod-Alt-6"] = setBlockType(schema.nodes.heading, {level: 6});
-    keys["Mod-m"] = switchEditorView;
+    keys["Mod-<"] = toggleMark(schema.marks.code);
+    keys["Mod-'"] = toggleBlockquote;
     return keys;
 }
 function arrowHandler(dir: any) {
@@ -407,34 +431,6 @@ function arrowHandler(dir: any) {
       return false
     }
   }
-  
-//   export function sinkListItem(itemType: NodeType) {
-//     return function(state: EditorState, dispatch: (tr: Transaction) => void) {
-//       let {$from, $to} = state.selection
-//       let range = $from.blockRange($to, node => node.childCount && node.firstChild.type == itemType)
-//       if (!range) return false
-//       console.log("didn't fail yet");
-//       console.log(range.parent);
-//       let startIndex = range.startIndex
-//     //   if (startIndex == 0) return false
-//       console.log("didn't fail yet x2");
-//       let parent = range.parent;
-//       let nodeBefore = (startIndex > 0) ? parent.child(startIndex - 1) : parent.child(startIndex);
-//       if (nodeBefore.type != itemType) return false
-//       console.log("didn't fail yet x3");
-//       if (dispatch) {
-//         let nestedBefore = nodeBefore.lastChild && nodeBefore.lastChild.type == parent.type
-//         let inner = Fragment.from(nestedBefore ? itemType.create() : null)
-//         let slice = new Slice(Fragment.from(itemType.create(null, Fragment.from(parent.type.create(null, inner)))),
-//                               nestedBefore ? 3 : 1, 0)
-//         let before = range.start, after = range.end
-//         dispatch(state.tr.step(new ReplaceAroundStep(before - (nestedBefore ? 3 : 1), after,
-//                                                      before, after, slice, 1, true))
-//                  .scrollIntoView())
-//       }
-//       return true
-//     }
-//   }
 
 export function findNodeParentEquals(pos: ResolvedPos, node: NodeType) {
     let depth = pos.depth;
