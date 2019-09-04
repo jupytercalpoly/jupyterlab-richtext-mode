@@ -1,10 +1,9 @@
 # jupyter-scribe
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jupytercalpoly/jupyterlab-richtext-mode/master?urlpath=lab/tree/notebooks/Demo.ipynb)
 
-An extension that transforms Markdown cells into rich-text-editing cells, powered by ProseMirror.
+An extension that transforms Markdown cells into rich text-editing cells, powered by ProseMirror.
 
-![gif showing what happens](./gif/example.gif)
-
+![text in a markdown cell is formatted as a code block and inline math and an image is added all while live rendering](./gif/example.gif)
 
 ## Requirements
 
@@ -12,6 +11,21 @@ An extension that transforms Markdown cells into rich-text-editing cells, powere
 
 
 ## Contributing
+
+If you would like to contribute to the project, please read our [contributor documentation](https://github.com/jupyterlab/jupyterlab/blob/master/CONTRIBUTING.md).
+
+JupyterLab follows the official [Jupyter Code of Conduct](https://jupyter.org/conduct).
+
+### Ways you can contribute
+
+#### Rich Text Editing
+
+- [ ] Add table support. More info at [#43](https://github.com/jupytercalpoly/jupyterlab-richtext-mode/issues/43).
+- [ ] Resolve other issues.
+
+#### UX Improvements
+
+- [ ] Explore per-cell UI. More info at [#44](https://github.com/jupytercalpoly/jupyterlab-richtext-mode/issues/44).
 
 ### Install
 
