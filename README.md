@@ -3,7 +3,7 @@
 
 An extension that transforms Markdown cells into rich text-editing cells, powered by ProseMirror.
 
-![text in a markdown cell is formatted as a code block and inline math and an image is added all while live rendering](./gif/demo.gif)
+![text in a markdown cell is formatted as a code block and inline math and an image is added all while live rendering](./gif/example.gif)
 
 ## Requirements
 
