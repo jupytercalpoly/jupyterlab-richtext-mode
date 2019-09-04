@@ -10,7 +10,7 @@ import * as scripts from './prosemirror/prosemirror-scripts';
 import { Transaction, TextSelection
     // EditorState 
 } from "prosemirror-state";
-import { CodeEditor } from '@jupyterlab/codeeditor';
+// import { CodeEditor } from '@jupyterlab/codeeditor';
 import * as Markdown from "./prosemirror/markdown";
 import {  wrapIn, setBlockType, lift } from 'prosemirror-commands';
 import { HoverBox, 
@@ -24,6 +24,7 @@ import { Widget } from '@phosphor/widgets';
 import ReactDOM from "react-dom";
 import { schema } from "./prosemirror/prosemirror-schema";
 import { wrapInList, liftListItem } from "prosemirror-schema-list";
+import { ICellModel } from '@jupyterlab/cells';
 
 // import { PageConfig } from "@jupyterlab/coreutils";
 // import { MenuWidgetObject } from './widget';
@@ -40,7 +41,7 @@ import { wrapInList, liftListItem } from "prosemirror-schema-list";
  */
 
 export default class RichTextMenu extends React.Component<{view: EditorView, 
-    model: CodeEditor.IModel, linkMenuWidget: Widget, imageMenuWidget: Widget, headingMenuWidget: Widget, codeMenuWidget: Widget,
+    model: ICellModel, linkMenuWidget: Widget, imageMenuWidget: Widget, headingMenuWidget: Widget, codeMenuWidget: Widget,
     codeLanguageMenuWidget: Widget}, 
     {activeMarks: string[], activeWrapNodes: string[], inactiveMarks: string[], widgetsSet: Widget[], widgetAttached: Widget}> {
 
@@ -77,78 +78,94 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             // let MathJax: any;
             // console.log(state.doc);
             // console.log(state.selection);
-            this.props.view.setProps({
-                state,
-                /**
-                 * Handles a transaction before it is applied to the editor state.
-                 * 
-                 * Obtains the marks for the current selection and makes those
-                 * the current 'storedMarks' (i.e. active marks for the next input.)
-                 * Finally, updates the editor state and view to reflect the transaction.
-                 * 
-                 * @param transaction - The state transaction generated upon interaction w/ editor.
-                 */
-                dispatchTransaction(transaction: Transaction) {
-                    // that.props.typesetter.typeset((that.props.view.dom as HTMLElement));                    
-                    let newState = that.props.view.state.apply(transaction);
-                    let serializer = Markdown.serializer;
-                    let source = serializer.serialize(transaction.doc);
-                    let activeWrapNodes = [];
-                    // let doc = this.state.doc;
-                    // console.log(transaction.selection);
-                    if (transaction.selectionSet) {
-                        if (that.state.widgetAttached && that.state.widgetAttached.isAttached) {
-                            Widget.detach(that.state.widgetAttached);
-                            that.setState({widgetAttached: null});
-                        }
+            let isMarkdown = this.props.model.metadata.get("markdownMode");
+            if (isMarkdown !== undefined ? isMarkdown : false) {
+                console.log("we have a markdown editor");
+                this.props.view.setProps({
+                    state, 
+                    dispatchTransaction(transaction: Transaction) {
+                        state = state.apply(transaction);
+                        that.props.view.updateState(state);
+                        that.props.model.value.text = state.doc.textContent;
+
                     }
-                    // console.log(this.state.storedMarks);
-                    // console.log(transaction.selection);
-                    // console.log(transaction.selection.from);
-                    // console.log(transaction.selection.$from.blockRange().parent);
-
-                    // // console.log(source);
-                    // // let { $from } = transaction.selection;
-                    // // console.log($from.node());
-                    // // if ($from.node().child($from.index(1)).type.name === "image") {
-                    // //     console.log("issa image");
-                    // //     transaction = transaction.setSelection(new TextSelection(doc.resolve($from.pos + 1)));
-                    // // }
+                })
+            }
+            else {
+                this.props.view.setProps({
+                    state,
+                    /**
+                     * Handles a transaction before it is applied to the editor state.
+                     * 
+                     * Obtains the marks for the current selection and makes those
+                     * the current 'storedMarks' (i.e. active marks for the next input.)
+                     * Finally, updates the editor state and view to reflect the transaction.
+                     * 
+                     * @param transaction - The state transaction generated upon interaction w/ editor.
+                     */
+                    dispatchTransaction(transaction: Transaction) {
+                        // that.props.typesetter.typeset((that.props.view.dom as HTMLElement));                    
+                        let newState = that.props.view.state.apply(transaction);
+                        let serializer = Markdown.serializer;
+                        let source = serializer.serialize(transaction.doc);
+                        let activeWrapNodes = [];
+                        // let doc = this.state.doc;
+                        // console.log(transaction.selection);
+                        if (transaction.selectionSet) {
+                            if (that.state.widgetAttached && that.state.widgetAttached.isAttached) {
+                                Widget.detach(that.state.widgetAttached);
+                                that.setState({widgetAttached: null});
+                            }
+                        }
+                        // console.log(this.state.storedMarks);
+                        // console.log(transaction.selection);
+                        // console.log(transaction.selection.from);
+                        // console.log(transaction.selection.$from.blockRange().parent);
     
-                    that.props.model.value.text = source;
-                    console.log(transaction.selection);
-                    console.log(transaction.doc);
-
-                    activeWrapNodes = scripts.getWrappingNodes(transaction);
-                    that.setState({activeWrapNodes});
-
-                    if (!transaction.storedMarksSet) {
-                        let parent = transaction.selection.$from.parent;
-                        let parentOffset = transaction.selection.$from.parentOffset;
-                        let marks = scripts.getMarksForSelection(transaction, newState);
-                        that.setState({activeMarks: marks.map(mark => {
-                                if (mark.type.name === "link") {
-                                    return "";
-                                }
-                                else {
-                                    return mark.type.name;
-                                }
-                        })});
+                        // // console.log(source);
+                        // // let { $from } = transaction.selection;
+                        // // console.log($from.node());
+                        // // if ($from.node().child($from.index(1)).type.name === "image") {
+                        // //     console.log("issa image");
+                        // //     transaction = transaction.setSelection(new TextSelection(doc.resolve($from.pos + 1)));
+                        // // }
+        
+                        that.props.model.value.text = source;
+                        // console.log(transaction.selection);
+                        // console.log(transaction.doc);
+    
+                        activeWrapNodes = scripts.getWrappingNodes(transaction);
+                        that.setState({activeWrapNodes});
+    
+                        if (!transaction.storedMarksSet) {
+                            let parent = transaction.selection.$from.parent;
+                            let parentOffset = transaction.selection.$from.parentOffset;
+                            let marks = scripts.getMarksForSelection(transaction, newState);
+                            that.setState({activeMarks: marks.map(mark => {
+                                    if (mark.type.name === "link") {
+                                        return "";
+                                    }
+                                    else {
+                                        return mark.type.name;
+                                    }
+                            })});
+                            
+                            if (parent.type.name === "paragraph" && parentOffset === 0) {// This is to handle formatting continuity.
+                                transaction = transaction.setStoredMarks(marks); /** Important that setStoredMarks is used as opposed 
+                                to manually toggling marks as that will infinitely
+                                create transactions and inevitably error.
+                                */ 
+                            }
+        
+                        }
                         
-                        if (parent.type.name === "paragraph" && parentOffset === 0) {// This is to handle formatting continuity.
-                            transaction = transaction.setStoredMarks(marks); /** Important that setStoredMarks is used as opposed 
-                            to manually toggling marks as that will infinitely
-                            create transactions and inevitably error.
-                            */ 
-                        }
-    
+                        newState = that.props.view.state.apply(transaction);
+                        // console.log(newState.doc);
+                        that.props.view.updateState(newState);
                     }
-                    
-                    newState = that.props.view.state.apply(transaction);
-                    // console.log(newState.doc);
-                    that.props.view.updateState(newState);
-                }
-            })
+                })
+            }
+            
         }
         
     }

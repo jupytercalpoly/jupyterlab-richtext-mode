@@ -11,6 +11,7 @@ export function createInputRules(): InputRule[] {
     // inputRules.push(new InputRule(/\${2}(?!.)/, blockMathRule));
     inputRules.push(new InputRule(/((?!\$).|^)\$(?!.)/, inlineMathRule));
     inputRules.push(new InputRule(/(\*\*\*)|(\-\-\-)|(\_\_\_)/, horizontalRule));
+    inputRules.push(new InputRule(/\`\`\`(?!.)/, codeBlockRule));
     return inputRules;
 }
 
@@ -21,6 +22,15 @@ export function createInputRules(): InputRule[] {
 // function inlineMathTypeset(state: EditorState, match: string[], start: number, end: number): Transaction {
 //     let tr = 
 // }
+
+function codeBlockRule(state: EditorState, match: string[], start: number, end: number): Transaction {
+    let tr = state.tr;
+    tr = tr.insertText("`");
+    tr = tr.addMark(start, end + 1, schema.marks.md_code_block.create());
+    console.log("making code block!!");
+    return tr;
+}
+
 function horizontalRule(state: EditorState, match: string[], start: number, end: number): Transaction {
     let tr = state.tr;
     tr = tr.setSelection(TextSelection.create(tr.doc, start, end));

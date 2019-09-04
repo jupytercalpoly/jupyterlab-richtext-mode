@@ -2,17 +2,22 @@ import { Transaction, EditorState,
 Selection,
 TextSelection,
 // NodeSelection,
+// NodeSelection,
 
 } from "prosemirror-state";
 import { Mark, MarkType, 
     ResolvedPos,
-    Node, Schema, NodeType } from "prosemirror-model";
+    Node, Schema, NodeType,
+ } from "prosemirror-model";
 import { schema } from "./prosemirror-schema";
 import { EditorView } from "prosemirror-view";
-import { splitListItem, wrapInList, sinkListItem, liftListItem } from "prosemirror-schema-list";
-import { chainCommands, 
+import { splitListItem, wrapInList, liftListItem, sinkListItem } from "prosemirror-schema-list";
+import { chainCommands, setBlockType, 
     // lift,
  } from "prosemirror-commands"; 
+// import { parser } from "./markdown";
+
+//  import { ReplaceAroundStep } from "prosemirror-transform";
 
 /**
  * Obtains the marks for the currently active selection.
@@ -240,29 +245,51 @@ export function getHeadingLevel(selection: Selection) {
     }
 }
 
+function createCodeBlock(state: EditorState, dispatch: (tr: Transaction) => void) {
+    let {$head, $anchor, from} = state.selection;
+    let marks = $head.marks().map(mark => mark.type.name);
+    if (!(marks.includes("md_code_block") || !($head.sameParent($anchor) || !($head.node().type.name === "paragraph")))) return false;
+    
+    let language: string;
+    let tr = state.tr;
+    let offset = $head.parentOffset;
+    console.log(offset);
+    if ($head.node().textBetween(offset - 1, offset) === "`") {
+        language = "";
+        console.log("no language!");
+    }
+    else {
+        let child: Node;
+        let newPos = state.doc.resolve(from - 1);
+        child = newPos.node().child(newPos.index(newPos.depth));
+        language = child.textContent.slice(3);
+    }
+
+    tr = tr.setSelection(TextSelection.create(tr.doc, from - 3 - language.length, from));
+    tr = tr.deleteSelection();
+    if (!tr.selection.$from.node().textContent) {
+        tr = tr.setBlockType(tr.selection.from, tr.selection.to, schema.nodes.code_block, {params: language});
+    }
+    else {
+        tr = tr.insert(tr.selection.from, schema.nodes.code_block.create({params: language}));
+        tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from - 2, tr.selection.from - 2));
+    }
+    dispatch(tr);
+    // return ;
+    // if ($head.node().textBetween(offset - 1, offset) === "`") { //  Case where no language is given
+
+
+    //     return ;
+    // }
+    return true;
+
+}
 export function newlineInMath(state: EditorState, dispatch: (tr: Transaction) => void) {
     let {$head, $anchor} = state.selection;
     let marks = $head.marks().map(mark => mark.type.name);
     if (!(marks.includes("math") || marks.includes("block_math") || !($head.sameParent($anchor))) || !($head.node().type.name === "paragraph")) return false;
-    // console.log($head.node()); 
 
-    let offset = $head.parentOffset;
-    // let childIndex = $head.index($head.depth);
-    // console.log(childIndex);
-    // let textNode;
 
-    // if ($head.node().childCount - 1 < childIndex) {
-    //     textNode = $head.node().child(childIndex - 1);
-    // }
-    // else {
-    //     textNode = $head.node().child(childIndex);
-    // }
-    // console.log(textNode);
-
-    // let text = textNode.text[$head.textOffset];
-    // console.log(text);
-
-    if (offset > 0 ? ($head.node().textBetween(offset - 1, offset) === "$") : ($head.node().textBetween(offset, offset) === "$")) return false;
     // if (dispatch) dispatch(state.tr.insertText("\n").scrollIntoView());
     if (dispatch) dispatch(state.tr.replaceSelectionWith(schema.nodes.hard_break.create()).scrollIntoView());
     return true;
@@ -316,7 +343,7 @@ export function renderMath(state: EditorState, dispatch: (tr: Transaction) => vo
         tr = tr.replaceSelectionWith(schema.nodes.block_math.create({texts: mathText}));
         if (!tr.selection.$head.nodeAfter) {
             tr = tr.insert(tr.selection.from + 1, schema.nodes.paragraph.create());
-            tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from + 1));
+            tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from + 2));
         }
     }
     else {
@@ -327,6 +354,11 @@ export function renderMath(state: EditorState, dispatch: (tr: Transaction) => vo
     return true;
 }
 
+function switchEditorView(state: EditorState, dispatch: (tr: Transaction) => void): boolean {
+
+
+    return true;
+}
 export function buildKeymap(schema: Schema) {
 
 
@@ -338,16 +370,24 @@ export function buildKeymap(schema: Schema) {
     keys["Mod-I"] = toggleMark(schema.marks.em);
     keys["Mod-U"] = toggleMark(schema.marks.underline);
     keys["Mod-u"] = toggleMark(schema.marks.underline);
-    keys["Mod-K"] = toggleMark(schema.marks.strikethrough);
+    keys["Mod-X"] = toggleMark(schema.marks.strikethrough);
     keys["Mod-Shift-8"] = wrapInList(schema.nodes.bullet_list);
     keys["Mod-Shift-9"] = wrapInList(schema.nodes.ordered_list);
-    keys["Enter"] = chainCommands(newlineInMath, renderMath, splitListItem(schema.nodes.list_item));
+    keys["Enter"] = chainCommands(renderMath, newlineInMath, createCodeBlock, splitListItem(schema.nodes.list_item));
     keys["ArrowLeft"] = arrowHandler("left");
     keys["ArrowRight"] = arrowHandler("right");
     keys["ArrowUp"] = arrowHandler("up");
     keys["ArrowDown"] = arrowHandler("down");
     keys["Tab"] = sinkListItem(schema.nodes.list_item);
     keys["Shift-Tab"] = liftListItem(schema.nodes.list_item);
+    keys["Mod-Alt-0"] = setBlockType(schema.nodes.paragraph);
+    keys["Mod-Alt-1"] = setBlockType(schema.nodes.heading, {level: 1});
+    keys["Mod-Alt-2"] = setBlockType(schema.nodes.heading, {level: 2});
+    keys["Mod-Alt-3"] = setBlockType(schema.nodes.heading, {level: 3});
+    keys["Mod-Alt-4"] = setBlockType(schema.nodes.heading, {level: 4});
+    keys["Mod-Alt-5"] = setBlockType(schema.nodes.heading, {level: 5});
+    keys["Mod-Alt-6"] = setBlockType(schema.nodes.heading, {level: 6});
+    keys["Mod-m"] = switchEditorView;
     return keys;
 }
 function arrowHandler(dir: any) {
@@ -368,6 +408,34 @@ function arrowHandler(dir: any) {
     }
   }
   
+//   export function sinkListItem(itemType: NodeType) {
+//     return function(state: EditorState, dispatch: (tr: Transaction) => void) {
+//       let {$from, $to} = state.selection
+//       let range = $from.blockRange($to, node => node.childCount && node.firstChild.type == itemType)
+//       if (!range) return false
+//       console.log("didn't fail yet");
+//       console.log(range.parent);
+//       let startIndex = range.startIndex
+//     //   if (startIndex == 0) return false
+//       console.log("didn't fail yet x2");
+//       let parent = range.parent;
+//       let nodeBefore = (startIndex > 0) ? parent.child(startIndex - 1) : parent.child(startIndex);
+//       if (nodeBefore.type != itemType) return false
+//       console.log("didn't fail yet x3");
+//       if (dispatch) {
+//         let nestedBefore = nodeBefore.lastChild && nodeBefore.lastChild.type == parent.type
+//         let inner = Fragment.from(nestedBefore ? itemType.create() : null)
+//         let slice = new Slice(Fragment.from(itemType.create(null, Fragment.from(parent.type.create(null, inner)))),
+//                               nestedBefore ? 3 : 1, 0)
+//         let before = range.start, after = range.end
+//         dispatch(state.tr.step(new ReplaceAroundStep(before - (nestedBefore ? 3 : 1), after,
+//                                                      before, after, slice, 1, true))
+//                  .scrollIntoView())
+//       }
+//       return true
+//     }
+//   }
+
 export function findNodeParentEquals(pos: ResolvedPos, node: NodeType) {
     let depth = pos.depth;
     // console.log(depth);
@@ -378,38 +446,11 @@ export function findNodeParentEquals(pos: ResolvedPos, node: NodeType) {
             return true;
         }
     }
-    console.log("couldntfindit:(");
+    // console.log("couldntfindit:(");
     return false;
 }
 
-// export function joinList(state: EditorState, dispatch: (tr: Transaction) => void) {
-//     let { $from } = state.selection;
-//     if (findCutBefore($from)) {
-//         console.log("found cut!");
-//         console.log(findCutBefore($from).node());
-//         if (findCutBefore($from).node().type.name === "bullet_list") {
-//             joinUp(state, dispatch);
-//         }
-//         else {
-//             return false;
-//         }
-//     }
-//     else {
-//         return false;
-//     }
-//     return true;
-// }
-// function findCutBefore($pos: ResolvedPos) {
-//     if (!$pos.parent.type.spec.isolating) for (let i = $pos.depth - 1; i >= 0; i--) {
-//       if ($pos.index(i) > 0) return $pos.doc.resolve($pos.before(i + 1))
-//       if ($pos.node(i).type.spec.isolating) break
-//     }
-//     return null
-//   }
 
-// export function descendantOf(node: Node, type: NodeType) {
-    
-// }
 interface KeyObject {
     [key: string]: (state: EditorState, dispatch: (tr: Transaction) => void, view?: EditorView) => boolean;
 }

@@ -16,46 +16,40 @@ import { MarkdownCell } from '@jupyterlab/cells';
 //   PanelLayout
 // } from '@phosphor/widgets';
 import ContentFactoryEditor from './factory';
-// import { CodeEditor } from '@jupyterlab/codeeditor';
-// import ProseMirrorWidget from './ProsemirrorWidget';
-// import { ProseMirrorEditor } from './prosemirror/ProseMirrorEditor';
 
-// import { ReactWidget } from "@jupyterlab/apputils";
-// import {EditorState} from "prosemirror-state"
-// import {EditorView} from "prosemirror-view"
-// import {keymap} from "prosemirror-keymap"
-// import {baseKeymap} from "prosemirror-commands"
-// import { schema } from "prosemirror-schema-basic"
-// import RichTextMenu from "./RichTextMenu";
-// import React from 'react';
 import { ProsemirrorWidget } from './widget';
 import { CommandRegistry } from '@phosphor/commands';
 import { ContextMenu } from '@phosphor/widgets';
+import { ProseMirrorEditor } from './prosemirror/ProseMirrorEditor';
 // import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
 // import { PageConfig } from "@jupyterlab/coreutils";
 
 
 //@ts-ignore
 function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker) {
-  addKeybindings(app.commands);
+  let prosemirrorWidget = new ProsemirrorWidget(app.commands);
+  
+  addKeybindings(app.commands, nbTracker, prosemirrorWidget);
   addContextMenuItems(app.contextMenu);
   nbTracker.currentChanged.connect(() => {
-    let prosemirrorWidget = new ProsemirrorWidget(app.commands);
+    if (nbTracker.currentWidget) {
+      nbTracker.currentWidget.toolbar.insertAfter("cellType", "rich-text-menu", prosemirrorWidget);
+      nbTracker.activeCellChanged.connect(() => {
+        let activeCell = nbTracker.activeCell;
+          
+          if (activeCell instanceof MarkdownCell) { 
+            activeCell.editor.focus();
+            console.log(activeCell.editor.hasFocus);
+            prosemirrorWidget.renderMenu(activeCell);
+          }
+          else {
+            prosemirrorWidget.renderInactiveMenu();
+          }
+  
+        })
+    }
     // nbTracker.currentWidget.toolbar.insertAfter("cellType", "heading-menu", menu_scripts.createHeadingMenu(app.commands));
-    nbTracker.currentWidget.toolbar.insertAfter("cellType", "rich-text-menu", prosemirrorWidget);
-    nbTracker.activeCellChanged.connect(() => {
-      let activeCell = nbTracker.activeCell;
-        
-        if (activeCell instanceof MarkdownCell) { 
-          activeCell.editor.focus();
-          console.log(activeCell.editor.hasFocus);
-          prosemirrorWidget.renderMenu(activeCell);
-        }
-        else {
-          prosemirrorWidget.renderInactiveMenu();
-        }
 
-      })
   })
 
 }
@@ -68,7 +62,7 @@ function addContextMenuItems(contextMenu: ContextMenu) {
   })
 }
 
-function addKeybindings(commands: CommandRegistry) {
+function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, prosemirrorWidget: ProsemirrorWidget) {
 
   commands.addCommand("prosemirror-bold", {
     execute: () => {
@@ -93,14 +87,25 @@ function addKeybindings(commands: CommandRegistry) {
   commands.addCommand("prosemirror-shift-tab", {
     execute: () => {
       let currentEditor = document.querySelector(".ProseMirror-focused");
-      currentEditor.dispatchEvent(new KeyboardEvent("keydown", {shiftKey: true, key: "Tab"}));
+      console.log(currentEditor.dispatchEvent(new KeyboardEvent("keydown", {shiftKey: true, key: "Tab"})));
     }
   })
   commands.addCommand("prosemirror-copy-menu", {
     label: "Copy Content",
     execute: () => {
-      let currentEditor = document.querySelector(".ProseMirror");
-      currentEditor.dispatchEvent(new ClipboardEvent("copy"));
+      let currentEditor = document.querySelector(".jp-mod-active .ProseMirror");
+      // currentEditor.addEventListener("copy", (e: Event) => {
+      //   console.log("!!!");
+      //   console.log(e.target);
+      // }, true);
+      console.log(currentEditor.dispatchEvent(new ClipboardEvent("copy")));
+    }
+  })
+  commands.addCommand("prosemirror-switch-mode", {
+    label: "Markdown Cell Editor View",
+    execute: () => {
+      (nbTracker.activeCell.editor as ProseMirrorEditor).switchEditor();
+      prosemirrorWidget.renderMenu(nbTracker.activeCell);
     }
   })
 
@@ -134,6 +139,18 @@ function addKeybindings(commands: CommandRegistry) {
     command: "prosemirror-shift-tab",
     keys: ["Shift Tab"],
     selector: ".ProseMirror-focused"
+  });
+
+  commands.addKeyBinding({
+    command: "prosemirror-switch-mode",
+    keys: ['Cmd M'],
+    selector: '.ProseMirror-focused'
+  });
+
+  commands.addKeyBinding({
+    command: "prosemirror-switch-mode",
+    keys: ['Cmd M'],
+    selector: '.jp-mod-active .ProseMirror .CodeMirror-focused'
   });
   // commands.addKeyBinding({
   //   command: "prosemirror-strikethrough",

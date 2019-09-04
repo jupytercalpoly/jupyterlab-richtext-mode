@@ -22,12 +22,15 @@ import { Cell,
         options: MarkdownCell.IOptions,
         parent: StaticNotebook
       ): MarkdownCell {
+        let model = options.model;
         let proseMirrorEditor = (options: CodeEditor.IOptions) => {
-            return new ProseMirrorEditor(options);
+            return new ProseMirrorEditor(options, model);
           }
+          
         let newContentFactory = new ContentFactoryEditor({editorFactory: proseMirrorEditor})
         options.contentFactory = newContentFactory;
         
         return new MarkdownCell(options).initializeState();
       }
   }
+  

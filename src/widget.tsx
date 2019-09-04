@@ -30,7 +30,6 @@ export class ProsemirrorWidget extends Widget {
     renderMenu(activeCell: Cell) {
         this._view = (activeCell.editor as ProseMirrorEditor).view;
         let model = activeCell.model;
-        // console.log(activeCell.model.id);
         let linkMenuWidget = new Widget();
         let imageMenuWidget = new Widget();
         let headingMenuWidget = new Widget();
@@ -40,8 +39,8 @@ export class ProsemirrorWidget extends Widget {
             imageMenuWidget={imageMenuWidget} headingMenuWidget={headingMenuWidget} 
             codeMenuWidget={codeMenuWidget}
             codeLanguageMenuWidget={codeLanguageMenuWidget}
-            key={activeCell.model.id}/>, this.node)
-        // Widget.attach(headingMenu, this.node);
+            key={`${activeCell.model.id}
+            ${activeCell.model.metadata.get("markdownMode") !== undefined ? activeCell.model.metadata.get("markdownMode") : false}`}/>, this.node)
 
     }
 
