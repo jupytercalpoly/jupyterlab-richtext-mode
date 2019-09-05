@@ -58,29 +58,29 @@ export default class MenuItem extends React.Component<{format: string, active: b
     getImgSrc() {
         switch (this.props.format) {
             case "strong":
-                return require("../static/scribe-format-bold.svg");
+                return require("../static/scribe-format-bold.png");
             case "em":
-                return require("../static/scribe-format-italic.svg");
+                return require("../static/scribe-format-italic.png");
             case "underline":
-                return require("../static/scribe-format-underline.svg");
+                return require("../static/scribe-format-underline.png");
             case "code":
-                return require("../static/scribe-format-code.svg");
+                return require("../static/scribe-format-code.png");
             case "strikethrough":
-                return require("../static/scribe-format-strikethrough.svg");
+                return require("../static/scribe-format-strikethrough.png");
             case "heading":
-                return require("../static/scribe-format-text-style.svg");
+                return require("../static/scribe-format-text-style.png");
             case "bullet_list":
-                return require("../static/scribe-format-list-bulleted.svg");
+                return require("../static/scribe-format-list-bulleted.png");
             case "ordered_list":
-                return require("../static/scribe-format-list-numbered.svg");
+                return require("../static/scribe-format-list-numbered.png");
             case "blockquote":
-                return require("../static/scribe-format-blockquote.svg");
+                return require("../static/scribe-format-blockquote.png");
             case "link":
-                return require("../static/scribe-format-link.svg");
+                return require("../static/scribe-format-link.png");
             case "image":
-                return require("../static/scribe-format-photo.svg");
+                return require("../static/scribe-format-photo.png");
             case "stick":
-                return require("../static/scribe-stick.svg");
+                return require("../static/scribe-stick.png");
             default:
                 break;
         }
@@ -152,6 +152,7 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 // alt="formatting" 
                 id={this.props.format} 
                 src={this.getImgSrc()}
+                style={{height: "24px", width: "24px"}}
                 className="inactive-menu-icon"
                 title={this.props.tooltip}
                 />            
@@ -166,6 +167,7 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 className={this.getClassName()}
                 src={this.getImgSrc()}
                 title={this.props.tooltip}
+                style={{height: "24px", width: "24px"}}
                 onClick={this.props.format !== "stick" ? this.props.handleClick : () => null} />
             )
         }
