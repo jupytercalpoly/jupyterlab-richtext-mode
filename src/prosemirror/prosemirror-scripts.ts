@@ -274,8 +274,7 @@ export function newlineInMath(state: EditorState, dispatch: (tr: Transaction) =>
     let {$head, $anchor} = state.selection;
     let marks = $head.marks().map(mark => mark.type.name);
     if (!(marks.includes("math")) || !($head.sameParent($anchor)) || !($head.node().type.name === "paragraph")) return false;
-    let offset = $head.parentOffset;
-    if ($head.node().textBetween(offset - 1, offset) === "$") return false;
+ 
     if (dispatch) dispatch(state.tr.replaceSelectionWith(schema.nodes.hard_break.create()).scrollIntoView());
     return true;
 }
@@ -320,7 +319,18 @@ export function renderMath(state: EditorState, dispatch: (tr: Transaction) => vo
             break;
         }
     }
-    
+    let offset = $head.parentOffset;
+
+    if (!(mathText[0] === "$" && mathText[mathText.length - 1] === "$" && mathText.length > 1
+    && $head.node().textBetween(offset - 1, offset) === "$")) {
+        return false;
+    }
+    if (mathText.slice(0, 2) == "$$") {
+        if (!(mathText.length > 2 && $head.node().textBetween(offset - 1, offset) == "$"))  
+        {
+            return false;
+        }
+    }
     tr = tr.setSelection(TextSelection.create(tr.doc, fromPos, tr.selection.from))
             .removeMark(tr.selection.from, tr.selection.to, schema.marks.math);
 
@@ -396,7 +406,7 @@ export function buildKeymap(schema: Schema) {
     keys["Mod-X"] = toggleMark(schema.marks.strikethrough);
     keys["Mod-Shift-8"] = toggleBulletList;
     keys["Mod-Shift-9"] = toggleOrderedList;
-    keys["Enter"] = chainCommands(newlineInMath, renderMath, createCodeBlock, splitListItem(schema.nodes.list_item));
+    keys["Enter"] = chainCommands(renderMath, newlineInMath, createCodeBlock, splitListItem(schema.nodes.list_item));
     keys["ArrowLeft"] = arrowHandler("left");
     keys["ArrowRight"] = arrowHandler("right");
     keys["ArrowUp"] = arrowHandler("up");
