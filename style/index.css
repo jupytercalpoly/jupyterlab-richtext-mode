@@ -30,12 +30,6 @@
 
 }
 
-.header {
-    height: 100%;
-    padding-right: 1px;
-    padding-left: 72px;
-}
-
 .menu-separator-color {
     fill: var(--jp-layout-color3);
 }
