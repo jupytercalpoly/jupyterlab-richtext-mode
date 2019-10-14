@@ -61,7 +61,7 @@ jupyter lab --watch
 Bold: Ctrl/⌘ + B
 Italic: Ctrl/⌘ + I
 Underline: Ctrl/⌘ + U
-Strikethrough: Ctrl/⌘ + X
+Strikethrough: Ctrl/⌘ + Shift + X
 
 Normal Text Style (p): Ctrl/⌘ + Alt + 0
 Title Text Style (H1): Ctrl/⌘ + Alt + 1
