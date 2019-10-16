@@ -57,24 +57,23 @@ jupyter lab --watch
 ```
 
 ## Keyboard Shortcuts
-Bold: Ctrl/⌘ + B  
-Italic: Ctrl/⌘ + I  
-Underline: Ctrl/⌘ + U  
-Strikethrough: Ctrl/⌘ + X  
 
+Bold: Ctrl/⌘ + B
+Italic: Ctrl/⌘ + I
+Underline: Ctrl/⌘ + U
+Strikethrough: Ctrl/⌘ + Shift + X
 
-Normal Text Style (p): Ctrl/⌘ + Alt + 0  
-Title Text Style (H1): Ctrl/⌘ + Alt + 1  
-Subtitle Text Style (H2): Ctrl/⌘ + Alt + 2  
-Section 1 Text Style (H3): Ctrl/⌘ + Alt + 3  
-Section 2 Text Style (H4): Ctrl/⌘ + Alt + 4  
-Section 3 Text Style (H5): Ctrl/⌘ + Alt + 5  
-Caption Text Style (H6): Ctrl/⌘ + Alt + 6  
+Normal Text Style (p): Ctrl/⌘ + Alt + 0
+Title Text Style (H1): Ctrl/⌘ + Alt + 1
+Subtitle Text Style (H2): Ctrl/⌘ + Alt + 2
+Section 1 Text Style (H3): Ctrl/⌘ + Alt + 3
+Section 2 Text Style (H4): Ctrl/⌘ + Alt + 4
+Section 3 Text Style (H5): Ctrl/⌘ + Alt + 5
+Caption Text Style (H6): Ctrl/⌘ + Alt + 6
 
-
-Bulleted list: Ctrl/⌘ + Shift + 8  
-Ordered list: Ctrl/⌘ + Shift + 9  
-Nested list: Tab to nest a list item; Shift + Tab to unnest  
-Block quote:  Ctrl/⌘ + '  
-Inline code: Ctrl/⌘ + <  
-Code block: Use Markdown syntax and press enter. Example: ```python  
+Bulleted list: Ctrl/⌘ + Shift + 8
+Ordered list: Ctrl/⌘ + Shift + 9
+Nested list: Tab to nest a list item; Shift + Tab to unnest
+Block quote:  Ctrl/⌘ + '
+Inline code: Ctrl/⌘ + <
+Code block: Use Markdown syntax and press enter. Example: ```python
