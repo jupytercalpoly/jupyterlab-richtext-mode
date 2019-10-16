@@ -173,7 +173,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
     componentDidMount() {
 
         if (!this.props.view || this.props.model.metadata.get("markdownMode") === true) {
-            this.setState({inactiveMarks: ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image", "stick"]});
+            this.setState({inactiveMarks: ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image"]});
         }
 
     }

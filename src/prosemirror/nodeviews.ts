@@ -8,17 +8,17 @@ import { Node,
 import { TextSelection,
    Selection
    } from "prosemirror-state";
-import "../../node_modules/codemirror/mode/javascript/javascript";
-import "../../node_modules/codemirror/mode/python/python";
-import "../../node_modules/codemirror/mode/markdown/markdown";
+import "codemirror/mode/javascript/javascript";
+import "codemirror/mode/python/python";
+import "codemirror/mode/markdown/markdown";
 
 // import "../../node_modules/codemirror/mode/*";
 import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
 import { PageConfig } from "@jupyterlab/coreutils";
 import { schema } from "./prosemirror-schema";
 // import { EditorState, Transaction } from "prosemirror-state";
-import "../../node_modules/codemirror/addon/display/autorefresh";
-import "../../node_modules/codemirror/addon/selection/mark-selection";
+import "codemirror/addon/display/autorefresh";
+import "codemirror/addon/selection/mark-selection";
 // import { parser } from "./markdown";
 export class CodeBlockView {
 

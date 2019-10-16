@@ -35,7 +35,6 @@ The `jlpm` command is JupyterLab's pinned version of
 
 ```bash
 # Clone the repo to your local environment
-# Move to wyswiwyg-editor directory
 # Install dependencies
 npm install
 # Build Typescript source
@@ -58,6 +57,7 @@ jupyter lab --watch
 ```
 
 ## Keyboard Shortcuts
+
 Bold: Ctrl/⌘ + B
 Italic: Ctrl/⌘ + I
 Underline: Ctrl/⌘ + U
