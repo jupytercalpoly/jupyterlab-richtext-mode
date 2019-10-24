@@ -47,13 +47,13 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             activeMarks: [],
             activeWrapNodes: [],
             inactiveMarks: [],
-            experimentalFeatures: ["Strikethrough",
-                                    "List",
-                                    "Block Quote",
-                                    "Code",
-                                    "Link",
-                                    "Image",
-                                    "Math"],
+            experimentalFeatures: ["strikethrough",
+                                    "lists",
+                                    "blockquote",
+                                    "code",
+                                    "link",
+                                    "image",
+                                    "math"],
             widgetAttached: null,
             widgetsSet: [] // After the MenuItem component mounts and I try to get the bounding DOMRect, it gives the wrong information, so these are flags to see
                             // if the menu widgets were set. 
@@ -74,6 +74,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             this.handleBlockCode = this.handleBlockCode.bind(this);
             this.handleInlineCode = this.handleInlineCode.bind(this);
             this.handleExperimentalClick = this.handleExperimentalClick.bind(this);
+            this.handleReturnToExperimental = this.handleReturnToExperimental.bind(this);
             let that = this;
             let state = this.props.view.state;
             // let MathJax: any;
@@ -301,10 +302,17 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             default:
                 this.toggleCommand(command, e);
                 this.toggleState(command);
+                break;
         }
-        this.toggleCommand(command, e);
-        this.toggleState(command);
+
     }
+
+    handleReturnToExperimental(e: React.SyntheticEvent) {
+        Widget.detach(this.state.widgetAttached);
+        Widget.attach(this.props.experimentalMenuWidget, document.body);
+        this.setState({widgetAttached: this.props.experimentalMenuWidget});
+    }
+
     /**
      * Toggles the mark that is selected via button click or keybinding.
      * 
@@ -414,6 +422,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
     formatMenu(e: React.SyntheticEvent) {
         let widget: Widget;
         let target = (e.target as HTMLElement);
+
         switch (target.id) {
             case "link":
                 console.log("link widget");
@@ -452,7 +461,9 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                                 handleImgUpload={this.handleImgUpload} 
                                 handleSubmitImgLink={this.handleSubmitImgLink} 
                                 key={this.props.view.state.selection.from}
-                                cancel={this.handleCancel} />, this.props.imageMenuWidget.node);
+                                cancel={this.handleCancel}
+                                returnToExperimental={this.handleReturnToExperimental} 
+                                />, this.props.imageMenuWidget.node);
                 widget = this.props.imageMenuWidget;
                 break;
             default:
@@ -476,6 +487,13 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             widgets.push(widget);
             this.setState({widgetsSet: widgets});
             console.log("Setting widget!");
+            if (this.state.widgetAttached && 
+                this.state.widgetAttached.id === "experimental" &&
+                this.state.experimentalFeatures.includes(target.id))
+            {
+                target = document.getElementById("experimental");
+                rect = target.getBoundingClientRect();
+            }
             HoverBox.setGeometry({
                 anchor: rect,
                 host: target,
@@ -489,7 +507,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         }
 
         if (!widget.isAttached) {
-            if (this.state.widgetAttached && this.state.widgetAttached.isAttached) {
+            if (this.state.widgetAttached && 
+                this.state.widgetAttached.isAttached) {
                 console.log(this.state.widgetAttached);
                 console.log(this.state.widgetAttached.isAttached);
                 Widget.detach(this.state.widgetAttached);
@@ -497,7 +516,6 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             this.setState({ widgetAttached: widget });
 
             Widget.attach(widget, document.body);
-            // console.log(widget.isAttached);
         }
         else {
             Widget.detach(widget);

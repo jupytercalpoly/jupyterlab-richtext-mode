@@ -36,6 +36,7 @@ export class ProsemirrorWidget extends Widget {
         let codeMenuWidget = new Widget();
         let codeLanguageMenuWidget = new Widget();
         let experimentalMenuWidget = new Widget();
+        experimentalMenuWidget.id = "experimental";
         ReactDOM.render(<RichTextMenu view={this._view} model={model} linkMenuWidget={linkMenuWidget} 
             imageMenuWidget={imageMenuWidget} headingMenuWidget={headingMenuWidget} 
             codeMenuWidget={codeMenuWidget}

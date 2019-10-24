@@ -9,14 +9,14 @@ export default class ExperimentalMenu extends React.Component<{handleClick: (e: 
     }
 
     render() {
-        let experimentalCommands = [
-            "strikethrough", 
-            "lists", 
-            "blockquote", 
-            "code",
-            "link",
-            "image",
-            "math"
+        let experimentalNames = [
+            "Strikethrough", 
+            "List", 
+            "Block Quote", 
+            "Code",
+            "Link",
+            "Image",
+            "Math"
         ]
         let hasMenu = [
             "List",
@@ -31,10 +31,10 @@ export default class ExperimentalMenu extends React.Component<{handleClick: (e: 
                 {
                     this.props.features.map((feature: string, idx: number) => {
                         return <ExperimentalMenuItem 
-                        commandName={experimentalCommands[idx]}
+                        commandName={feature}
                         handleClick={this.props.handleClick}
-                        featureName={feature} 
-                        hasMenu={hasMenu.includes(feature)} />
+                        featureName={experimentalNames[idx]} 
+                        hasMenu={hasMenu.includes(experimentalNames[idx])} />
                     })
                 }
             </div>

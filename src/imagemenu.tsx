@@ -3,7 +3,8 @@ import MenuHeader from "./menuheader";
 
 export class ImageMenu extends React.Component<{handleImgUpload: (fileUrl: unknown, e: React.SyntheticEvent) => void,
                                                 handleSubmitImgLink: (url: string) => void,
-                                                cancel: (e: React.SyntheticEvent) => void}, {isLinkOption: boolean, imageUrl: string}> {
+                                                cancel: (e: React.SyntheticEvent) => void,
+                                                returnToExperimental: (e: React.SyntheticEvent) => void}, {isLinkOption: boolean, imageUrl: string}> {
     
 
     constructor(props: any) {
@@ -45,7 +46,6 @@ export class ImageMenu extends React.Component<{handleImgUpload: (fileUrl: unkno
         }
     }
 
-
     uploadFile(file: File) {
         let reader = new FileReader();
         return new Promise((accept, fail) => {
@@ -59,7 +59,11 @@ export class ImageMenu extends React.Component<{handleImgUpload: (fileUrl: unkno
         if (!this.state.isLinkOption) {
             return (
                 <div className="editor-menu">  
-                    <MenuHeader name="image" />
+                    <MenuHeader 
+                    name="image"
+                    canClick={true}
+                    handleClick={this.props.returnToExperimental} 
+                    />
                     <div className="jp-scribe-menu-content">
                         <span className="linkToImage" onClick={this.handleLinkClick}>Link to image</span>
                         <form>
