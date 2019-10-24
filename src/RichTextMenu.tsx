@@ -23,15 +23,8 @@ import { CodeMenu } from "./codemenu";
 import { Widget } from '@phosphor/widgets';
 import ReactDOM from "react-dom";
 import { schema } from "./prosemirror/prosemirror-schema";
-// import { wrapInList, liftListItem } from "prosemirror-schema-list";
 import { ICellModel } from '@jupyterlab/cells';
-
-// import { PageConfig } from "@jupyterlab/coreutils";
-// import { MenuWidgetObject } from './widget';
-// import { Menu } from '@phosphor/widgets';
-// import { Schema } from 'prosemirror-model';
-// import { keymap } from 'prosemirror-keymap';
-// import { runInThisContext } from 'vm';
+import ExperimentalMenu from './experimentalmenu';
 
 /**
  * A React component for the menu for the rich text editor.
@@ -42,8 +35,8 @@ import { ICellModel } from '@jupyterlab/cells';
 
 export default class RichTextMenu extends React.Component<{view: EditorView, 
     model: ICellModel, linkMenuWidget: Widget, imageMenuWidget: Widget, headingMenuWidget: Widget, codeMenuWidget: Widget,
-    codeLanguageMenuWidget: Widget}, 
-    {activeMarks: string[], activeWrapNodes: string[], inactiveMarks: string[], widgetsSet: Widget[], widgetAttached: Widget}> {
+    codeLanguageMenuWidget: Widget, experimentalMenuWidget: Widget}, 
+    {activeMarks: string[], activeWrapNodes: string[], inactiveMarks: string[], widgetsSet: Widget[], widgetAttached: Widget, experimentalFeatures: string[]}> {
 
         // Render menus into their specific widget nodes in menuWidgets
 
@@ -54,6 +47,13 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             activeMarks: [],
             activeWrapNodes: [],
             inactiveMarks: [],
+            experimentalFeatures: ["Strikethrough",
+                                    "List",
+                                    "Block Quote",
+                                    "Code",
+                                    "Link",
+                                    "Image",
+                                    "Math"],
             widgetAttached: null,
             widgetsSet: [] // After the MenuItem component mounts and I try to get the bounding DOMRect, it gives the wrong information, so these are flags to see
                             // if the menu widgets were set. 
@@ -73,6 +73,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             this.handleHeadingClick = this.handleHeadingClick.bind(this);
             this.handleBlockCode = this.handleBlockCode.bind(this);
             this.handleInlineCode = this.handleInlineCode.bind(this);
+            this.handleExperimentalClick = this.handleExperimentalClick.bind(this);
             let that = this;
             let state = this.props.view.state;
             // let MathJax: any;
@@ -87,7 +88,6 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                         state = state.apply(transaction);
                         that.props.view.updateState(state);
                         that.props.model.value.text = state.doc.textContent;
-
                     }
                 })
             }
@@ -279,6 +279,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         e.preventDefault();
         this.props.view.focus();
         const command = (e.target as HTMLImageElement).id;
+        console.log(command);
         console.log("in it");
         // console.log(command);
         // console.log(e.target);
@@ -287,6 +288,23 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         
     }
 
+    handleExperimentalClick(e: React.SyntheticEvent) {
+        e.preventDefault();
+        this.props.view.focus();
+        const command = (e.target as HTMLParagraphElement).id;
+        switch (command)
+        {
+            case "lists":
+                break;
+            case "math":
+                break;
+            default:
+                this.toggleCommand(command, e);
+                this.toggleState(command);
+        }
+        this.toggleCommand(command, e);
+        this.toggleState(command);
+    }
     /**
      * Toggles the mark that is selected via button click or keybinding.
      * 
@@ -330,6 +348,10 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 break;
             case "ordered_list":
                 scripts.toggleOrderedList(view.state, view.dispatch, view);
+                break;
+            case "experimental":
+                console.log("experimental");
+                this.formatMenu(e);
                 break;
             default: 
                 break;
@@ -424,7 +446,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                                 key={this.props.view.state.selection.from}/>, this.props.codeMenuWidget.node);
                 widget = this.props.codeMenuWidget;
                 break;
-            default:
+            case "image":
                 console.log("image widget");
                 ReactDOM.render(<ImageMenu 
                                 handleImgUpload={this.handleImgUpload} 
@@ -433,6 +455,15 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                                 cancel={this.handleCancel} />, this.props.imageMenuWidget.node);
                 widget = this.props.imageMenuWidget;
                 break;
+            default:
+                console.log("experimental widget");
+                ReactDOM.render(<ExperimentalMenu
+                                handleClick={this.handleExperimentalClick} 
+                                features={this.state.experimentalFeatures}
+                                />, this.props.experimentalMenuWidget.node);
+                widget = this.props.experimentalMenuWidget;
+                break;
+                
         }
 
         const style = window.getComputedStyle(widget.node);
@@ -511,7 +542,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
     render() {
 
         const tooltips = ["bold", "italic", "underline", "strikethrough", "text-styles", "bulleted-list", "numbered-list", "blockquote", "code", "link", "image"];
-        const marks = ["stick", "strong", "em", "underline", "strikethrough", "heading", "stick", "bullet_list", "ordered_list", "blockquote", "code", "stick", "link", "image"];
+        // const marks = ["stick", "strong", "em", "underline", "strikethrough", "heading", "stick", "bullet_list", "ordered_list", "blockquote", "code", "stick", "link", "image"];
+        const marks = ["stick", "strong", "em", "underline", "heading", "experimental"];
         return (
             <div className="menu">
                     {marks.map((item, idx) => {
