@@ -5,8 +5,9 @@ export class LinkMenu extends React.Component<{initialText: string,
                                             initialLink: string, 
                                             cancel: (e: React.SyntheticEvent) => void, 
                                             submitLink: (initialText: string, initialLink: string, text: string, link: string) => void,
-                                            deleteLink: (e: React.SyntheticEvent, link: string) => void}, 
-                                        
+                                            deleteLink: (e: React.SyntheticEvent, link: string) => void
+                                            returnToExperimental: (e: React.SyntheticEvent) => void}, 
+                                            
                                             {textValue: string, linkValue: string}> {
     
     constructor(props: any) {
@@ -51,7 +52,8 @@ export class LinkMenu extends React.Component<{initialText: string,
                 <div className="editor-menu">
                     <MenuHeader 
                     name="link"
-                    canClick={false}
+                    canClick={true}
+                    handleClick={this.props.returnToExperimental}
                     />
                     <form onSubmit={this.handleSubmit} className="jp-scribe-menu-content">
                         <div style={{display: "flex"}}>

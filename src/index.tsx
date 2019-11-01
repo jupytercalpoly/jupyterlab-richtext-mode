@@ -21,15 +21,16 @@ import { ProsemirrorWidget } from './widget';
 import { CommandRegistry } from '@phosphor/commands';
 import { ContextMenu, Menu } from '@phosphor/widgets';
 import { ProseMirrorEditor } from './prosemirror/ProseMirrorEditor';
+import { IStateDB } from '@jupyterlab/coreutils';
 // import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
 // import { PageConfig } from "@jupyterlab/coreutils";
 
 
 //@ts-ignore
-function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker) {
+function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker, state: IStateDB) {
   let prosemirrorWidget = new ProsemirrorWidget(app.commands);
   
-  addKeybindings(app.commands, nbTracker, prosemirrorWidget);
+  addKeybindings(app.commands, nbTracker, prosemirrorWidget, state);
   addContextMenuItems(app.contextMenu, app.commands);
   nbTracker.currentChanged.connect(() => {
     if (nbTracker.currentWidget) {
@@ -40,16 +41,19 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
           if (activeCell instanceof MarkdownCell) { 
             activeCell.editor.focus();
             console.log(activeCell.editor.hasFocus);
-            prosemirrorWidget.renderMenu(activeCell);
+            prosemirrorWidget.renderMenu(activeCell, state);
           }
           else {
-            prosemirrorWidget.renderInactiveMenu();
+            prosemirrorWidget.renderInactiveMenu(state);
           }
   
         })
     }
     // nbTracker.currentWidget.toolbar.insertAfter("cellType", "heading-menu", menu_scripts.createHeadingMenu(app.commands));
-
+    Promise.all([state.save("test-markdown:ayy", 123), app.restored])
+    .then(([saved])=>{console.log(saved)});
+    Promise.all([state.fetch("test-markdown:ayy"), app.restored])
+    .then(([saved])=>{console.log(saved)});
   })
 
 }
@@ -77,7 +81,7 @@ function addContextMenuItems(contextMenu: ContextMenu, commands: CommandRegistry
   })
 }
 
-function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, prosemirrorWidget: ProsemirrorWidget) {
+function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, prosemirrorWidget: ProsemirrorWidget, state: IStateDB) {
 
   commands.addCommand("prosemirror-bold", {
     execute: () => {
@@ -120,7 +124,7 @@ function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, 
   commands.addCommand("prosemirror-switch-mode", {
     execute: () => {
       (nbTracker.activeCell.editor as ProseMirrorEditor).switchEditor();
-      prosemirrorWidget.renderMenu(nbTracker.activeCell);
+      prosemirrorWidget.renderMenu(nbTracker.activeCell, state);
     }
   });
 
@@ -216,7 +220,7 @@ function overrideContentFactory(app: JupyterFrontEnd) {
 const markdownTest: JupyterFrontEndPlugin<void> = {
   id: 'test-markdown',
   autoStart: true,
-  requires: [INotebookTracker],
+  requires: [INotebookTracker, IStateDB],
   activate: activateMarkdownTest
 };
 
