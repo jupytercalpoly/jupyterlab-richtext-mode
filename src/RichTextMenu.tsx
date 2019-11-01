@@ -201,7 +201,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         }
         if (this.props.view)
         {
-            console.log("setting math");
+
             this.setMathEnabled();
         }
     }
