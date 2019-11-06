@@ -34,7 +34,8 @@ export default class ExperimentalMenu extends React.Component<{handleClick: (e: 
                         commandName={feature}
                         handleClick={this.props.handleClick}
                         featureName={experimentalNames[idx]} 
-                        hasMenu={hasMenu.includes(experimentalNames[idx])} />
+                        hasMenu={hasMenu.includes(experimentalNames[idx])}
+                        key={feature} />
                     })
                 }
             </div>

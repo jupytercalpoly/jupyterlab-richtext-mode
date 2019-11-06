@@ -7,6 +7,8 @@ export function MathExperimentalMenu(props: any)
       <div className="editor-menu">
         <MenuHeader 
         name="math" 
+        canClick={true}
+        handleClick={props.returnToExperimental}
         />
         <div style={{padding: "10px 25px"}}>
             <p>Auto-render LaTeX in Markdown cells</p>

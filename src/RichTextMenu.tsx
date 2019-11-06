@@ -49,20 +49,6 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
     constructor(props: any) {
         console.log("Rich text menu created!");
         super(props);
-        let enabled;
-        Promise.all([props.state.fetch("test-markdown:math-enabled")])
-        .then(([saved])=>{
-            console.log(saved);
-            if (!saved)
-            {
-                console.log("nothing");
-                enabled = true;
-            }
-            else
-            {
-                enabled = saved;
-            }
-        });
         this.state = {
             activeMarks: [],
             activeWrapNodes: [],
@@ -74,12 +60,13 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                                     "link",
                                     "image",
                                     "math_experimental"],
-            mathEnabled: enabled,
+            mathEnabled: true,
             widgetAttached: null,
             widgetsSet: [] // After the MenuItem component mounts and I try to get the bounding DOMRect, it gives the wrong information, so these are flags to see
                             // if the menu widgets were set. 
 
         }
+        console.log(this.state.mathEnabled);
         if (this.props.view) {
             
             this.handleClick = this.handleClick.bind(this);
@@ -201,20 +188,37 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         }
         if (this.props.view)
         {
-
+            console.log("setting math");
             this.setMathEnabled();
         }
     }
 
-    setMathEnabled() {
+    async setMathEnabled() {
+        let enabled;
+        await Promise.all([this.props.state.fetch("test-markdown:math-enabled")])
+        .then(([saved])=>{
+            console.log(saved);
+            if (saved === undefined)
+            {
+                console.log("nothing");
+                enabled = true;
+            }
+            else
+            {
+                enabled = saved;
+            }
+        });
+        this.setState({mathEnabled: enabled});
+
         let newPlugins = [...this.props.view.state.plugins].slice(0, 2);
-        if (this.state.mathEnabled)
+        if (enabled)
         {
             console.log("enabling math");
             newPlugins.push(inputRules({rules: createInputRules().concat(createMathInputRules())}));
         }
         else 
         {
+            console.log("wat");
             newPlugins.push(inputRules({rules: createInputRules()}));
         }
         this.props.view.updateState(this.props.view.state.reconfigure({plugins: newPlugins}));
@@ -371,7 +375,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         }
         Promise.all([this.props.state.save("test-markdown:math-enabled", !this.state.mathEnabled)])
         .then(([saved]) => {null});
-        this.setState({mathEnabled: !this.state.mathEnabled});
+        Widget.detach(this.state.widgetAttached);
+        this.setState({mathEnabled: !this.state.mathEnabled, widgetAttached: null});
         this.props.view.updateState(this.props.view.state.reconfigure({plugins: newPlugins}));
         console.log(this.props.view.state.plugins);
     }
