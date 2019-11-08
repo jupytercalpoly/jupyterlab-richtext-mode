@@ -5,12 +5,8 @@ import { IDisposable, DisposableDelegate } from "@phosphor/disposable";
 import { ArrayExt } from '@phosphor/algorithm';
 import { EditorState, 
   TextSelection
-  // Plugin
  } from "prosemirror-state";
-import { EditorView, 
-  // Decoration, 
-  // DecorationSet
- } from "prosemirror-view";
+import { EditorView } from "prosemirror-view";
 import * as Markdown from '../prosemirror/markdown';
 import {keymap} from "prosemirror-keymap";
 import {baseKeymap} from "prosemirror-commands";
@@ -537,7 +533,7 @@ namespace Private {
                     history(),
                     keymap(buildKeymap(schema)),
                     keymap(baseKeymap),
-                    inputRules({rules: createInputRules()}),
+                    inputRules({rules: createInputRules()})
                     // testPlugin
                 ]
             }),

@@ -40,7 +40,7 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
           if (activeCell instanceof MarkdownCell) { 
             activeCell.editor.focus();
             console.log(activeCell.editor.hasFocus);
-            prosemirrorWidget.renderMenu(activeCell);
+            prosemirrorWidget.renderMenu(activeCell, app.commands);
           }
           else {
             prosemirrorWidget.renderInactiveMenu();
@@ -122,7 +122,7 @@ function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, 
   commands.addCommand("prosemirror-switch-mode", {
     execute: () => {
       (nbTracker.activeCell.editor as ProseMirrorEditor).switchEditor();
-      prosemirrorWidget.renderMenu(nbTracker.activeCell);
+      prosemirrorWidget.renderMenu(nbTracker.activeCell, commands);
     }
   });
 

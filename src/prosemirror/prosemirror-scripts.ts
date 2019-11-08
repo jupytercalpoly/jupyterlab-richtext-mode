@@ -19,7 +19,7 @@ import { chainCommands, setBlockType,
  } from "prosemirror-commands"; 
 
  import {canSplit} from "prosemirror-transform";
-import { undo, redo } from "prosemirror-history";
+import { undo,  } from "prosemirror-history";
 // import { parser } from "./markdown";
 
 //  import { ReplaceAroundStep } from "prosemirror-transform";
@@ -481,10 +481,7 @@ export function buildKeymap(schema: Schema) {
     keys["Mod-Alt-6"] = setBlockType(schema.nodes.heading, {level: 6});
     keys["Mod-<"] = toggleMark(schema.marks.code);
     keys["Mod-'"] = toggleBlockquote;
-    keys["Mod-Alt-z"] = undoit;
-    keys["Mod-Z"] = undo;
-    keys["Mod-y"] = redo;
-    keys["Mod-Y"] = redo;
+
     return keys;
 }
 function arrowHandler(dir: any) {
@@ -497,6 +494,25 @@ function arrowHandler(dir: any) {
         if (nextPos.$head && nextPos.$head.parent.type.name == "code_block") {
           dispatch(state.tr.setSelection(nextPos))
           return true
+        }
+      }
+
+    //   Checks to see if at beginning or end.
+      if (view.endOfTextblock(dir)) {
+          console.log("yes");
+        let commands = state.plugins[state.plugins.length - 1].getState(state);
+        if (dir == "up" && state.selection.from == 1) {
+            commands.execute("notebook:move-cursor-up");
+            return true;
+        }
+        else if (dir == "down") {
+            let selection = state.selection;
+            let parentOffset = 0;
+            parentOffset = selection.$from.index(0);
+            if (state.doc.childCount - 1 === parentOffset) {
+                commands.execute("notebook:move-cursor-down");
+                return true;
+            }
         }
       }
       console.log(`arrow ${dir} not handled`);

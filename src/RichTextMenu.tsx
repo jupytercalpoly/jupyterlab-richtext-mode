@@ -7,7 +7,7 @@ import MenuItem from './menuitem';
 import { EditorView } from 'prosemirror-view';
 // import { Mark } from 'prosemirror-model';
 import * as scripts from './prosemirror/prosemirror-scripts';
-import { Transaction, TextSelection
+import { Transaction, TextSelection, Plugin
     // EditorState 
 } from "prosemirror-state";
 // import { CodeEditor } from '@jupyterlab/codeeditor';
@@ -25,6 +25,7 @@ import ReactDOM from "react-dom";
 import { schema } from "./prosemirror/prosemirror-schema";
 // import { wrapInList, liftListItem } from "prosemirror-schema-list";
 import { ICellModel } from '@jupyterlab/cells';
+import { CommandRegistry } from '@phosphor/commands';
 
 // import { PageConfig } from "@jupyterlab/coreutils";
 // import { MenuWidgetObject } from './widget';
@@ -42,7 +43,7 @@ import { ICellModel } from '@jupyterlab/cells';
 
 export default class RichTextMenu extends React.Component<{view: EditorView, 
     model: ICellModel, linkMenuWidget: Widget, imageMenuWidget: Widget, headingMenuWidget: Widget, codeMenuWidget: Widget,
-    codeLanguageMenuWidget: Widget}, 
+    codeLanguageMenuWidget: Widget, commands: CommandRegistry}, 
     {activeMarks: string[], activeWrapNodes: string[], inactiveMarks: string[], widgetsSet: Widget[], widgetAttached: Widget}> {
 
         // Render menus into their specific widget nodes in menuWidgets
@@ -73,8 +74,11 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             this.handleHeadingClick = this.handleHeadingClick.bind(this);
             this.handleBlockCode = this.handleBlockCode.bind(this);
             this.handleInlineCode = this.handleInlineCode.bind(this);
+            this.addPluginForCommands = this.addPluginForCommands.bind(this);
             let that = this;
             let state = this.props.view.state;
+
+
             // let MathJax: any;
             // console.log(state.doc);
             // console.log(state.selection);
@@ -146,30 +150,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                                         return mark.type.name;
                                     }
                             })});                        
-                        // if (!transaction.storedMarksSet) {
-                        //     let parent = transaction.selection.$from.parent;
-                        //     let parentOffset = transaction.selection.$from.parentOffset;
-                        //     let marks = scripts.getMarksForSelection(transaction, newState);
-                        //     that.setState({activeMarks: marks.map(mark => {
-                        //             if (mark.type.name === "link") {
-                        //                 return "";
-                        //             }
-                        //             else {
-                        //                 return mark.type.name;
-                        //             }
-                        //     })});
-                            
-                        //     if (parent.type.name === "paragraph" && parentOffset === 0) {// This is to handle formatting continuity.
-                        //         transaction = transaction.setStoredMarks(marks); /** Important that setStoredMarks is used as opposed 
-                        //         to manually toggling marks as that will infinitely
-                        //         create transactions and inevitably error.
-                        //         */ 
-                        //     }
-        
-                        // }
                         
                         newState = that.props.view.state.apply(transaction);
-                        // console.log(newState.doc);
                         that.props.view.updateState(newState);
                     }
                 })
@@ -185,6 +167,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             this.setState({inactiveMarks: ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image"]});
         }
 
+        this.addPluginForCommands();
+
     }
     componentWillUnmount() {
         if (this.props.view) {
@@ -197,6 +181,19 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
 
     }
 
+    addPluginForCommands() {
+        let newPlugins = [...this.props.view.state.plugins];
+        let that = this;
+        newPlugins.push(new Plugin({
+            state: {
+                init() { return that.props.commands },
+                apply(tr, value) { return value }
+            },
+
+        }))
+        this.props.view.updateState(this.props.view.state.reconfigure({plugins: newPlugins}));
+
+    }
     handleImgUpload(fileUrl: unknown, e: React.SyntheticEvent) {
         e.preventDefault();
         let view = this.props.view;
