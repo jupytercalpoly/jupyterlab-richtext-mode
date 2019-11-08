@@ -23,6 +23,10 @@ import { inputRules } from "prosemirror-inputrules";
 // import markdownit from "markdown-it/lib";
 import { Transaction } from "prosemirror-state";
 import { IMarkdownCellModel } from "@jupyterlab/cells";
+import { history, undo, redo, 
+  // undo, redo 
+} 
+  from "prosemirror-history";
 /**
  * The height of a line in the editor.
  */
@@ -154,6 +158,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
         state: EditorState.create({
           doc: Markdown.parser.parse(state.doc.textContent),
           plugins: [
+            history(),
             keymap(buildKeymap(schema)),
             keymap(baseKeymap),
             inputRules({rules: createInputRules()}),
@@ -342,7 +347,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
   }
 
   redo(): void {
-
+    redo(this._view.state, this._view.dispatch);
   }
 
   refresh(): void {
@@ -366,7 +371,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
   }
 
   undo(): void {
-
+    undo(this._view.state, this._view.dispatch);
   }
 
   getOption<K extends keyof ProseMirrorEditor.IConfig>(option: K): ProseMirrorEditor.IConfig[K] {
@@ -529,6 +534,7 @@ namespace Private {
                     initValue
                 ),
                 plugins: [
+                    history(),
                     keymap(buildKeymap(schema)),
                     keymap(baseKeymap),
                     inputRules({rules: createInputRules()}),
@@ -549,7 +555,23 @@ namespace Private {
                   document.execCommand("copy");
                   // view.dom.dispatchEvent(new ClipboardEvent("copy"));
                   return true;
-              }
+              },
+              // keydown: (view: EditorView, event: Event): boolean => {
+              //   if ((event as KeyboardEvent).metaKey) {
+              //     let key = (event as KeyboardEvent).key;
+              //     switch (key) {
+              //       case "z":
+              //         undo(view.state, view.dispatch);
+              //         event.preventDefault();
+              //         break;
+              //       case "y":
+              //         redo(view.state, view.dispatch);
+              //         event.preventDefault();
+              //         break;
+              //     }
+              //   }
+              //   return true;
+              // }
             }
             
             // dispatchTransaction(transaction: Transaction) {

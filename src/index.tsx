@@ -92,6 +92,8 @@ function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, 
       currentEditor.dispatchEvent(new KeyboardEvent("keydown", {metaKey: true, key: "i"}));
     }
   })
+
+
   commands.addCommand("prosemirror-tab", {
     execute: () => {
       let currentEditor = document.querySelector(".ProseMirror-focused");
@@ -170,6 +172,7 @@ function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, 
     keys: ['Accel I'],
     selector: '.ProseMirror-focused'
   });
+
 
   commands.addKeyBinding({
     command: "prosemirror-tab",

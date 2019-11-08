@@ -137,10 +137,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                         activeWrapNodes = scripts.getWrappingNodes(transaction);
                         that.setState({activeWrapNodes});
     
-                        if (!transaction.storedMarksSet) {
-                            let parent = transaction.selection.$from.parent;
-                            let parentOffset = transaction.selection.$from.parentOffset;
-                            let marks = scripts.getMarksForSelection(transaction, newState);
+                        let marks = scripts.getMarksForSelection(newState);
                             that.setState({activeMarks: marks.map(mark => {
                                     if (mark.type.name === "link") {
                                         return "";
@@ -148,16 +145,28 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                                     else {
                                         return mark.type.name;
                                     }
-                            })});
+                            })});                        
+                        // if (!transaction.storedMarksSet) {
+                        //     let parent = transaction.selection.$from.parent;
+                        //     let parentOffset = transaction.selection.$from.parentOffset;
+                        //     let marks = scripts.getMarksForSelection(transaction, newState);
+                        //     that.setState({activeMarks: marks.map(mark => {
+                        //             if (mark.type.name === "link") {
+                        //                 return "";
+                        //             }
+                        //             else {
+                        //                 return mark.type.name;
+                        //             }
+                        //     })});
                             
-                            if (parent.type.name === "paragraph" && parentOffset === 0) {// This is to handle formatting continuity.
-                                transaction = transaction.setStoredMarks(marks); /** Important that setStoredMarks is used as opposed 
-                                to manually toggling marks as that will infinitely
-                                create transactions and inevitably error.
-                                */ 
-                            }
+                        //     if (parent.type.name === "paragraph" && parentOffset === 0) {// This is to handle formatting continuity.
+                        //         transaction = transaction.setStoredMarks(marks); /** Important that setStoredMarks is used as opposed 
+                        //         to manually toggling marks as that will infinitely
+                        //         create transactions and inevitably error.
+                        //         */ 
+                        //     }
         
-                        }
+                        // }
                         
                         newState = that.props.view.state.apply(transaction);
                         // console.log(newState.doc);
