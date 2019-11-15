@@ -167,8 +167,10 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             this.setState({inactiveMarks: ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image"]});
         }
 
-        this.addPluginForCommands();
-
+       
+        if (this.props.view) {
+            this.addPluginForCommands();
+        }
     }
     componentWillUnmount() {
         if (this.props.view) {

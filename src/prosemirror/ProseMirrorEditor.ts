@@ -12,7 +12,7 @@ import {keymap} from "prosemirror-keymap";
 import {baseKeymap} from "prosemirror-commands";
 import {buildKeymap} from "./prosemirror-scripts";
 import { schema, schema_markdown } from "./prosemirror-schema";
-import { CodeBlockView, CodeBlockMarkdownView, InlineMathView, BlockMathView, ImageView } from "./nodeviews";
+// import { CodeBlockView, CodeBlockMarkdownView, InlineMathView, BlockMathView, ImageView } from "./nodeviews";
 import { createInputRules } from "./inputrules";
 import { inputRules } from "prosemirror-inputrules";
 // import { Node } from "prosemirror-model";
@@ -114,7 +114,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
             ]
         }),
         nodeViews: {
-          code_block(node, view, getPos) { return new CodeBlockMarkdownView(node, view, getPos)},
+          // code_block(node, view, getPos) { return new CodeBlockMarkdownView(node, view, getPos)},
   
         },
         handleDOMEvents: {
@@ -162,10 +162,10 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
         ]
         }),
         nodeViews: {
-          code_block(node, view, getPos) { return new CodeBlockView(node, view, getPos)},
-          inline_math(node, view, getPos) { return new InlineMathView(node, view, getPos)},
-          image(node) {return new ImageView(node)},
-          block_math(node, view, getPos) { return new BlockMathView(node, view, getPos)}
+          // code_block(node, view, getPos) { return new CodeBlockView(node, view, getPos)},
+          // inline_math(node, view, getPos) { return new InlineMathView(node, view, getPos)},
+          // image(node) {return new ImageView(node)},
+          // block_math(node, view, getPos) { return new BlockMathView(node, view, getPos)}
         },
         handleDOMEvents: {
           copy: (view: EditorView, event: Event): boolean => {
@@ -335,7 +335,8 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
   }
 
   hasFocus(): boolean {
-      return true;
+      console.log("checking focus");
+      return this._view.hasFocus();
   }
 
   newIndentedLine(): void {
@@ -347,7 +348,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
   }
 
   refresh(): void {
-
+    console.log("refreshing");
   }
 
   resizeToFit(): void {
@@ -382,6 +383,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
   }
 
   focus(): void {
+      console.log("focusing");
       this._view.focus();
   }
   
@@ -456,7 +458,7 @@ namespace Private {
           ]
       }),
       nodeViews: {
-        code_block(node, view, getPos) { return new CodeBlockMarkdownView(node, view, getPos)},
+        // code_block(node, view, getPos) { return new CodeBlockMarkdownView(node, view, getPos)},
 
       },
       handleDOMEvents: {
@@ -538,10 +540,10 @@ namespace Private {
                 ]
             }),
             nodeViews: {
-              code_block(node, view, getPos) { return new CodeBlockView(node, view, getPos)},
-              inline_math(node, view, getPos) { return new InlineMathView(node, view, getPos)},
-              image(node) {return new ImageView(node)},
-              block_math(node, view, getPos) { return new BlockMathView(node, view, getPos)}
+              // code_block(node, view, getPos) { return new CodeBlockView(node, view, getPos)},
+              // inline_math(node, view, getPos) { return new InlineMathView(node, view, getPos)},
+              // image(node) {return new ImageView(node)},
+              // block_math(node, view, getPos) { return new BlockMathView(node, view, getPos)}
             },
             handleDOMEvents: {
               copy: (view: EditorView, event: Event): boolean => {

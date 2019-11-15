@@ -17,10 +17,10 @@ import { MarkdownCell } from '@jupyterlab/cells';
 // } from '@phosphor/widgets';
 import ContentFactoryEditor from './factory';
 
-import { ProsemirrorWidget } from './widget';
+import { ProsemirrorWidget, ProsemirrorMarkdownCell } from './widget';
 import { CommandRegistry } from '@phosphor/commands';
 import { ContextMenu, Menu } from '@phosphor/widgets';
-import { ProseMirrorEditor } from './prosemirror/ProseMirrorEditor';
+// import { ProseMirrorEditor } from './prosemirror/ProseMirrorEditor';
 // import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
 // import { PageConfig } from "@jupyterlab/coreutils";
 
@@ -121,8 +121,10 @@ function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, 
 
   commands.addCommand("prosemirror-switch-mode", {
     execute: () => {
-      (nbTracker.activeCell.editor as ProseMirrorEditor).switchEditor();
-      prosemirrorWidget.renderMenu(nbTracker.activeCell, commands);
+      // (nbTracker.activeCell.editor as ProseMirrorEditor).switchEditor();
+      // prosemirrorWidget.renderMenu(nbTracker.activeCell, commands);
+      let isProsemirror = (nbTracker.activeCell as ProsemirrorMarkdownCell).isProsemirror;
+      (nbTracker.activeCell as ProsemirrorMarkdownCell).isProsemirror = !(isProsemirror);
     }
   });
 
@@ -190,6 +192,12 @@ function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, 
     command: "prosemirror-switch-mode",
     keys: ['Accel M'],
     selector: '.ProseMirror-focused'
+  });
+  
+  commands.addKeyBinding({
+    command: "prosemirror-switch-mode",
+    keys: ['Accel M'],
+    selector: '.jp-CodeMirrorEditor'
   });
 
   commands.addKeyBinding({

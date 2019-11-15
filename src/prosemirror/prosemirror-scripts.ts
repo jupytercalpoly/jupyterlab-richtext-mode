@@ -507,9 +507,11 @@ function arrowHandler(dir: any) {
         }
         else if (dir == "down") {
             let selection = state.selection;
-            let parentOffset = 0;
-            parentOffset = selection.$from.index(0);
-            if (state.doc.childCount - 1 === parentOffset) {
+            let docOffset, parentOffset = 0;
+            docOffset = selection.$from.index(0);
+            parentOffset = selection.$from.index(selection.$from.depth);
+
+            if (state.doc.childCount - 1 === docOffset && selection.$from.parent.childCount === parentOffset) {
                 commands.execute("notebook:move-cursor-down");
                 return true;
             }
