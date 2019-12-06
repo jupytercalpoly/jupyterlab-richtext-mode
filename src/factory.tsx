@@ -6,6 +6,7 @@ import { Cell,
  } from "@jupyterlab/cells";
  import { CodeEditor } from "@jupyterlab/codeeditor";
  import { ProseMirrorEditor } from "./prosemirror/ProseMirrorEditor";
+// import { ProsemirrorMarkdownCell } from "./widget";
 
  export default class ContentFactoryEditor extends NotebookPanel.ContentFactory {
     constructor(options?: Cell.ContentFactory.IOptions | undefined) {
@@ -32,5 +33,6 @@ import { Cell,
         
         return new MarkdownCell(options).initializeState();
       }
+
   }
   

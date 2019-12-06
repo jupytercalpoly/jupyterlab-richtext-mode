@@ -46,6 +46,10 @@ div.menuItem:hover
     cursor: pointer;
 }
 
+div.inactive-menu-icon.menuItem:hover {
+    cursor: not-allowed;
+}
+
 img.activeMenuItem:hover {
     cursor: pointer;
 }

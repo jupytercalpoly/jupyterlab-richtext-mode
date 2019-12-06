@@ -1,21 +1,25 @@
 import { Transaction, EditorState,
 Selection,
 TextSelection,
-// NodeSelection,
+NodeSelection,
 // NodeSelection,
 
 } from "prosemirror-state";
 import { Mark, MarkType, 
     ResolvedPos,
-    Node, Schema, NodeType,
+    Node, Schema, NodeType, Fragment
  } from "prosemirror-model";
 import { schema } from "./prosemirror-schema";
 import { EditorView } from "prosemirror-view";
 import { splitListItem, wrapInList, liftListItem, sinkListItem } from "prosemirror-schema-list";
 import { chainCommands, setBlockType, 
     lift,
-    wrapIn
+    wrapIn,
+    splitBlockKeepMarks
  } from "prosemirror-commands"; 
+
+ import {canSplit} from "prosemirror-transform";
+import { undo,  } from "prosemirror-history";
 // import { parser } from "./markdown";
 
 //  import { ReplaceAroundStep } from "prosemirror-transform";
@@ -29,18 +33,29 @@ import { chainCommands, setBlockType,
  * @param transaction - The state transaction generated upon interaction with the editor.
  * @returns - An array of marks.
  */
-export function getMarksForSelection(transaction: Transaction, state: EditorState): Mark[] {
-    let selection = transaction.selection;
+export function getMarksForSelection(state: EditorState): Mark[] {
+    // let selection = transaction.selection;
     // let doc = transaction.doc;
     // console.log(selection.from);
-    if (!selection.empty) { // Non-empty selection
-        return selection.$from.marks();
-    }
+    // if (!selection.empty) { // Non-empty selection
+    //     return selection.$from.marks();
+    // }
 
-    else if (selection.from != 1) { // Empty selection 
-        return getMarksBefore(state);
+    // else if (selection.from != 1) { // Empty selection 
+    //     return selection.$from.marks();
+    // }
+    if (state.storedMarks)
+    {
+        return state.storedMarks;
     }
-    return [];
+    else 
+    {
+        if (!state.selection.empty) {
+            return state.doc.resolve(state.selection.from + 1).marks();
+        }
+
+        return state.selection.$from.marks();
+    }
 }
 
 
@@ -61,34 +76,34 @@ export function getWrappingNodes(transaction: Transaction): string[] {
     return nodeList;
 }
 
-/**
- * Obtains the marks for the closest previous non-empty node.
- * 
- * @param transaction - The state transaction generated upon interaction with the editor.
- * @returns - An array of marks.
- */
+// /**
+//  * Obtains the marks for the closest previous non-empty node.
+//  * 
+//  * @param transaction - The state transaction generated upon interaction with the editor.
+//  * @returns - An array of marks.
+//  */
 
-function getMarksBefore(state: EditorState) {
-    let doc = state.doc;
-    let selection = state.selection;
-    // console.log(selection.from);
-    if (state.selection.from == 1) {
-        return null;
-    }
-    let from = doc.resolve(selection.from - 1);
-    let prev = 1;
-    // console.log(from.marksAcross(selection.$to));
-    while (!from.marksAcross(selection.$to)) {
-        if (from.pos === 0) {
-            return [];
-        }
-        prev++;
-        from = doc.resolve(selection.from - prev);
-    }
+// function getMarksBefore(state: EditorState) {
+//     let doc = state.doc;
+//     let selection = state.selection;
+//     // console.log(selection.from);
+//     if (state.selection.from == 1) {
+//         return null;
+//     }
+//     let from = doc.resolve(selection.from - 1);
+//     let prev = 1;
+//     // console.log(from.marksAcross(selection.$to));
+//     while (!from.marksAcross(selection.$to)) {
+//         if (from.pos === 0) {
+//             return [];
+//         }
+//         prev++;
+//         from = doc.resolve(selection.from - prev);
+//     }
 
-    return from.marksAcross(selection.$to);
+//     return from.marksAcross(selection.$to);
 
-};
+// };
 
 /**
  * Toggles the given mark.
@@ -122,10 +137,10 @@ export function toggleMark(markType: MarkType, attrs?: Object) {
         // TODO: Check to see if marks are even allowed to be added!
         if (dispatch) {
             if (state.selection.empty) {
-                let marks = getMarksBefore(state);
+                let marks = getMarksForSelection(state);
                 console.log(marks);
                 console.log(state.storedMarks);
-                if ((state.storedMarks || marks) && ((marks ? marks.includes(mark) : false) || (state.storedMarks ? state.storedMarks.includes(mark) : false))) {
+                if (marks && marks.includes(mark)) {
                     console.log(`removing stored mark ${mark}`);
                     dispatch(state.tr.removeStoredMark(mark));
                 }
@@ -392,6 +407,50 @@ export function toggleBlockquote(state: EditorState, dispatch: (tr: Transaction)
     }
     return true;
 }
+
+// :: (EditorState, ?(tr: Transaction)) → bool
+// Split the parent block of the selection. If the selection is a text
+// selection, also delete its content.
+export function splitBlock(state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView<any>) {
+    let {$from, $to} = state.selection
+    if (state.selection instanceof NodeSelection && state.selection.node.isBlock) {
+      if (!$from.parentOffset || !canSplit(state.doc, $from.pos)) return false
+      if (dispatch) dispatch(state.tr.split($from.pos).scrollIntoView())
+      return true
+    }
+  
+    if (!$from.parent.isBlock) return false
+  
+    if (dispatch) {
+      let atEnd = $to.parentOffset == $to.parent.content.size
+      let tr = state.tr
+      if (state.selection instanceof TextSelection) tr.deleteSelection()
+      let deflt = $from.depth == 0 ? null : $from.node(-1).contentMatchAt($from.indexAfter(-1)).defaultType
+      let types = atEnd && deflt ? [{type: deflt}] : null
+      let can = canSplit(tr.doc, tr.mapping.map($from.pos), 1, types)
+      if (!types && !can && canSplit(tr.doc, tr.mapping.map($from.pos), 1, deflt && [{type: deflt}])) {
+        types = [{type: deflt}]
+        can = true
+      }
+      if (can) {
+        tr.split(tr.mapping.map($from.pos), 1, types)
+        if (!atEnd && !$from.parentOffset && $from.parent.type != deflt &&
+            // @ts-ignore
+            $from.node(-1).canReplace($from.index(-1), $from.indexAfter(-1), Fragment.from(deflt.create(), $from.parent)))
+          tr.setNodeMarkup(tr.mapping.map($from.before()), deflt)
+      }
+      dispatch(tr.scrollIntoView())
+    }
+    return true
+  }
+
+export function undoit(state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView<any>) {
+    console.log("trying to undo!");
+    if (undo(state, dispatch)) {
+        console.log("did it");
+        return true;
+    }
+}
 export function buildKeymap(schema: Schema) {
 
 
@@ -406,7 +465,7 @@ export function buildKeymap(schema: Schema) {
     keys["Mod-X"] = toggleMark(schema.marks.strikethrough);
     keys["Mod-Shift-8"] = toggleBulletList;
     keys["Mod-Shift-9"] = toggleOrderedList;
-    keys["Enter"] = chainCommands(renderMath, newlineInMath, createCodeBlock, splitListItem(schema.nodes.list_item));
+    keys["Enter"] = chainCommands(renderMath, newlineInMath, createCodeBlock, splitListItem(schema.nodes.list_item), splitBlockKeepMarks);
     keys["ArrowLeft"] = arrowHandler("left");
     keys["ArrowRight"] = arrowHandler("right");
     keys["ArrowUp"] = arrowHandler("up");
@@ -422,6 +481,7 @@ export function buildKeymap(schema: Schema) {
     keys["Mod-Alt-6"] = setBlockType(schema.nodes.heading, {level: 6});
     keys["Mod-<"] = toggleMark(schema.marks.code);
     keys["Mod-'"] = toggleBlockquote;
+
     return keys;
 }
 function arrowHandler(dir: any) {
@@ -434,6 +494,27 @@ function arrowHandler(dir: any) {
         if (nextPos.$head && nextPos.$head.parent.type.name == "code_block") {
           dispatch(state.tr.setSelection(nextPos))
           return true
+        }
+      }
+
+    //   Checks to see if at beginning or end.
+      if (view.endOfTextblock(dir)) {
+          console.log("yes");
+        let commands = state.plugins[state.plugins.length - 1].getState(state);
+        if (dir == "up" && state.selection.from == 1) {
+            commands.execute("notebook:move-cursor-up");
+            return true;
+        }
+        else if (dir == "down") {
+            let selection = state.selection;
+            let docOffset, parentOffset = 0;
+            docOffset = selection.$from.index(0);
+            parentOffset = selection.$from.index(selection.$from.depth);
+
+            if (state.doc.childCount - 1 === docOffset && selection.$from.parent.childCount === parentOffset) {
+                commands.execute("notebook:move-cursor-down");
+                return true;
+            }
         }
       }
       console.log(`arrow ${dir} not handled`);

@@ -7,7 +7,7 @@ import MenuItem from './menuitem';
 import { EditorView } from 'prosemirror-view';
 // import { Mark } from 'prosemirror-model';
 import * as scripts from './prosemirror/prosemirror-scripts';
-import { Transaction, TextSelection
+import { Transaction, TextSelection, Plugin
     // EditorState 
 } from "prosemirror-state";
 // import { CodeEditor } from '@jupyterlab/codeeditor';
@@ -24,6 +24,14 @@ import { Widget } from '@phosphor/widgets';
 import ReactDOM from "react-dom";
 import { schema } from "./prosemirror/prosemirror-schema";
 import { ICellModel } from '@jupyterlab/cells';
+import { CommandRegistry } from '@phosphor/commands';
+
+// import { PageConfig } from "@jupyterlab/coreutils";
+// import { MenuWidgetObject } from './widget';
+// import { Menu } from '@phosphor/widgets';
+// import { Schema } from 'prosemirror-model';
+// import { keymap } from 'prosemirror-keymap';
+// import { runInThisContext } from 'vm';
 import ExperimentalMenu from './experimentalmenu';
 import { ListExperimentalMenu } from './listexperimentalmenu';
 import { MathExperimentalMenu } from './mathexperimentalmenu';
@@ -41,7 +49,7 @@ import { IStateDB } from '@jupyterlab/coreutils';
 export default class RichTextMenu extends React.Component<{view: EditorView, 
     model: ICellModel, linkMenuWidget: Widget, imageMenuWidget: Widget, headingMenuWidget: Widget, codeMenuWidget: Widget,
     codeLanguageMenuWidget: Widget, experimentalMenuWidget: Widget, listExperimentalMenuWidget: Widget,
-    mathExperimentalMenuWidget: Widget, state: IStateDB}, 
+    mathExperimentalMenuWidget: Widget, state: IStateDB, commands: CommandRegistry}, 
     {activeMarks: string[], activeWrapNodes: string[], inactiveMarks: string[], mathEnabled: boolean, widgetsSet: Widget[], widgetAttached: Widget, experimentalFeatures: string[]}> {
 
         // Render menus into their specific widget nodes in menuWidgets
@@ -81,12 +89,15 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             this.handleHeadingClick = this.handleHeadingClick.bind(this);
             this.handleBlockCode = this.handleBlockCode.bind(this);
             this.handleInlineCode = this.handleInlineCode.bind(this);
+            this.addPluginForCommands = this.addPluginForCommands.bind(this);
             this.handleExperimentalClick = this.handleExperimentalClick.bind(this);
             this.handleReturnToExperimental = this.handleReturnToExperimental.bind(this);
             this.handleExperimentalMath = this.handleExperimentalMath.bind(this);
             this.setMathEnabled = this.setMathEnabled.bind(this);
             let that = this;
             let state = this.props.view.state;
+
+
             // let MathJax: any;
             // console.log(state.doc);
             // console.log(state.selection);
@@ -148,10 +159,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                         activeWrapNodes = scripts.getWrappingNodes(transaction);
                         that.setState({activeWrapNodes});
     
-                        if (!transaction.storedMarksSet) {
-                            let parent = transaction.selection.$from.parent;
-                            let parentOffset = transaction.selection.$from.parentOffset;
-                            let marks = scripts.getMarksForSelection(transaction, newState);
+                        let marks = scripts.getMarksForSelection(newState);
                             that.setState({activeMarks: marks.map(mark => {
                                     if (mark.type.name === "link") {
                                         return "";
@@ -159,19 +167,9 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                                     else {
                                         return mark.type.name;
                                     }
-                            })});
-                            
-                            if (parent.type.name === "paragraph" && parentOffset === 0) {// This is to handle formatting continuity.
-                                transaction = transaction.setStoredMarks(marks); /** Important that setStoredMarks is used as opposed 
-                                to manually toggling marks as that will infinitely
-                                create transactions and inevitably error.
-                                */ 
-                            }
-        
-                        }
+                            })});                        
                         
                         newState = that.props.view.state.apply(transaction);
-                        // console.log(newState.doc);
                         that.props.view.updateState(newState);
                     }
                 })
@@ -184,12 +182,13 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
     
     componentDidMount() {
         if (!this.props.view || this.props.model.metadata.get("markdownMode") === true) {
-            this.setState({inactiveMarks: ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image"]});
+            this.setState({inactiveMarks: ["strong", "em", "underline", "strikethrough", "heading", "bullet_list", "ordered_list", "blockquote", "code", "link", "image", "experimental"]});
         }
         if (this.props.view)
         {
             console.log("setting math");
             this.setMathEnabled();
+            this.addPluginForCommands();
         }
     }
 
@@ -237,6 +236,19 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
 
     }
 
+    addPluginForCommands() {
+        let newPlugins = [...this.props.view.state.plugins];
+        let that = this;
+        newPlugins.push(new Plugin({
+            state: {
+                init() { return that.props.commands },
+                apply(tr, value) { return value }
+            },
+
+        }))
+        this.props.view.updateState(this.props.view.state.reconfigure({plugins: newPlugins}));
+
+    }
     handleImgUpload(fileUrl: unknown, e: React.SyntheticEvent) {
         e.preventDefault();
         let view = this.props.view;

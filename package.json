@@ -47,6 +47,7 @@
     "@types/prosemirror-schema-basic": "^1.0.1",
     "@types/prosemirror-schema-list": "^1.0.1",
     "@types/prosemirror-state": "^1.2.3",
+    "@types/prosemirror-view": "^1.11.2",
     "@types/react-dom": "^16.8.5",
     "codemirror": "5.47.0",
     "fuzzyset": "0.0.4",
@@ -66,7 +67,7 @@
     "prosemirror-schema-list": "^1.0.3",
     "prosemirror-state": "^1.2.3",
     "prosemirror-transform": "^1.1.4",
-    "prosemirror-view": "^1.10.0",
+    "prosemirror-view": "^1.12.2",
     "react": "~16.8.4",
     "react-dom": "~16.8.5"
   },

@@ -4,25 +4,26 @@ import { UUID } from "@phosphor/coreutils";
 import { IDisposable, DisposableDelegate } from "@phosphor/disposable";
 import { ArrayExt } from '@phosphor/algorithm';
 import { EditorState, 
-  TextSelection
-  // Plugin
+
  } from "prosemirror-state";
-import { EditorView, 
-  // Decoration, 
-  // DecorationSet
- } from "prosemirror-view";
+import { EditorView } from "prosemirror-view";
 import * as Markdown from '../prosemirror/markdown';
 import {keymap} from "prosemirror-keymap";
 import {baseKeymap} from "prosemirror-commands";
 import {buildKeymap} from "./prosemirror-scripts";
-import { schema, schema_markdown } from "./prosemirror-schema";
-import { CodeBlockView, CodeBlockMarkdownView, InlineMathView, BlockMathView, ImageView } from "./nodeviews";
+import { schema } from "./prosemirror-schema";
+// import { CodeBlockView, CodeBlockMarkdownView, InlineMathView, BlockMathView, ImageView } from "./nodeviews";
+import { CodeBlockView, InlineMathView, BlockMathView, ImageView } from "./nodeviews";
 import { createInputRules, createMathInputRules } from "./inputrules";
 import { inputRules } from "prosemirror-inputrules";
 // import { Node } from "prosemirror-model";
 // import markdownit from "markdown-it/lib";
-import { Transaction } from "prosemirror-state";
+
 import { IMarkdownCellModel } from "@jupyterlab/cells";
+import { history, undo, redo, 
+  // undo, redo 
+} 
+  from "prosemirror-history";
 /**
  * The height of a line in the editor.
  */
@@ -48,14 +49,12 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
         this._uuid = options.uuid || UUID.uuid4();     
         
         let model = (this._model = options.model);
-        // let config = (this._config = options.config || CodeEditor.defaultConfig);
-        this._cellModel = markdownModel;
         this.isMarkdown = (markdownModel.metadata.get("markdownMode") as boolean);
         console.log(this.isMarkdown);
         if (this.isMarkdown === undefined) {
           this.isMarkdown = false;
         }
-        this._view = this.isMarkdown ? Private.createMarkdownEditor(host, model, this._cellModel) : Private.createEditor(host, model);
+        this._view = Private.createEditor(host, model);
         
 
         // // Connect to changes.
@@ -96,95 +95,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
     return this._isDisposed;
   }
   
-  switchEditor() {
-    let state = this._view.state;
-    let that = this;
-    console.log(Markdown.serializer.serialize(state.doc));
-    this._view.destroy();
-    if (!this.isMarkdown) {
-      this._view = new EditorView(this.host, {
-        state: EditorState.create({
-            doc: schema_markdown.nodes.doc.create({}, schema_markdown.nodes.code_block.create({params: "markdown"}, schema_markdown.text(Markdown.serializer.serialize(state.doc))))
-            ,
-            plugins: [
-                // keymap(buildKeymap(schema)),
-                keymap(baseKeymap),
-                // inputRules({rules: createInputRules()}),
-                // testPlugin
-            ]
-        }),
-        nodeViews: {
-          code_block(node, view, getPos) { return new CodeBlockMarkdownView(node, view, (getPos as () => number))},
-  
-        },
-        handleDOMEvents: {
-          copy: (view: EditorView, event: Event): boolean => {
-              // event.preventDefault();
-              view.focus();
-              console.log(view.state.selection.$from.node());
-              document.execCommand("copy");
-              // view.dom.dispatchEvent(new ClipboardEvent("copy"));
-              return true;
-          },
-          // focus: () => {
-          //   this.view.focus();
-          //   return true;
-          // }
-        },
-        dispatchTransaction(transaction: Transaction) {
-          // console.log(this.state.doc.textContent);
-          let state = this.state.apply(transaction);
-          that._view.updateState(state);
-          that._cellModel.value.text = this.state.doc.textContent;
 
-        }
-        
-    });
-    this._view.focus();
-    let tr = this._view.state.tr;
-    tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from + 3, tr.selection.from + 3));
-    this._view.dispatch(tr);
-    // this._view.focus();
-    this._cellModel.metadata.set("markdownMode", true);
-    console.log(this._cellModel.metadata.get("markdownMode"));
-    this.isMarkdown = true;
-    }
-    else {
-      this._view = new EditorView(this.host, {
-        state: EditorState.create({
-          doc: Markdown.parser.parse(state.doc.textContent),
-          plugins: [
-            keymap(buildKeymap(schema)),
-            keymap(baseKeymap),
-            inputRules({rules: createInputRules().concat(createMathInputRules())}),
-            // testPlugin
-        ]
-        }),
-        nodeViews: {
-          code_block(node, view, getPos) { return new CodeBlockView(node, view, (getPos as () => number))},
-          inline_math(node, view, getPos) { return new InlineMathView(node, view, (getPos as () => number))},
-          image(node) {return new ImageView(node)},
-          block_math(node, view, getPos) { return new BlockMathView(node, view, (getPos as () => number))}
-        },
-        handleDOMEvents: {
-          copy: (view: EditorView, event: Event): boolean => {
-              // event.preventDefault();
-              view.focus();
-              console.log(view.state.selection.$from.node());
-              document.execCommand("copy");
-              // view.dom.dispatchEvent(new ClipboardEvent("copy"));
-              return true;
-          }
-        }
-      })
-      this._cellModel.metadata.set("markdownMode", false);
-      this.isMarkdown = false;
-    }
-
-  console.log(this._view.state.schema);
-  this._view.focus();
-  
-  }
   /**
    * Dispose of the resources held by the widget.
    */
@@ -334,7 +245,8 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
   }
 
   hasFocus(): boolean {
-      return true;
+      console.log("checking focus");
+      return this._view.hasFocus();
   }
 
   newIndentedLine(): void {
@@ -342,11 +254,11 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
   }
 
   redo(): void {
-
+    redo(this._view.state, this._view.dispatch);
   }
 
   refresh(): void {
-
+    console.log("refreshing");
   }
 
   resizeToFit(): void {
@@ -366,7 +278,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
   }
 
   undo(): void {
-
+    undo(this._view.state, this._view.dispatch);
   }
 
   getOption<K extends keyof ProseMirrorEditor.IConfig>(option: K): ProseMirrorEditor.IConfig[K] {
@@ -381,6 +293,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
   }
 
   focus(): void {
+      console.log("focusing");
       this._view.focus();
   }
   
@@ -405,7 +318,6 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
   private _keydownHandlers = new Array<CodeEditor.KeydownHandler>();
   private _selectionStyle: CodeEditor.ISelectionStyle;
   private _view: EditorView<any>;
-  private _cellModel: IMarkdownCellModel;
   public isMarkdown = false;
 //   private readonly _config: Partial<ProseMirrorEditor.IConfig>;
 }
@@ -437,47 +349,7 @@ export namespace ProseMirrorEditor {
  * The namespace for module private data.
  */
 namespace Private {
-  export function createMarkdownEditor(
-    host: HTMLElement,
-    model: CodeEditor.IModel,
-    cellModel: IMarkdownCellModel
-  ): EditorView<any> {
-    console.log("creating markdown editor");
-    
-    let view = new EditorView(host, {
-      state: EditorState.create({
-          doc: schema_markdown.nodes.doc.create({}, schema_markdown.nodes.code_block.create({params: "markdown"}, schema_markdown.text(model.value.text)))
-          ,
-          plugins: [
-              // keymap(buildKeymap(schema)),
-              keymap(baseKeymap),
-              // testPlugin
-          ]
-      }),
-      nodeViews: {
-        code_block(node, view, getPos) { return new CodeBlockMarkdownView(node, view, (getPos as () => number))},
 
-      },
-      handleDOMEvents: {
-        copy: (view: EditorView, event: Event): boolean => {
-            // event.preventDefault();
-            view.focus();
-            console.log(view.state.selection.$from.node());
-            document.execCommand("copy");
-            // view.dom.dispatchEvent(new ClipboardEvent("copy"));
-            return true;
-        }
-      },
-      dispatchTransaction(transaction: Transaction) {
-        let state = this.state.apply(transaction);
-        view.updateState(state);
-        cellModel.value.text = this.state.doc.textContent;
-
-      }
-  });
-
-  return view;
-  }
 
   export function createEditor(
         host: HTMLElement,
@@ -529,6 +401,7 @@ namespace Private {
                     initValue
                 ),
                 plugins: [
+                    history(),
                     keymap(buildKeymap(schema)),
                     keymap(baseKeymap),
                     inputRules({rules: createInputRules().concat(createMathInputRules())}),
@@ -549,7 +422,23 @@ namespace Private {
                   document.execCommand("copy");
                   // view.dom.dispatchEvent(new ClipboardEvent("copy"));
                   return true;
-              }
+              },
+              // keydown: (view: EditorView, event: Event): boolean => {
+              //   if ((event as KeyboardEvent).metaKey) {
+              //     let key = (event as KeyboardEvent).key;
+              //     switch (key) {
+              //       case "z":
+              //         undo(view.state, view.dispatch);
+              //         event.preventDefault();
+              //         break;
+              //       case "y":
+              //         redo(view.state, view.dispatch);
+              //         event.preventDefault();
+              //         break;
+              //     }
+              //   }
+              //   return true;
+              // }
             }
             
             // dispatchTransaction(transaction: Transaction) {

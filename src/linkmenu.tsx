@@ -106,13 +106,3 @@ export class LinkMenu extends React.Component<{initialText: string,
     }
 }
 
-export class InlineLinkMenu extends React.Component {
-
-    render() {
-        return (
-            <div>
-                
-            </div>
-        )
-    }
-}
