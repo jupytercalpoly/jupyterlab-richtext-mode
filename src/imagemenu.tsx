@@ -3,7 +3,8 @@ import MenuHeader from "./menuheader";
 
 export class ImageMenu extends React.Component<{handleImgUpload: (fileUrl: unknown, e: React.SyntheticEvent) => void,
                                                 handleSubmitImgLink: (url: string) => void,
-                                                cancel: (e: React.SyntheticEvent) => void}, {isLinkOption: boolean, imageUrl: string}> {
+                                                cancel: (e: React.SyntheticEvent) => void,
+                                                returnToExperimental: (e: React.SyntheticEvent) => void}, {isLinkOption: boolean, imageUrl: string}> {
     
 
     constructor(props: any) {
@@ -45,7 +46,6 @@ export class ImageMenu extends React.Component<{handleImgUpload: (fileUrl: unkno
         }
     }
 
-
     uploadFile(file: File) {
         let reader = new FileReader();
         return new Promise((accept, fail) => {
@@ -59,14 +59,20 @@ export class ImageMenu extends React.Component<{handleImgUpload: (fileUrl: unkno
         if (!this.state.isLinkOption) {
             return (
                 <div className="editor-menu">  
-                    <MenuHeader name="image" />
-                    <div className="jp-scribe-menu-content">
-                        <span className="linkToImage" onClick={this.handleLinkClick}>Link to image</span>
-                        <form>
-                            <span style={{cursor: "pointer"}} onClick={() => document.getElementById('file1').click()}>Upload image</span>
-                            <input type="file" id="file1" style={{display: "none"}} onChange={this.handleChange} />
-                        </form>
-                    </div>
+                    <MenuHeader 
+                    name="image"
+                    canClick={true}
+                    handleClick={this.props.returnToExperimental} 
+                    />
+                    <p 
+                    className="submenu-item jp-scribe-heading-menu"
+                    onClick={this.handleLinkClick}>Link to image</p>
+                    <form 
+                    onClick={() => document.getElementById('file1').click()}
+                    className="submenu-item jp-scribe-heading-menu">
+                        <span>Upload image</span>
+                        <input type="file" id="file1" style={{display: "none"}} onChange={this.handleChange} />
+                    </form>
 
                 </div>
             );
@@ -80,7 +86,15 @@ export class ImageMenu extends React.Component<{handleImgUpload: (fileUrl: unkno
                     handleClick={() => this.setState({isLinkOption: false})}
                     />
                     <form onSubmit={this.handleSubmit} className="jp-scribe-menu-content">
-                        <input type="text" value={this.state.imageUrl} onChange={this.handleLinkChange} style={{display: "block"}}/>
+                        <label className="editor-menuLabel">
+                            Link
+                            <input 
+                            type="text" 
+                            style={{marginLeft: "3px"}}
+                            value={this.state.imageUrl} 
+                            onChange={this.handleLinkChange} 
+                            />
+                        </label>
                         <div className="linkButtons">
                             <button className="jp-scribe-menu-cancel jp-mod-styled" type="button" onClick={this.props.cancel}>CANCEL</button>
                             <button type="submit" className="jp-scribe-menu-apply jp-mod-styled">APPLY</button> 

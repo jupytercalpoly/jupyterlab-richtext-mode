@@ -5,8 +5,9 @@ export class LinkMenu extends React.Component<{initialText: string,
                                             initialLink: string, 
                                             cancel: (e: React.SyntheticEvent) => void, 
                                             submitLink: (initialText: string, initialLink: string, text: string, link: string) => void,
-                                            deleteLink: (e: React.SyntheticEvent, link: string) => void}, 
-                                        
+                                            deleteLink: (e: React.SyntheticEvent, link: string) => void
+                                            returnToExperimental: (e: React.SyntheticEvent) => void}, 
+                                            
                                             {textValue: string, linkValue: string}> {
     
     constructor(props: any) {
@@ -51,25 +52,29 @@ export class LinkMenu extends React.Component<{initialText: string,
                 <div className="editor-menu">
                     <MenuHeader 
                     name="link"
-                    canClick={false}
+                    canClick={true}
+                    handleClick={this.props.returnToExperimental}
                     />
                     <form onSubmit={this.handleSubmit} className="jp-scribe-menu-content">
-                        <div style={{display: "flex"}}>
-                            <div>
-                                <label className="editor-menuLabel" style={{display: "block", marginBottom: "5px"}}>
-                                    Text
-                                    <input 
-                                    type="text" 
-                                    name="text" 
-                                    id="text" 
-                                    value={this.state.textValue} 
-                                    onChange={this.handleChange}
-                                    style={{marginLeft: "3px"}}
-                                    />
-                                </label>
+                        <div>
+                            <label className="editor-menuLabel" style={{display: "block", marginBottom: "5px"}}>
+                                Text
+                                <input 
+                                type="text" 
+                                name="text" 
+                                id="text" 
+                                value={this.state.textValue} 
+                                onChange={this.handleChange}
+                                style={{marginLeft: "3px"}}
+                                />
+                            </label>
 
-
-                                <label className="editor-menuLabel">
+                            <div
+                            style={{display: "flex"}}
+                            >
+                                <label 
+                                className="editor-menuLabel"
+                                style={{display: "inline-block"}}>
                                     Link
                                     <input 
                                     type="text" 
@@ -78,12 +83,13 @@ export class LinkMenu extends React.Component<{initialText: string,
                                     value={this.state.linkValue} 
                                     onChange={this.handleChange}
                                     style={{marginLeft: "7px"}} />
-                                </label>   
-                            </div>
-                            <div style={{maxWidth: "25px", marginTop: "23px", marginLeft: "3px"}}>
-                                <i 
-                                className={(this.props.initialLink && this.props.initialLink === this.state.linkValue) ? "material-icons" : "material-icons inactive-icon"}
-                                onClick={this.handleClick}>link_off</i>
+                                </label>  
+                                <img 
+                                className="link-hover"
+                                src={require("../static/scribe-format-link-off.png")} 
+                                style={{height: "18px", width: "18px", marginLeft: "7px"}}
+                                onClick={this.handleClick}
+                                alt=""/>
                             </div>
                         </div>
 
@@ -100,13 +106,3 @@ export class LinkMenu extends React.Component<{initialText: string,
     }
 }
 
-export class InlineLinkMenu extends React.Component {
-
-    render() {
-        return (
-            <div>
-                
-            </div>
-        )
-    }
-}

@@ -21,7 +21,8 @@ import { EditorState,
    } from "prosemirror-state";
 import * as Markdown from './prosemirror/markdown';
 import { schema } from "./prosemirror/prosemirror-schema";
-
+import { ProseMirrorEditor } from "./prosemirror/ProseMirrorEditor";
+import { IStateDB } from '@jupyterlab/coreutils';
 
 // import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
 
@@ -39,25 +40,33 @@ export class ProsemirrorWidget extends Widget {
     }
 
 
-    renderMenu(activeCell: Cell, commands: CommandRegistry) {
-        this._view = (activeCell as ProsemirrorMarkdownCell).view;
+    renderMenu(activeCell: Cell, state: IStateDB, commands: CommandRegistry) {
+        this._view = (activeCell.editor as ProseMirrorEditor).view;
         let model = activeCell.model;
         let linkMenuWidget = new Widget();
         let imageMenuWidget = new Widget();
         let headingMenuWidget = new Widget();
         let codeMenuWidget = new Widget();
         let codeLanguageMenuWidget = new Widget();
+        let experimentalMenuWidget = new Widget();
+        experimentalMenuWidget.id = "experimental";
+        let listExperimentalMenuWidget = new Widget();
+        let mathExperimentalMenuWidget = new Widget();
         ReactDOM.render(<RichTextMenu view={this._view} model={model} linkMenuWidget={linkMenuWidget} 
             imageMenuWidget={imageMenuWidget} headingMenuWidget={headingMenuWidget} 
             codeMenuWidget={codeMenuWidget}
             codeLanguageMenuWidget={codeLanguageMenuWidget}
             commands={commands}
+            experimentalMenuWidget={experimentalMenuWidget}
+            listExperimentalMenuWidget={listExperimentalMenuWidget}
+            mathExperimentalMenuWidget={mathExperimentalMenuWidget}
+            state={state}
             key={`${activeCell.model.id}
             ${activeCell.model.metadata.get("markdownMode") !== undefined ? activeCell.model.metadata.get("markdownMode") : false}`}/>, this.node)
 
     }
 
-    renderInactiveMenu() {
+    renderInactiveMenu(state: IStateDB) {
         ReactDOM.render(<RichTextMenu view={null}
                                       model={null}
                                       linkMenuWidget={null}
@@ -66,6 +75,10 @@ export class ProsemirrorWidget extends Widget {
                                       codeMenuWidget={null}
                                       codeLanguageMenuWidget={null}
                                       commands={null}
+                                      experimentalMenuWidget={null}
+                                      listExperimentalMenuWidget={null}
+                                      mathExperimentalMenuWidget={null}
+                                      state={state}
                                         />, this.node);
     }
 

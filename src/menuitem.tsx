@@ -81,6 +81,8 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 return require("../static/scribe-format-photo.png");
             case "stick":
                 return require("../static/scribe-stick.png");
+            case "experimental":
+                return require("../static/scribe-experimental-icon.png");
             default:
                 break;
         }
@@ -144,31 +146,33 @@ export default class MenuItem extends React.Component<{format: string, active: b
      * Renders the menu item component.
      */
     render() {
-        console.log(this.getImgSrc());
         if (this.props.cancelled) {
             return (
-                <img 
-                // src={this.getImgSrc()} 
-                // alt="formatting" 
-                id={this.props.format} 
-                src={this.getImgSrc()}
-                style={{height: "24px", width: "24px"}}
-                className="inactive-menu-icon"
-                title={this.props.tooltip}
-                />            
+                <div 
+                className={"inactive-menu-icon menuItem"}
+                style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+                    <img 
+                    id={this.props.format} 
+                    src={this.getImgSrc()}
+                    title={this.props.tooltip}
+                    style={{height: "18px", width: "18px"}}
+                     />
+                </div>
             )
         }
         else {
             return (
-                <img 
-                // src={this.getImgSrc()} 
-                // alt="formatting" 
-                id={this.props.format} 
+                <div 
                 className={this.getClassName()}
-                src={this.getImgSrc()}
-                title={this.props.tooltip}
-                style={{height: "24px", width: "24px"}}
-                onClick={this.props.format !== "stick" ? this.props.handleClick : () => null} />
+                style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+                    <img 
+                    id={this.props.format} 
+                    src={this.getImgSrc()}
+                    title={this.props.tooltip}
+                    style={{height: "18px", width: "18px"}}
+                    onClick={this.props.format !== "stick" ? this.props.handleClick : () => null} />
+                </div>
+
             )
         }
 

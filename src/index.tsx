@@ -17,19 +17,19 @@ import { MarkdownCell } from '@jupyterlab/cells';
 // } from '@phosphor/widgets';
 import ContentFactoryEditor from './factory';
 
-import { ProsemirrorWidget, ProsemirrorMarkdownCell } from './widget';
+import { ProsemirrorWidget} from './widget';
 import { CommandRegistry } from '@phosphor/commands';
 import { ContextMenu, Menu } from '@phosphor/widgets';
-// import { ProseMirrorEditor } from './prosemirror/ProseMirrorEditor';
+import { IStateDB } from '@jupyterlab/coreutils';
 // import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
 // import { PageConfig } from "@jupyterlab/coreutils";
 
 
 //@ts-ignore
-function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker) {
+function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker, state: IStateDB) {
   let prosemirrorWidget = new ProsemirrorWidget(app.commands);
   
-  addKeybindings(app.commands, nbTracker, prosemirrorWidget);
+  addKeybindings(app.commands, nbTracker, prosemirrorWidget, state);
   addContextMenuItems(app.contextMenu, app.commands);
   nbTracker.currentChanged.connect(() => {
     if (nbTracker.currentWidget) {
@@ -40,15 +40,14 @@ function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker)
           if (activeCell instanceof MarkdownCell) { 
             activeCell.editor.focus();
             console.log(activeCell.editor.hasFocus);
-            prosemirrorWidget.renderMenu(activeCell, app.commands);
+            prosemirrorWidget.renderMenu(activeCell, state, app.commands);
           }
           else {
-            prosemirrorWidget.renderInactiveMenu();
+            prosemirrorWidget.renderInactiveMenu(state);
           }
   
         })
     }
-    // nbTracker.currentWidget.toolbar.insertAfter("cellType", "heading-menu", menu_scripts.createHeadingMenu(app.commands));
 
   })
 
@@ -77,7 +76,7 @@ function addContextMenuItems(contextMenu: ContextMenu, commands: CommandRegistry
   })
 }
 
-function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, prosemirrorWidget: ProsemirrorWidget) {
+function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, prosemirrorWidget: ProsemirrorWidget, state: IStateDB) {
 
   commands.addCommand("prosemirror-bold", {
     execute: () => {
@@ -119,42 +118,6 @@ function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, 
     }
   })
 
-  commands.addCommand("prosemirror-switch-mode", {
-    execute: () => {
-      // (nbTracker.activeCell.editor as ProseMirrorEditor).switchEditor();
-      // prosemirrorWidget.renderMenu(nbTracker.activeCell, commands);
-      let isProsemirror = (nbTracker.activeCell as ProsemirrorMarkdownCell).isProsemirror;
-      (nbTracker.activeCell as ProsemirrorMarkdownCell).isProsemirror = !(isProsemirror);
-    }
-  });
-
-  commands.addCommand("prosemirror-switch-to-markdown", {
-    label: "Raw Markdown",
-    isToggled: () => {
-      return nbTracker.activeCell ? nbTracker.activeCell.model.metadata.get("markdownMode") === true : false;
-    },
-    execute: () => {
-      if (nbTracker.activeCell.model.metadata.get("markdownMode") === false) {
-        commands.execute("prosemirror-switch-mode");
-      }
-    }
-  })
-
-  commands.addCommand("prosemirror-switch-from-markdown", {
-    label: "Rich Text",
-    isToggled: () => {
-      let isMarkdown = nbTracker.activeCell ? nbTracker.activeCell.model.metadata.get("markdownMode") : true;
-      return isMarkdown === undefined ? true : !isMarkdown
-    },
-    execute: () => {
-      if (nbTracker.activeCell.model.metadata.get("markdownMode") === true) {
-        commands.execute("prosemirror-switch-mode");
-      }
-
-    }
-  })
-
-
   // commands.addCommand("prosemirror-strikethrough", {
   //   execute: () => {
   //     let currentEditor = document.querySelector(".ProseMirror-focused");
@@ -188,23 +151,6 @@ function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, 
     selector: ".ProseMirror-focused"
   });
 
-  commands.addKeyBinding({
-    command: "prosemirror-switch-mode",
-    keys: ['Accel M'],
-    selector: '.ProseMirror-focused'
-  });
-  
-  commands.addKeyBinding({
-    command: "prosemirror-switch-mode",
-    keys: ['Accel M'],
-    selector: '.jp-CodeMirrorEditor'
-  });
-
-  commands.addKeyBinding({
-    command: "prosemirror-switch-mode",
-    keys: ['Accel M'],
-    selector: '.jp-mod-active .ProseMirror .CodeMirror-focused'
-  });
   // commands.addKeyBinding({
   //   command: "prosemirror-strikethrough",
   //   keys: ['Cmd Shift K'],
@@ -227,7 +173,7 @@ function overrideContentFactory(app: JupyterFrontEnd) {
 const markdownTest: JupyterFrontEndPlugin<void> = {
   id: 'test-markdown',
   autoStart: true,
-  requires: [INotebookTracker],
+  requires: [INotebookTracker, IStateDB],
   activate: activateMarkdownTest
 };
 
