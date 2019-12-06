@@ -71,10 +71,12 @@ export class CodeMenu extends React.Component<{handleInlineCode: (e: React.Synth
                     name="code"
                     canClick={true}
                     handleClick={this.props.returnToExperimental} />
-                    <div className="jp-scribe-menu-content">
-                        <p className="linkToImage" onClick={this.props.handleInlineCode}>Inline code</p>
-                        <p className="linkToImage" onClick={() => {this.setState({isBlockOption: true})}}>Code block</p>
-                    </div>
+                    <p
+                    className="submenu-item jp-scribe-heading-menu"
+                    onClick={this.props.handleInlineCode}>Inline code</p>
+                    <p 
+                    className="submenu-item jp-scribe-heading-menu" 
+                    onClick={() => {this.setState({isBlockOption: true})}}>Code block</p>
                 </div>
             )
         }
@@ -86,10 +88,12 @@ export class CodeMenu extends React.Component<{handleInlineCode: (e: React.Synth
                     canClick={true}
                     handleClick={() => this.setState({isBlockOption: false})}
                     />
-                    <form onSubmit={(e) => { e.preventDefault(); this.props.handleBlockCode(e, this.state.blockLanguage)}} className="jp-scribe-menu-content">
+                    <form 
+                    style={{paddingTop: "10px"}}
+                    onSubmit={(e) => { e.preventDefault(); this.props.handleBlockCode(e, this.state.blockLanguage)}} className="jp-scribe-menu-content">
                         <label className="editor-menuLabel" style={{display: "block"}}>
                             Language
-                            <input type="text" id="languageInput" value={this.state.blockLanguage} onChange={this.handleLanguageChange} autoComplete="off" />
+                            <input type="text" id="languageInput" style={{marginLeft: "3px"}} value={this.state.blockLanguage} onChange={this.handleLanguageChange} autoComplete="off" />
                         </label>
                         <div className="linkButtons">
                             <button className="jp-scribe-menu-cancel jp-mod-styled" type="button" onClick={this.props.cancel}>CANCEL</button>

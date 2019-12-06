@@ -149,27 +149,27 @@ export default class MenuItem extends React.Component<{format: string, active: b
         if (this.props.cancelled) {
             return (
                 <img 
-                // src={this.getImgSrc()} 
-                // alt="formatting" 
                 id={this.props.format} 
                 src={this.getImgSrc()}
-                style={{height: "24px", width: "24px"}}
-                className="inactive-menu-icon"
+                style={{height: "18px", width: "18px"}}
+                className="inactive-menu-icon menuItem"
                 title={this.props.tooltip}
                 />            
             )
         }
         else {
             return (
-                <img 
-                // src={this.getImgSrc()} 
-                // alt="formatting" 
-                id={this.props.format} 
+                <div 
                 className={this.getClassName()}
-                src={this.getImgSrc()}
-                title={this.props.tooltip}
-                style={{height: "24px", width: "24px"}}
-                onClick={this.props.format !== "stick" ? this.props.handleClick : () => null} />
+                style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+                    <img 
+                    id={this.props.format} 
+                    src={this.getImgSrc()}
+                    title={this.props.tooltip}
+                    style={{height: "18px", width: "18px"}}
+                    onClick={this.props.format !== "stick" ? this.props.handleClick : () => null} />
+                </div>
+
             )
         }
 

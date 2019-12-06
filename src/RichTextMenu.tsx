@@ -230,6 +230,9 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             this.props.headingMenuWidget.dispose();
             this.props.codeMenuWidget.dispose();
             this.props.codeLanguageMenuWidget.dispose();
+            this.props.experimentalMenuWidget.dispose();
+            this.props.listExperimentalMenuWidget.dispose();
+            this.props.mathExperimentalMenuWidget.dispose();
         }
 
     }

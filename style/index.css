@@ -1,23 +1,3 @@
-/* .editor {
-    width: 100%;
-    padding: 5px;
-    border: var(--jp-border-width) solid var(--jp-cell-editor-border-color);
-    cursor: text;
-    /* border-radius: 0px;
-    
-    background: var(--jp-cell-editor-background);
-    cursor: text;
-    padding: var(--jp-code-padding); */
-@import url("~material-design-icons-iconfont/dist/material-design-icons.css");
-
-/* @font-face {
-    font-family: 'Material Icons Mod 1';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Material Icons'),
-        local('MaterialIcons_mod_1'),
-        url(./MaterialIcons_mod_1.ttf) format('truetype');
-} */
 
 .ProseMirror {
     white-space: pre-wrap;
@@ -30,68 +10,37 @@
 
 }
 
-.menu-separator-color {
+/* .menu-separator-color {
     fill: var(--jp-layout-color3);
 }
 .menu-item-color {
     fill: var(--jp-layout-color4);
-}
+} */
 
 .menuItem {
-    padding: 1px;
-    margin: 0px 1px 1px 1px;
+    padding: 0px 5px;
 
 }
 
 .activeMenuItem {
-    padding: 1px;
-    margin: 0px 1px 1px 1px;
-    background-color: rgba(115, 134, 148, 0.3);
+    padding: 0px 5px;
+    background-color: var(--jp-toolbar-active-background);
 }
 
-.material-icons {
-    font-family: 'Material Icons';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 18px;  /* Preferred icon size */
-    display: inline-block;
-    line-height: 1.0;
-    text-transform: none;
-    letter-spacing: normal;
-    word-wrap: normal;
-    white-space: nowrap;
-    direction: ltr;
-  
-    /* Support for all WebKit browsers. */
-    -webkit-font-smoothing: antialiased;
-    /* Support for Safari and Chrome. */
-    text-rendering: optimizeLegibility;
-  
-    /* Support for Firefox. */
-    -moz-osx-font-smoothing: grayscale;
-  
-    /* Support for IE. */
-    font-feature-settings: 'liga';
-  }
-
-  .inactive-menu-icon {
-      padding: 1px;
-      margin: 0px 1px 1px 1px;
-  }
+.inactive-menu-icon {
+    padding: 0px 5px;
+}
 
 
-  .inactive-icon, .inactive-menu-icon {
+.inactive-icon, .inactive-menu-icon {
     opacity: 0.5;
-    
 }
 
+.link-hover:hover {
+    cursor: pointer;
+}
 
-/* i.menuItem, i.activeMenuItem {
-    max-height: 18px;
-    margin-top: 2px;
-} */
-img.menuItem:hover
-/* , i.activeMenuItem.material-icons:hover  */
+div.menuItem:hover
 {
     background: var(--jp-layout-color2);
     cursor: pointer;
@@ -100,24 +49,18 @@ img.menuItem:hover
 img.activeMenuItem:hover {
     cursor: pointer;
 }
+
 img.activeMenuItem.editor-menuLabel {
     cursor: pointer;
-}
-
-.check-icon {
-    position: relative;
-    right: 3px;
 }
 
 span.CodeMirror-selectedtext {
     background-color: #a8d1ff;
 }
 
-
-
-  .inactive-icon:hover, .inactive-menu-icon:hover {
-    cursor: not-allowed;
-  }
+.inactive-icon:hover, .inactive-menu-icon:hover {
+cursor: not-allowed;
+}
 /* This is here b/c for some reason prosemirror editor doesn't show <strong> correctly.  */
 strong { 
     font-weight: 700;
@@ -126,10 +69,6 @@ strong {
 code {
     background-color: #eee;
     padding: 0 3px;
-}
-
-.jp-ScribeMenuIcon {
-    background-image: url("../static/scribe-menu-icon.svg");
 }
 
 .jp-ProseMirror {
@@ -187,21 +126,14 @@ button.jp-mod-styled.jp-scribe-menu-cancel {
 }
 
 .jp-scribe-menu-content {
-    padding: 5px 12px 12px 12px;
+    padding: 10px 12px 12px 12px;
 }
 
-
 .jp-scribe-heading-menu:hover {
-    background-color: #F2F2F2;
+    background-color: var(--jp-layout-color2);
     cursor: pointer;
 }
 
-/* .jp-scribe-heading-menu-active::before {
-    font-family: 'Material Icons';
-    content: "check";
-    -webkit-font-feature-settings: 'liga';
-
-} */
 /* Link menu css */
 .linkButtons {
     display: flex;
@@ -211,7 +143,6 @@ button.jp-mod-styled.jp-scribe-menu-cancel {
 
  .editor-menu {
     z-index: 10000;
-    /* padding: 12px; */
     background: white;
     min-width: 175px;
     border: var(--jp-border-width) solid var(--jp-border-color1);
@@ -238,27 +169,10 @@ button.jp-mod-styled.jp-scribe-menu-cancel {
 
 }
 
-/* Image menu css */
-/* .linkToImage::after {
-    font-family: "Material Icons";
-    content: "arrow_right";
-    -webkit-font-feature-settings: 'liga';
-    font-feature-settings: 'liga';
-    font-size: 21px;
-    display: inline-block;
-    line-height: 1.0;
-    text-transform: none;
-    letter-spacing: normal;
-    word-wrap: normal;
-    white-space: nowrap;
-    direction: ltr;
-    font-weight: normal;
-    font-style: normal;
-    /* Support for all WebKit browsers. */
-    /* -webkit-font-smoothing: antialiased; */
-    /* Support for Safari and Chrome. */
-    /* text-rendering: optimizeLegibility; */
-/* }  */
+.submenu-item {
+    padding: 10px 25px;
+    border-bottom: 1px solid var(--jp-border-color2);
+}
 
 .linkToImage {
     margin-bottom: 5px;
@@ -314,49 +228,45 @@ button.jp-mod-styled.jp-scribe-menu-cancel {
 .ProseMirror {
     position: relative;
   }
-  
-  .ProseMirror {
-    word-wrap: break-word;
-    white-space: pre-wrap;
-    -webkit-font-variant-ligatures: none;
-    font-variant-ligatures: none;
-  }
-  
-  .ProseMirror pre {
-    white-space: pre-wrap;
-  }
-  
-  .ProseMirror li {
-    position: relative;
-  }
-  
-  .ProseMirror-hideselection *::selection { background: transparent; }
-  .ProseMirror-hideselection *::-moz-selection { background: transparent; }
-  .ProseMirror-hideselection { caret-color: transparent; }
-  
-  .ProseMirror-selectednode {
-    outline: 2px solid #8cf;
-  }
-  
-  /* Make sure li selections wrap around markers */
-  
-  li.ProseMirror-selectednode {
-    outline: none;
-  }
-  
-  li.ProseMirror-selectednode:after {
-    content: "";
-    position: absolute;
-    left: -32px;
-    right: -2px; top: -2px; bottom: -2px;
-    border: 2px solid #8cf;
-    pointer-events: none;
-  }
-  
+
+.ProseMirror {
+word-wrap: break-word;
+white-space: pre-wrap;
+-webkit-font-variant-ligatures: none;
+font-variant-ligatures: none;
+}
+
+.ProseMirror pre {
+white-space: pre-wrap;
+}
+
+.ProseMirror li {
+position: relative;
+}
+
+.ProseMirror-hideselection *::selection { background: transparent; }
+.ProseMirror-hideselection *::-moz-selection { background: transparent; }
+.ProseMirror-hideselection { caret-color: transparent; }
+
+.ProseMirror-selectednode {
+outline: 2px solid #8cf;
+}
+
+/* Make sure li selections wrap around markers */
+
+li.ProseMirror-selectednode {
+outline: none;
+}
+
+li.ProseMirror-selectednode:after {
+content: "";
+position: absolute;
+left: -32px;
+right: -2px; top: -2px; bottom: -2px;
+border: 2px solid #8cf;
+pointer-events: none;
+}
+
 .ProseMirror .CodeMirror.cm-s-jupyter {
-      margin: 1.5em 2.5em;
-  }
-/* 
-  .selected-math {
-      background: grey;
-  } */
+    margin: 1.5em 2.5em;
+}

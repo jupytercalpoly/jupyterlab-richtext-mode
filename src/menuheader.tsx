@@ -6,7 +6,7 @@ export default function MenuHeader(props: any) {
             <div onClick={props.handleClick}>
                 <p 
                 className="editor-menuLabel backToMenu" 
-                style={{padding: "12px 0px 5px 12px", borderBottom: "1px solid #E0E0E0"}}
+                style={{padding: "12px 0px 5px 12px", borderBottom: "1px solid var(--jp-border-color2)"}}
                 >{props.name}</p>
                 
                 
@@ -18,7 +18,7 @@ export default function MenuHeader(props: any) {
             <div>
                 <p 
                 className="editor-menuLabel" 
-                style={{padding: "12px 0px 5px 12px", borderBottom: "1px solid #E0E0E0"}}
+                style={{padding: "12px 0px 5px 12px", borderBottom: "1px solid var(--jp-border-color2)"}}
                 >{props.name}</p>
                 
             </div>

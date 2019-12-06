@@ -28,12 +28,18 @@ export default class HeadingMenuItem extends React.Component<{level: number, act
     render() {
         if (this.props.activeLevel === this.props.level) {
             return (
-                <div className="jp-scribe-heading-menu-active">
+                <div style={{display: "flex", borderBottom: "1px solid var(--jp-border-color2)"}}>
+                    <div style={{display: "flex", alignItems: "center", justifyContent: "center", paddingLeft: "10px"}}>
+                        <img 
+                        src={require("../static/scribe-check.png")} 
+                        style={{height: "18px", width: "18px"}}
+                        alt=""/>
+                    </div>
                     <p 
                     id={`heading${this.props.level}`} 
                     className={`jp-scribe-menu-heading${this.props.level}`} 
-                    style={{padding: "10px 6px", borderBottom: "1px solid #E0E0E0"}}
-                    ><i className="material-icons check-icon" style={{fontSize: "14px"}}>check</i>{this.getLevelText()}</p>
+                    style={{padding: "10px 7px"}}
+                    >{this.getLevelText()}</p>
                     
                 </div>
             )
@@ -44,7 +50,7 @@ export default class HeadingMenuItem extends React.Component<{level: number, act
                     <p 
                     id={`heading${this.props.level}`} 
                     className={`jp-scribe-menu-heading${this.props.level}`} 
-                    style={{padding: "10px 25px", borderBottom: "1px solid #E0E0E0"}}
+                    style={{padding: "10px 35px", borderBottom: "1px solid var(--jp-border-color2)"}}
                     onClick={this.props.handleClick}>{this.getLevelText()}</p>
                     
                 </div>
