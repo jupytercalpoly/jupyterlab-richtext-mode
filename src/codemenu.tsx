@@ -7,7 +7,8 @@ import { HoverBox } from "@jupyterlab/apputils";
 import FuzzySet  from "fuzzyset";
 import modes from "./modes";
 export class CodeMenu extends React.Component<{handleInlineCode: (e: React.SyntheticEvent) => void,
-                                                handleBlockCode: (e: React.SyntheticEvent, language: string) => void,
+                                                handleBlockCode: (e: React.SyntheticEvent, language: string) => void
+                                                returnToExperimental: (e: React.SyntheticEvent) => void,
                                                 cancel: (e: React.SyntheticEvent) => void,
                                                 languageWidget: Widget
                                             },
@@ -66,7 +67,10 @@ export class CodeMenu extends React.Component<{handleInlineCode: (e: React.Synth
         if (!this.state.isBlockOption) {
             return (
                 <div className="editor-menu">  
-                    <MenuHeader name="code" />
+                    <MenuHeader 
+                    name="code"
+                    canClick={true}
+                    handleClick={this.props.returnToExperimental} />
                     <div className="jp-scribe-menu-content">
                         <p className="linkToImage" onClick={this.props.handleInlineCode}>Inline code</p>
                         <p className="linkToImage" onClick={() => {this.setState({isBlockOption: true})}}>Code block</p>

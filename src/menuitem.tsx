@@ -81,6 +81,8 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 return require("../static/scribe-format-photo.png");
             case "stick":
                 return require("../static/scribe-stick.png");
+            case "experimental":
+                return require("../static/scribe-experimental-icon.png");
             default:
                 break;
         }
@@ -144,7 +146,6 @@ export default class MenuItem extends React.Component<{format: string, active: b
      * Renders the menu item component.
      */
     render() {
-        console.log(this.getImgSrc());
         if (this.props.cancelled) {
             return (
                 <img 

@@ -17,7 +17,7 @@ import {baseKeymap} from "prosemirror-commands";
 import {buildKeymap} from "./prosemirror-scripts";
 import { schema, schema_markdown } from "./prosemirror-schema";
 import { CodeBlockView, CodeBlockMarkdownView, InlineMathView, BlockMathView, ImageView } from "./nodeviews";
-import { createInputRules } from "./inputrules";
+import { createInputRules, createMathInputRules } from "./inputrules";
 import { inputRules } from "prosemirror-inputrules";
 // import { Node } from "prosemirror-model";
 // import markdownit from "markdown-it/lib";
@@ -156,7 +156,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
           plugins: [
             keymap(buildKeymap(schema)),
             keymap(baseKeymap),
-            inputRules({rules: createInputRules()}),
+            inputRules({rules: createInputRules().concat(createMathInputRules())}),
             // testPlugin
         ]
         }),
@@ -531,7 +531,7 @@ namespace Private {
                 plugins: [
                     keymap(buildKeymap(schema)),
                     keymap(baseKeymap),
-                    inputRules({rules: createInputRules()}),
+                    inputRules({rules: createInputRules().concat(createMathInputRules())}),
                     // testPlugin
                 ]
             }),
