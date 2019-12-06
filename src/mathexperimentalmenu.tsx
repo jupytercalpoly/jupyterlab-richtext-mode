@@ -10,18 +10,17 @@ export function MathExperimentalMenu(props: any)
         canClick={true}
         handleClick={props.returnToExperimental}
         />
-        <div style={{padding: "10px 25px"}}>
-            <p>Auto-render LaTeX in Markdown cells</p>
-    
+        <div style={{padding: "10px 25px", borderBottom: "1px solid var(--jp-border-color2)"}}>
+            <p>Auto-render LaTeX <br />in Markdown cells</p>
         </div>
         <div className={!props.enabled ? "jp-scribe-heading-menu-no-click" : "jp-scribe-heading-menu"}>
             <p 
-            style={{padding: "10px 25px", borderBottom: "1px solid #E0E0E0"}}
+            style={{padding: "10px 25px", borderBottom: "1px solid var(--jp-border-color2)"}}
             onClick={props.enabled ? props.handleClick : () => null}>Disable</p>
         </div>
         <div className={props.enabled ? "jp-scribe-heading-menu-no-click" : "jp-scribe-heading-menu"}>
             <p 
-            style={{padding: "10px 25px", borderBottom: "1px solid #E0E0E0"}}
+            style={{padding: "10px 25px", borderBottom: "1px solid var(--jp-border-color2)"}}
             onClick={!props.enabled ? props.handleClick : () => null}>Enable</p>
         </div>
       </div>  

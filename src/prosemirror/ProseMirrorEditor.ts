@@ -114,7 +114,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
             ]
         }),
         nodeViews: {
-          code_block(node, view, getPos) { return new CodeBlockMarkdownView(node, view, getPos)},
+          code_block(node, view, getPos) { return new CodeBlockMarkdownView(node, view, (getPos as () => number))},
   
         },
         handleDOMEvents: {
@@ -161,10 +161,10 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
         ]
         }),
         nodeViews: {
-          code_block(node, view, getPos) { return new CodeBlockView(node, view, getPos)},
-          inline_math(node, view, getPos) { return new InlineMathView(node, view, getPos)},
+          code_block(node, view, getPos) { return new CodeBlockView(node, view, (getPos as () => number))},
+          inline_math(node, view, getPos) { return new InlineMathView(node, view, (getPos as () => number))},
           image(node) {return new ImageView(node)},
-          block_math(node, view, getPos) { return new BlockMathView(node, view, getPos)}
+          block_math(node, view, getPos) { return new BlockMathView(node, view, (getPos as () => number))}
         },
         handleDOMEvents: {
           copy: (view: EditorView, event: Event): boolean => {
@@ -455,7 +455,7 @@ namespace Private {
           ]
       }),
       nodeViews: {
-        code_block(node, view, getPos) { return new CodeBlockMarkdownView(node, view, getPos)},
+        code_block(node, view, getPos) { return new CodeBlockMarkdownView(node, view, (getPos as () => number))},
 
       },
       handleDOMEvents: {
@@ -536,10 +536,10 @@ namespace Private {
                 ]
             }),
             nodeViews: {
-              code_block(node, view, getPos) { return new CodeBlockView(node, view, getPos)},
-              inline_math(node, view, getPos) { return new InlineMathView(node, view, getPos)},
+              code_block(node, view, getPos) { return new CodeBlockView(node, view, (getPos as () => number))},
+              inline_math(node, view, getPos) { return new InlineMathView(node, view, (getPos as () => number))},
               image(node) {return new ImageView(node)},
-              block_math(node, view, getPos) { return new BlockMathView(node, view, getPos)}
+              block_math(node, view, getPos) { return new BlockMathView(node, view, (getPos as () => number))}
             },
             handleDOMEvents: {
               copy: (view: EditorView, event: Event): boolean => {

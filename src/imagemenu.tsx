@@ -64,13 +64,15 @@ export class ImageMenu extends React.Component<{handleImgUpload: (fileUrl: unkno
                     canClick={true}
                     handleClick={this.props.returnToExperimental} 
                     />
-                    <div className="jp-scribe-menu-content">
-                        <span className="linkToImage" onClick={this.handleLinkClick}>Link to image</span>
-                        <form>
-                            <span style={{cursor: "pointer"}} onClick={() => document.getElementById('file1').click()}>Upload image</span>
-                            <input type="file" id="file1" style={{display: "none"}} onChange={this.handleChange} />
-                        </form>
-                    </div>
+                    <p 
+                    className="submenu-item jp-scribe-heading-menu"
+                    onClick={this.handleLinkClick}>Link to image</p>
+                    <form 
+                    onClick={() => document.getElementById('file1').click()}
+                    className="submenu-item jp-scribe-heading-menu">
+                        <span>Upload image</span>
+                        <input type="file" id="file1" style={{display: "none"}} onChange={this.handleChange} />
+                    </form>
 
                 </div>
             );
@@ -84,7 +86,15 @@ export class ImageMenu extends React.Component<{handleImgUpload: (fileUrl: unkno
                     handleClick={() => this.setState({isLinkOption: false})}
                     />
                     <form onSubmit={this.handleSubmit} className="jp-scribe-menu-content">
-                        <input type="text" value={this.state.imageUrl} onChange={this.handleLinkChange} style={{display: "block"}}/>
+                        <label className="editor-menuLabel">
+                            Link
+                            <input 
+                            type="text" 
+                            style={{marginLeft: "3px"}}
+                            value={this.state.imageUrl} 
+                            onChange={this.handleLinkChange} 
+                            />
+                        </label>
                         <div className="linkButtons">
                             <button className="jp-scribe-menu-cancel jp-mod-styled" type="button" onClick={this.props.cancel}>CANCEL</button>
                             <button type="submit" className="jp-scribe-menu-apply jp-mod-styled">APPLY</button> 
