@@ -186,9 +186,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         }
         if (this.props.view)
         {
-            console.log("setting math");
             this.setMathEnabled();
-            this.addPluginForCommands();
         }
     }
 
@@ -196,10 +194,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         let enabled;
         await Promise.all([this.props.state.fetch("test-markdown:math-enabled")])
         .then(([saved])=>{
-            console.log(saved);
             if (saved === undefined)
             {
-                console.log("nothing");
                 enabled = true;
             }
             else
@@ -209,15 +205,13 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         });
         this.setState({mathEnabled: enabled});
 
-        let newPlugins = [...this.props.view.state.plugins].slice(0, 2);
+        let newPlugins = [...this.props.view.state.plugins].slice(0, 3);
         if (enabled)
         {
-            console.log("enabling math");
             newPlugins.push(inputRules({rules: createInputRules().concat(createMathInputRules())}));
         }
         else 
         {
-            console.log("wat");
             newPlugins.push(inputRules({rules: createInputRules()}));
         }
         this.props.view.updateState(this.props.view.state.reconfigure({plugins: newPlugins}));
@@ -377,16 +371,14 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
      */
     handleExperimentalMath(e: React.SyntheticEvent) {
 
-        let newPlugins = [...this.props.view.state.plugins].slice(0, 2);
+        let newPlugins = [...this.props.view.state.plugins].slice(0, 3);
         if (this.state.mathEnabled)
         {
-            console.log("no math!");
             newPlugins.push(inputRules({rules: createInputRules()}));
         }
         else 
         {
             newPlugins.push(inputRules({rules: createInputRules().concat(createMathInputRules())}));
-
         }
         Promise.all([this.props.state.save("test-markdown:math-enabled", !this.state.mathEnabled)])
         .then(([saved]) => {null});
