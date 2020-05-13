@@ -188,7 +188,8 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         {
             console.log("setting math");
             this.setMathEnabled();
-            this.addPluginForCommands();
+            // this.addPluginForCommands();
+            console.log("didn't set shit!!");
         }
     }
 
@@ -209,7 +210,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         });
         this.setState({mathEnabled: enabled});
 
-        let newPlugins = [...this.props.view.state.plugins].slice(0, 2);
+        let newPlugins = [...this.props.view.state.plugins].slice(0, 3);
         if (enabled)
         {
             console.log("enabling math");
@@ -377,16 +378,14 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
      */
     handleExperimentalMath(e: React.SyntheticEvent) {
 
-        let newPlugins = [...this.props.view.state.plugins].slice(0, 2);
+        let newPlugins = [...this.props.view.state.plugins].slice(0, 3);
         if (this.state.mathEnabled)
         {
-            console.log("no math!");
             newPlugins.push(inputRules({rules: createInputRules()}));
         }
         else 
         {
             newPlugins.push(inputRules({rules: createInputRules().concat(createMathInputRules())}));
-
         }
         Promise.all([this.props.state.save("test-markdown:math-enabled", !this.state.mathEnabled)])
         .then(([saved]) => {null});

@@ -246,7 +246,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
 
   hasFocus(): boolean {
       console.log("checking focus");
-      return this._view.hasFocus();
+      return true;
   }
 
   newIndentedLine(): void {
