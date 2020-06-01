@@ -86,7 +86,7 @@ export class LinkMenu extends React.Component<{initialText: string,
                                 </label>  
                                 <img 
                                 className="link-hover"
-                                src={require("../static/scribe-format-link-off.png")} 
+                                src={require("../static/scribe-format-link-off.png").default} 
                                 style={{height: "18px", width: "18px", marginLeft: "7px"}}
                                 onClick={this.handleClick}
                                 alt=""/>

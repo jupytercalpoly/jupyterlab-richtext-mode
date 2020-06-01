@@ -1,13 +1,10 @@
 import { Transaction, EditorState,
 Selection,
-TextSelection,
-NodeSelection,
-// NodeSelection,
-
+TextSelection
 } from "prosemirror-state";
 import { Mark, MarkType, 
     ResolvedPos,
-    Node, Schema, NodeType, Fragment
+    Node, Schema, NodeType
  } from "prosemirror-model";
 import { schema } from "./prosemirror-schema";
 import { EditorView } from "prosemirror-view";
@@ -15,15 +12,13 @@ import { splitListItem, wrapInList, liftListItem, sinkListItem } from "prosemirr
 import { chainCommands, setBlockType, 
     lift,
     wrapIn,
-    splitBlockKeepMarks
+    splitBlockKeepMarks,
+    newlineInCode,
+    createParagraphNear, 
+    liftEmptyBlock,
  } from "prosemirror-commands"; 
 
- import {canSplit} from "prosemirror-transform";
-import { undo,  } from "prosemirror-history";
-// import { parser } from "./markdown";
-
-//  import { ReplaceAroundStep } from "prosemirror-transform";
-
+import { undo } from "prosemirror-history";
 /**
  * Obtains the marks for the currently active selection.
  * 
@@ -34,16 +29,7 @@ import { undo,  } from "prosemirror-history";
  * @returns - An array of marks.
  */
 export function getMarksForSelection(state: EditorState): Mark[] {
-    // let selection = transaction.selection;
-    // let doc = transaction.doc;
-    // console.log(selection.from);
-    // if (!selection.empty) { // Non-empty selection
-    //     return selection.$from.marks();
-    // }
 
-    // else if (selection.from != 1) { // Empty selection 
-    //     return selection.$from.marks();
-    // }
     if (state.storedMarks)
     {
         return state.storedMarks;
@@ -75,35 +61,6 @@ export function getWrappingNodes(transaction: Transaction): string[] {
 
     return nodeList;
 }
-
-// /**
-//  * Obtains the marks for the closest previous non-empty node.
-//  * 
-//  * @param transaction - The state transaction generated upon interaction with the editor.
-//  * @returns - An array of marks.
-//  */
-
-// function getMarksBefore(state: EditorState) {
-//     let doc = state.doc;
-//     let selection = state.selection;
-//     // console.log(selection.from);
-//     if (state.selection.from == 1) {
-//         return null;
-//     }
-//     let from = doc.resolve(selection.from - 1);
-//     let prev = 1;
-//     // console.log(from.marksAcross(selection.$to));
-//     while (!from.marksAcross(selection.$to)) {
-//         if (from.pos === 0) {
-//             return [];
-//         }
-//         prev++;
-//         from = doc.resolve(selection.from - prev);
-//     }
-
-//     return from.marksAcross(selection.$to);
-
-// };
 
 /**
  * Toggles the given mark.
@@ -138,14 +95,11 @@ export function toggleMark(markType: MarkType, attrs?: Object) {
         if (dispatch) {
             if (state.selection.empty) {
                 let marks = getMarksForSelection(state);
-                console.log(marks);
-                console.log(state.storedMarks);
+
                 if (marks && marks.includes(mark)) {
-                    console.log(`removing stored mark ${mark}`);
                     dispatch(state.tr.removeStoredMark(mark));
                 }
                 else {
-                    console.log(`adding stored mark ${mark}`);
                     dispatch(state.tr.addStoredMark(mark));
                 }
             }
@@ -155,23 +109,12 @@ export function toggleMark(markType: MarkType, attrs?: Object) {
                 for (let i = 0; i < ranges.length; i++) {
                     let {$from, $to} = ranges[i];
                     if (canAddMark($from, $to, state.doc)) {
-                        console.log(`adding mark ${mark}`);
                         dispatch(state.tr.addMark($from.pos, $to.pos, mark).scrollIntoView());
                     }
                     else {
-                        console.log(`removing mark ${mark}`);
                         dispatch(state.tr.removeMark($from.pos, $to.pos, mark).scrollIntoView());
                     }
                 }
-                // console.log(selection);
-                // if (canAddMark($from, $to, state.doc)) {
-                //     console.log(`adding mark ${mark}`);
-                //     dispatch(state.tr.addMark(from, to, mark).scrollIntoView());
-                // }
-                // else {
-                //     console.log(`removing mark ${mark}`);
-                //     dispatch(state.tr.removeMark(from, to, mark).scrollIntoView());
-                // }
             }
         }
 
@@ -210,30 +153,12 @@ export function getTextForSelection(selection: Selection, view: EditorView) {
         if (linkMenuFields.text && linkMenuFields.link) {           
             let offset = $from.textOffset;
             let length = $from.node().child($from.index($from.depth)).nodeSize;
-            console.log(offset);
             let newSelection = new TextSelection(doc.resolve($from.pos - offset), doc.resolve($from.pos + (length - offset)));
 
             view.dispatch(view.state.tr.setSelection(newSelection));
-            console.log(view.state.selection);
             
         }
         return linkMenuFields;
-    
- 
-        // let node = doc.cut(from, to);
-        // let linkField: string;
-        // let markTypes = node.marks.map( (mark) => { return mark.type })
-        // if (markTypes.includes(schema.marks.link)) {
-        //     linkField = node.marks.find((mark) => {
-        //         return mark.type.name === "link";
-        //     }).attrs.href;
-        // }
-        // else {
-        //     linkField = "";
-        // }
-        // return {text: node.textContent, link: linkField};
-
-
 }
 
 export function getHeadingLevel(selection: Selection) {
@@ -249,15 +174,15 @@ export function getHeadingLevel(selection: Selection) {
 function createCodeBlock(state: EditorState, dispatch: (tr: Transaction) => void) {
     let {$head, $anchor, from} = state.selection;
     let marks = $head.marks().map(mark => mark.type.name);
-    if (!(marks.includes("md_code_block") || !($head.sameParent($anchor) || !($head.node().type.name === "paragraph")))) return false;
+    if (!(marks.includes("md_code_block") || (marks.includes("md_code_block") && (!($head.sameParent($anchor) || !($head.node().type.name === "paragraph"))))))
+        return false;
     
+        
     let language: string;
     let tr = state.tr;
     let offset = $head.parentOffset;
-    console.log(offset);
     if ($head.node().textBetween(offset - 1, offset) === "`") {
         language = "";
-        console.log("no language!");
     }
     else {
         let child: Node;
@@ -276,12 +201,7 @@ function createCodeBlock(state: EditorState, dispatch: (tr: Transaction) => void
         tr = tr.setSelection(TextSelection.create(tr.doc, tr.selection.from - 2, tr.selection.from - 2));
     }
     dispatch(tr);
-    // return ;
-    // if ($head.node().textBetween(offset - 1, offset) === "`") { //  Case where no language is given
 
-
-    //     return ;
-    // }
     return true;
 
 }
@@ -295,7 +215,6 @@ export function newlineInMath(state: EditorState, dispatch: (tr: Transaction) =>
 }
 
 export function renderMath(state: EditorState, dispatch: (tr: Transaction) => void) {
-    // console.log("render math!");
     let {$head, $anchor} = state.selection;
     let marks = $head.marks().map(mark => mark.type.name);
     let parent = $head.parent;
@@ -317,8 +236,7 @@ export function renderMath(state: EditorState, dispatch: (tr: Transaction) => vo
         currentIndex = childIndex - 1;
     }
     textNode = parent.child(currentIndex);
-    console.log("rendering");
-    console.log(textNode);
+
     let tr = state.tr;
     let fromPos = tr.selection.from;
     let mathText = "";
@@ -398,7 +316,6 @@ export function toggleOrderedList(state: EditorState, dispatch: (tr: Transaction
 
 export function toggleBlockquote(state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView<any>) {
     let selection = view.state.selection;
-    console.log("toggling blockquote!");
     if (findNodeParentEquals(selection.$from, schema.nodes.blockquote)) {
         lift(view.state, view.dispatch);
     }
@@ -408,49 +325,14 @@ export function toggleBlockquote(state: EditorState, dispatch: (tr: Transaction)
     return true;
 }
 
-// :: (EditorState, ?(tr: Transaction)) → bool
-// Split the parent block of the selection. If the selection is a text
-// selection, also delete its content.
-export function splitBlock(state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView<any>) {
-    let {$from, $to} = state.selection
-    if (state.selection instanceof NodeSelection && state.selection.node.isBlock) {
-      if (!$from.parentOffset || !canSplit(state.doc, $from.pos)) return false
-      if (dispatch) dispatch(state.tr.split($from.pos).scrollIntoView())
-      return true
-    }
-  
-    if (!$from.parent.isBlock) return false
-  
-    if (dispatch) {
-      let atEnd = $to.parentOffset == $to.parent.content.size
-      let tr = state.tr
-      if (state.selection instanceof TextSelection) tr.deleteSelection()
-      let deflt = $from.depth == 0 ? null : $from.node(-1).contentMatchAt($from.indexAfter(-1)).defaultType
-      let types = atEnd && deflt ? [{type: deflt}] : null
-      let can = canSplit(tr.doc, tr.mapping.map($from.pos), 1, types)
-      if (!types && !can && canSplit(tr.doc, tr.mapping.map($from.pos), 1, deflt && [{type: deflt}])) {
-        types = [{type: deflt}]
-        can = true
-      }
-      if (can) {
-        tr.split(tr.mapping.map($from.pos), 1, types)
-        if (!atEnd && !$from.parentOffset && $from.parent.type != deflt &&
-            // @ts-ignore
-            $from.node(-1).canReplace($from.index(-1), $from.indexAfter(-1), Fragment.from(deflt.create(), $from.parent)))
-          tr.setNodeMarkup(tr.mapping.map($from.before()), deflt)
-      }
-      dispatch(tr.scrollIntoView())
-    }
-    return true
-  }
 
 export function undoit(state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView<any>) {
-    console.log("trying to undo!");
     if (undo(state, dispatch)) {
-        console.log("did it");
         return true;
     }
 }
+
+
 export function buildKeymap(schema: Schema) {
 
 
@@ -465,7 +347,8 @@ export function buildKeymap(schema: Schema) {
     keys["Mod-X"] = toggleMark(schema.marks.strikethrough);
     keys["Mod-Shift-8"] = toggleBulletList;
     keys["Mod-Shift-9"] = toggleOrderedList;
-    keys["Enter"] = chainCommands(renderMath, newlineInMath, createCodeBlock, splitListItem(schema.nodes.list_item), splitBlockKeepMarks);
+    keys["Enter"] = chainCommands(renderMath, newlineInMath, createCodeBlock, splitListItem(schema.nodes.list_item), newlineInCode,
+     createParagraphNear, liftEmptyBlock, splitBlockKeepMarks);
     keys["ArrowLeft"] = arrowHandler("left");
     keys["ArrowRight"] = arrowHandler("right");
     keys["ArrowUp"] = arrowHandler("up");
@@ -486,9 +369,7 @@ export function buildKeymap(schema: Schema) {
 }
 function arrowHandler(dir: any) {
     return (state: EditorState, dispatch: (tr: Transaction) => void, view: EditorView) => {
-        console.log(`arrow key ${dir} pressed!`);
       if (state.selection.empty && view.endOfTextblock(dir)) {
-          console.log("this is at the end of a textblock");
         let side = dir == "left" || dir == "up" ? -1 : 1, $head = state.selection.$head
         let nextPos = Selection.near(state.doc.resolve(side > 0 ? $head.after() : $head.before()), side)
         if (nextPos.$head && nextPos.$head.parent.type.name == "code_block") {
@@ -499,7 +380,6 @@ function arrowHandler(dir: any) {
 
     //   Checks to see if at beginning or end.
       if (view.endOfTextblock(dir)) {
-          console.log("yes");
         let commands = state.plugins[state.plugins.length - 1].getState(state);
         if (dir == "up" && state.selection.from == 1) {
             commands.execute("notebook:move-cursor-up");
@@ -517,7 +397,6 @@ function arrowHandler(dir: any) {
             }
         }
       }
-      console.log(`arrow ${dir} not handled`);
       view.focus();
       return false
     }
@@ -525,18 +404,14 @@ function arrowHandler(dir: any) {
 
 export function findNodeParentEquals(pos: ResolvedPos, node: NodeType) {
     let depth = pos.depth;
-    // console.log(depth);
     for (let i = depth; i >= 1; i--) {
-        // console.log(pos.node(depth));
         if (pos.node(i).type === node) {
             console.log("foundit");
             return true;
         }
     }
-    // console.log("couldntfindit:(");
     return false;
 }
-
 
 interface KeyObject {
     [key: string]: (state: EditorState, dispatch: (tr: Transaction) => void, view?: EditorView) => boolean;

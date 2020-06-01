@@ -31,7 +31,7 @@ export default class HeadingMenuItem extends React.Component<{level: number, act
                 <div style={{display: "flex", borderBottom: "1px solid var(--jp-border-color2)"}}>
                     <div style={{display: "flex", alignItems: "center", justifyContent: "center", paddingLeft: "10px"}}>
                         <img 
-                        src={require("../static/scribe-check.png")} 
+                        src={require("../static/scribe-check.png").default} 
                         style={{height: "18px", width: "18px"}}
                         alt=""/>
                     </div>

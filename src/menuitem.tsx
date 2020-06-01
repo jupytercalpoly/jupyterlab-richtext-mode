@@ -153,7 +153,7 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
                     <img 
                     id={this.props.format} 
-                    src={this.getImgSrc()}
+                    src={this.getImgSrc().default}
                     title={this.props.tooltip}
                     style={{height: "18px", width: "18px"}}
                      />
@@ -167,9 +167,10 @@ export default class MenuItem extends React.Component<{format: string, active: b
                 style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
                     <img 
                     id={this.props.format} 
-                    src={this.getImgSrc()}
+                    src={this.getImgSrc().default}
                     title={this.props.tooltip}
                     style={{height: "18px", width: "18px"}}
+                    className="jp-Icon"
                     onClick={this.props.format !== "stick" ? this.props.handleClick : () => null} />
                 </div>
 
