@@ -20,24 +20,18 @@ import { LinkMenu } from "./linkmenu";
 import { ImageMenu } from "./imagemenu";
 import { HeadingMenu } from "./headingmenu";
 import { CodeMenu } from "./codemenu";
-import { Widget } from '@phosphor/widgets';
+import { Widget } from '@lumino/widgets';
 import ReactDOM from "react-dom";
 import { schema } from "./prosemirror/prosemirror-schema";
 import { ICellModel } from '@jupyterlab/cells';
-import { CommandRegistry } from '@phosphor/commands';
+import { CommandRegistry } from '@lumino/commands';
 
-// import { PageConfig } from "@jupyterlab/coreutils";
-// import { MenuWidgetObject } from './widget';
-// import { Menu } from '@phosphor/widgets';
-// import { Schema } from 'prosemirror-model';
-// import { keymap } from 'prosemirror-keymap';
-// import { runInThisContext } from 'vm';
 import ExperimentalMenu from './experimentalmenu';
 import { ListExperimentalMenu } from './listexperimentalmenu';
 import { MathExperimentalMenu } from './mathexperimentalmenu';
 import { inputRules } from 'prosemirror-inputrules';
 import { createInputRules, createMathInputRules } from './prosemirror/inputrules';
-import { IStateDB } from '@jupyterlab/coreutils';
+import { IStateDB } from '@jupyterlab/statedb';
 
 /**
  * A React component for the menu for the rich text editor.
@@ -131,30 +125,15 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                         let serializer = Markdown.serializer;
                         let source = serializer.serialize(transaction.doc);
                         let activeWrapNodes = [];
-                        // let doc = this.state.doc;
-                        // console.log(transaction.selection);
+
                         if (transaction.selectionSet) {
                             if (that.state.widgetAttached && that.state.widgetAttached.isAttached) {
                                 Widget.detach(that.state.widgetAttached);
                                 that.setState({widgetAttached: null});
                             }
                         }
-                        // console.log(this.state.storedMarks);
-                        // console.log(transaction.selection);
-                        // console.log(transaction.selection.from);
-                        // console.log(transaction.selection.$from.blockRange().parent);
-    
-                        // // console.log(source);
-                        // // let { $from } = transaction.selection;
-                        // // console.log($from.node());
-                        // // if ($from.node().child($from.index(1)).type.name === "image") {
-                        // //     console.log("issa image");
-                        // //     transaction = transaction.setSelection(new TextSelection(doc.resolve($from.pos + 1)));
-                        // // }
         
                         that.props.model.value.text = source;
-                        // console.log(transaction.selection);
-                        console.log(transaction.doc);
     
                         activeWrapNodes = scripts.getWrappingNodes(transaction);
                         that.setState({activeWrapNodes});
@@ -194,18 +173,22 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         let enabled;
         await Promise.all([this.props.state.fetch("test-markdown:math-enabled")])
         .then(([saved])=>{
+            console.log("checking math again!");
+            console.log(saved);
             if (saved === undefined)
             {
                 enabled = true;
             }
             else
             {
-                enabled = saved;
+                enabled = saved === "y";
             }
         });
+
         this.setState({mathEnabled: enabled});
 
         let newPlugins = [...this.props.view.state.plugins].slice(0, 3);
+        console.log(enabled);
         if (enabled)
         {
             newPlugins.push(inputRules({rules: createInputRules().concat(createMathInputRules())}));
@@ -246,7 +229,6 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
     handleImgUpload(fileUrl: unknown, e: React.SyntheticEvent) {
         e.preventDefault();
         let view = this.props.view;
-        console.log(fileUrl);
         view.focus();
         view.dispatch(view.state.tr.replaceWith(view.state.selection.from, view.state.selection.to, schema.nodes.image.create({src: fileUrl})));
     }
@@ -256,7 +238,6 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         let schema = view.state.schema;
         let { $from, from, to } = view.state.selection;
         view.focus();
-        console.log(view.state.selection);
         if (initialText !== text) {
             
             // let { from, to } = newSelection;
@@ -265,9 +246,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
             tr.setSelection(TextSelection.create(tr.doc, $from.pos, $from.pos + text.length));
             tr.addMark(tr.selection.from, tr.selection.to, schema.marks.link.create({href: link, title: link}));
             view.dispatch(tr);
-                    // view.dispatch(view.state.tr.setSelection(newSelection));
-            // view.dispatch(view.state.tr.addMark(from, to, schema.marks.link.create({href: link, title: link})));
-            console.log(view.state.selection);
+
         }
         else {
             view.dispatch(view.state.tr.addMark(from, to, schema.marks.link.create({href: link, title: link})));
@@ -334,10 +313,7 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         e.preventDefault();
         this.props.view.focus();
         const command = (e.target as HTMLImageElement).id;
-        console.log(command);
-        console.log("in it");
-        // console.log(command);
-        // console.log(e.target);
+
         this.toggleCommand(command, e);
         this.toggleState(command);
         
@@ -380,12 +356,17 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
         {
             newPlugins.push(inputRules({rules: createInputRules().concat(createMathInputRules())}));
         }
-        Promise.all([this.props.state.save("test-markdown:math-enabled", !this.state.mathEnabled)])
-        .then(([saved]) => {null});
-        Widget.detach(this.state.widgetAttached);
-        this.setState({mathEnabled: !this.state.mathEnabled, widgetAttached: null});
-        this.props.view.updateState(this.props.view.state.reconfigure({plugins: newPlugins}));
-        console.log(this.props.view.state.plugins);
+        console.log("setting math");
+        console.log(!this.state.mathEnabled);
+        Promise.all([this.props.state.save("test-markdown:math-enabled", !this.state.mathEnabled ? "y" : "n")])
+        .then((saved) => {
+            console.log(saved);
+            Widget.detach(this.state.widgetAttached);
+            this.setState({mathEnabled: !this.state.mathEnabled, widgetAttached: null});
+            this.props.view.updateState(this.props.view.state.reconfigure({plugins: newPlugins}));
+
+        });
+        
     }
     /**
      * Toggles the mark that is selected via button click or keybinding.
@@ -396,7 +377,6 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
     toggleCommand(command: string, e: React.SyntheticEvent) {
         const view = this.props.view;
         const schema = view.state.schema;
-        // let selection = view.state.selection;
         switch (command) {
             case "strong":
                 scripts.toggleMark(schema.marks.strong)(view.state, view.dispatch);
@@ -432,11 +412,9 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 scripts.toggleOrderedList(view.state, view.dispatch, view);
                 break;
             case "experimental":
-                console.log("experimental");
                 this.formatMenu(e);
                 break;
             case "list_experimental":
-                console.log("list experimental");
                 this.formatMenu(e);
                 break;
             case "math_experimental":
@@ -506,7 +484,6 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
 
         switch (target.id) {
             case "link":
-                console.log("link widget");
                 let { text, link } = scripts.getTextForSelection(this.props.view.state.selection, 
                     this.props.view);
                 ReactDOM.render(<LinkMenu 
@@ -520,7 +497,6 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 widget = this.props.linkMenuWidget;
                 break;
             case "heading":
-                console.log("heading widget");
                 let activeLevel = scripts.getHeadingLevel(this.props.view.state.selection);
                 ReactDOM.render(<HeadingMenu 
                                 handleClick={this.handleHeadingClick} 
@@ -528,7 +504,6 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 widget = this.props.headingMenuWidget;
                 break;
             case "code":
-                console.log("code widget");
                 ReactDOM.render(<CodeMenu 
                                 handleInlineCode={this.handleInlineCode} 
                                 handleBlockCode={this.handleBlockCode} 
@@ -539,7 +514,6 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 widget = this.props.codeMenuWidget;
                 break;
             case "image":
-                console.log("image widget");
                 ReactDOM.render(<ImageMenu 
                                 handleImgUpload={this.handleImgUpload} 
                                 handleSubmitImgLink={this.handleSubmitImgLink} 
@@ -550,7 +524,6 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 widget = this.props.imageMenuWidget;
                 break;
             case "experimental":
-                console.log("experimental widget");
                 ReactDOM.render(<ExperimentalMenu
                                 handleClick={this.handleExperimentalClick} 
                                 features={this.state.experimentalFeatures}
@@ -558,7 +531,6 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 widget = this.props.experimentalMenuWidget;
                 break;
             case "list_experimental":
-                console.log("list experimental widget");
                 let formats = ["bullet_list", "ordered_list"];
                 ReactDOM.render(<ListExperimentalMenu
                                 formats={formats}
@@ -568,7 +540,6 @@ export default class RichTextMenu extends React.Component<{view: EditorView,
                 widget = this.props.listExperimentalMenuWidget;
                 break;
             default:
-                console.log("math experimental widget");
                 ReactDOM.render(<MathExperimentalMenu
                                 enabled={this.state.mathEnabled}
                                 handleClick={this.handleExperimentalMath}

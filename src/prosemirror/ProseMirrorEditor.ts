@@ -1,8 +1,8 @@
 import { CodeEditor } from "@jupyterlab/codeeditor";
-import { Signal } from "@phosphor/signaling";
-import { UUID } from "@phosphor/coreutils";
-import { IDisposable, DisposableDelegate } from "@phosphor/disposable";
-import { ArrayExt } from '@phosphor/algorithm';
+import { Signal } from "@lumino/signaling";
+import { UUID } from "@lumino/coreutils";
+import { IDisposable, DisposableDelegate } from "@lumino/disposable";
+import { ArrayExt } from '@lumino/algorithm';
 import { EditorState, 
 
  } from "prosemirror-state";
@@ -12,18 +12,15 @@ import {keymap} from "prosemirror-keymap";
 import {baseKeymap} from "prosemirror-commands";
 import {buildKeymap} from "./prosemirror-scripts";
 import { schema } from "./prosemirror-schema";
-// import { CodeBlockView, CodeBlockMarkdownView, InlineMathView, BlockMathView, ImageView } from "./nodeviews";
 import { CodeBlockView, InlineMathView, BlockMathView, ImageView } from "./nodeviews";
 import { createInputRules, createMathInputRules } from "./inputrules";
 import { inputRules } from "prosemirror-inputrules";
-// import { Node } from "prosemirror-model";
-// import markdownit from "markdown-it/lib";
 
 import { IMarkdownCellModel } from "@jupyterlab/cells";
-import { history, undo, redo, 
-  // undo, redo 
-} 
-  from "prosemirror-history";
+import { 
+  history, undo, redo, 
+} from "prosemirror-history";
+
 /**
  * The height of a line in the editor.
  */
@@ -175,19 +172,7 @@ export class ProseMirrorEditor implements CodeEditor.IEditor {
    * not be called directly by user code.
    */
   handleEvent(event: Event): void {
-    // switch (event.type) {
-    //   case 'focus':
-    //     this._evtFocus(event as FocusEvent);
-    //     break;
-    //   case 'blur':
-    //     this._evtBlur(event as FocusEvent);
-    //     break;
-    //   case 'scroll':
-    //     this._evtScroll();
-    //     break;
-    //   default:
-    //     break;
-    // }
+
   }
 
 
@@ -354,47 +339,10 @@ namespace Private {
   export function createEditor(
         host: HTMLElement,
         model: CodeEditor.IModel
-        // config: Partial<ProseMirrorEditor.IConfig>
     ): EditorView<any> {
-        // let {
-        //     fontFamily,
-        //     fontSize,
-        //     lineHeight,
-        //     lineNumbers,
-        //     lineWrap,
-        //     readOnly,
-        //     tabSize,
-        //     insertSpaces,
-        //     matchBrackets,
-        //     autoClosingBrackets,
-        //     wordWrapColumn, 
-        //     rulers,
-        //     codeFolding
-        // } = config;
-        let initValue = model.value.text;
-        
-        // console.log(markdownit({html: true}).parse("<ins>asd</ins>", {}));
-        // let md = require('markdown-it')().use(require('markdown-it-mathjax')());
-        // console.log(md.render('$1 *2* 3$'));
-        // console.log(md.parse('$asd$ $$asd$$', {}));
-        // console.log(markdownit().use(require("markdown-it-mathjax")).parse("$asd$", {}));
-        // console.log(markdownit().use(require("markdown-it-mathjax")).render('$asd$'));
-        // let testPlugin = new Plugin({
-        //   props: {
-        //     decorations(state: EditorState) {
-        //       const selection = state.selection;
-        //       const decorations: Decoration[] = [];
-        //       state.doc.nodesBetween(selection.from, selection.to, (node: Node, pos: number, parent: Node, index: number) => {
-        //         if (node.type.name === "inline_math" || node.type.name === "block_math") {
-        //           console.log("we boutta decorate this math");
-        //           decorations.push(Decoration.node(pos, pos + node.nodeSize, {class: 'selected-math'}));
 
-        //         }
-        //       })
-        //       return DecorationSet.create(state.doc, decorations);
-        //     }
-        //   }
-        // });
+        let initValue = model.value.text;
+
         let view = new EditorView(host, {
             state: EditorState.create({
                 doc: Markdown.parser.parse(
@@ -405,7 +353,6 @@ namespace Private {
                     keymap(buildKeymap(schema)),
                     keymap(baseKeymap),
                     inputRules({rules: createInputRules().concat(createMathInputRules())}),
-                    // testPlugin
                 ]
             }),
             nodeViews: {
@@ -416,48 +363,15 @@ namespace Private {
             },
             handleDOMEvents: {
               copy: (view: EditorView, event: Event): boolean => {
-                  // event.preventDefault();
                   view.focus();
                   console.log(view.state.selection.$from.node());
                   document.execCommand("copy");
-                  // view.dom.dispatchEvent(new ClipboardEvent("copy"));
                   return true;
               },
-              // keydown: (view: EditorView, event: Event): boolean => {
-              //   if ((event as KeyboardEvent).metaKey) {
-              //     let key = (event as KeyboardEvent).key;
-              //     switch (key) {
-              //       case "z":
-              //         undo(view.state, view.dispatch);
-              //         event.preventDefault();
-              //         break;
-              //       case "y":
-              //         redo(view.state, view.dispatch);
-              //         event.preventDefault();
-              //         break;
-              //     }
-              //   }
-              //   return true;
-              // }
+
             }
-            
-            // dispatchTransaction(transaction: Transaction) {
-            //     console.log(transaction);
-            //     // model.value.insert(0, "ayy lmao");
-            //     // console.log(model.value.text);
-            //     let serializer = Markdown.serializer;
 
-            //     const source = serializer.serialize(
-            //         transaction.doc
-            //     );
-            //     console.log(source);
-
-            //     model.value.text = source;
-            //     view.updateState(view.state.apply(transaction));
-                
-            // }
         });
-        console.log(view.state.schema);
         return view;
     }
 }

@@ -5,30 +5,30 @@ import {
 import '../style/index.css';
 import { INotebookTracker, 
   NotebookPanel,
-  //  NotebookActions, 
-  //  NotebookPanel 
+
   } from '@jupyterlab/notebook';
-// import ProseMirrorEditor from './ProsemirrorWidget';
-// import { ProseMirrorEditor } from './prosemirror/ProseMirrorEditor';
+
 import { MarkdownCell } from '@jupyterlab/cells';
-// import {
-//   // Panel,
-//   PanelLayout
-// } from '@phosphor/widgets';
+
 import ContentFactoryEditor from './factory';
 
 import { ProsemirrorWidget} from './widget';
-import { CommandRegistry } from '@phosphor/commands';
-import { ContextMenu, Menu } from '@phosphor/widgets';
-import { IStateDB } from '@jupyterlab/coreutils';
-// import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
-// import { PageConfig } from "@jupyterlab/coreutils";
+import { CommandRegistry } from '@lumino/commands';
+import { ContextMenu, Menu } from '@lumino/widgets';
+import { IStateDB } from '@jupyterlab/statedb';
 
 
-//@ts-ignore
-function activateMarkdownTest(app: JupyterFrontEnd, nbTracker: INotebookTracker, state: IStateDB) {
+
+function activateRichTextEditor(app: JupyterFrontEnd, nbTracker: INotebookTracker, state: IStateDB) {
   let prosemirrorWidget = new ProsemirrorWidget(app.commands);
-  
+  Promise.all([state.fetch("test-markdown:math-enabled"), app.restored])
+        .then(([saved])=>{
+
+            console.log("checking math!");
+            console.log(saved);
+
+        });
+
   addKeybindings(app.commands, nbTracker, prosemirrorWidget, state);
   addContextMenuItems(app.contextMenu, app.commands);
   nbTracker.currentChanged.connect(() => {
@@ -110,21 +110,10 @@ function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, 
     label: "Copy Content",
     execute: () => {
       let currentEditor = document.querySelector(".jp-mod-active .ProseMirror");
-      // currentEditor.addEventListener("copy", (e: Event) => {
-      //   console.log("!!!");
-      //   console.log(e.target);
-      // }, true);
+
       console.log(currentEditor.dispatchEvent(new ClipboardEvent("copy")));
     }
   })
-
-  // commands.addCommand("prosemirror-strikethrough", {
-  //   execute: () => {
-  //     let currentEditor = document.querySelector(".ProseMirror-focused");
-  //     currentEditor.dispatchEvent(new KeyboardEvent("keydown", {metaKey: true, shiftKey: true, key: "k"}));
-  //     console.log("strikethrough!")
-  //   }
-  // })
 
   commands.addKeyBinding({
     command: "prosemirror-bold",
@@ -151,17 +140,11 @@ function addKeybindings(commands: CommandRegistry, nbTracker: INotebookTracker, 
     selector: ".ProseMirror-focused"
   });
 
-  // commands.addKeyBinding({
-  //   command: "prosemirror-strikethrough",
-  //   keys: ['Cmd Shift K'],
-  //   selector: '.ProseMirror-focused'
-  // })
 }
 /**
  * Overrides the NotebookPanel content factory to replace Markdown editor with ProseMirror editor.
  * @param app - Application front end.
  */
-//@ts-ignore
 function overrideContentFactory(app: JupyterFrontEnd) {
   console.log("rich-text-mode:add-editor activated!");
   return new ContentFactoryEditor();
@@ -170,11 +153,11 @@ function overrideContentFactory(app: JupyterFrontEnd) {
 /**
  * Initialization data for the rich-text-editor extension.
  */
-const markdownTest: JupyterFrontEndPlugin<void> = {
-  id: 'test-markdown',
+const richTextEditor: JupyterFrontEndPlugin<void> = {
+  id: 'rich-text-mode',
   autoStart: true,
   requires: [INotebookTracker, IStateDB],
-  activate: activateMarkdownTest
+  activate: activateRichTextEditor
 };
 
 const addEditorExtension: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> = {
@@ -186,5 +169,5 @@ const addEditorExtension: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> =
 
 
 export default [
-  markdownTest, 
+  richTextEditor, 
   addEditorExtension];

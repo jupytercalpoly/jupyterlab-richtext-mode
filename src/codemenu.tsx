@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from "react-dom";
 import MenuHeader from "./menuheader";
-import { Widget } from "@phosphor/widgets";
+import { Widget } from "@lumino/widgets";
 import { CodeLanguageMenuItem } from "./languagemenuitem";
 import { HoverBox } from "@jupyterlab/apputils";
 import FuzzySet  from "fuzzyset";

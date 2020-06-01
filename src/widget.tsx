@@ -1,17 +1,17 @@
-import { Widget } from "@phosphor/widgets";
+import { Widget } from "@lumino/widgets";
 import { Cell } from "@jupyterlab/cells";
 import React from 'react';
 import ReactDOM from 'react-dom';
 import RichTextMenu from "./RichTextMenu";
 // import { ProseMirrorEditor } from "./prosemirror/ProseMirrorEditor";
-import { CommandRegistry } from "@phosphor/commands";
+import { CommandRegistry } from "@lumino/commands";
 // import * as menu_scripts from "./headingmenu";
 // import { ReactWidget } from "@jupyterlab/apputils";
 
 import { EditorView } from "prosemirror-view";
 
 import { ProseMirrorEditor } from "./prosemirror/ProseMirrorEditor";
-import { IStateDB } from '@jupyterlab/coreutils';
+import { IStateDB } from '@jupyterlab/statedb';
 
 // import { MathJaxTypesetter } from "@jupyterlab/mathjax2";
 
