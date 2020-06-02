@@ -21,6 +21,7 @@ import { IStateDB } from '@jupyterlab/statedb';
 
 function activateRichTextEditor(app: JupyterFrontEnd, nbTracker: INotebookTracker, state: IStateDB) {
   let prosemirrorWidget = new ProsemirrorWidget(app.commands);
+  console.log("test");
   Promise.all([state.fetch("test-markdown:math-enabled"), app.restored])
         .then(([saved])=>{
 
