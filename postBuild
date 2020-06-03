@@ -1,5 +1,3 @@
-npm install
-npm run build
-jupyter labextension link .
-jlpm build
-jupyter lab build
+npm install   # install npm package dependencies
+npm run build  # optional build step if using TypeScript, babel, etc.
+jupyter labextension install  # install the current directory as an extension
