@@ -52,7 +52,7 @@
     "@types/react-dom": "~16.9.4",
     "codemirror": "5.47.0",
     "fuzzyset": "0.0.4",
-    "markdown-it": "^9.0.1",
+    "markdown-it": "^12.3.2",
     "markdown-it-ins": "^2.0.0",
     "markdown-it-mathjax": "^2.0.0",
     "material-design-icons-iconfont": "^5.0.1",
